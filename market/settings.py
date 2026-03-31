@@ -21,13 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-g0_x5e^3!3x#*_jp93+v)-!0opyq=5zje(1=ki*!($axyok#zm'
+SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 #ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.18.8']
+ALLOWED_HOSTS = [
+    "teddungalmarket-production.up.railway.app",
+    "127.0.0.1",
+    "localhost"
+]
 
 # Application definition
 #supermarcher
@@ -74,12 +78,16 @@ MIDDLEWARE += [
 ]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-CORS_ALLOWED_ORIGINS = [
+"""CORS_ALLOWED_ORIGINS = [
     "http://localhost:59132",
     "http://127.0.0.1:59132",
+]"""
+
+CORS_ALLOWED_ORIGINS = [
+    "https://teddungalmarket-production.up.railway.app",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
 ROOT_URLCONF = 'market.urls'
 
@@ -104,7 +112,7 @@ WSGI_APPLICATION = 'market.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -115,7 +123,13 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+"""
 
+import dj_database_url
+
+DATABASES = {
+    'default': dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -144,16 +158,16 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-INSTALLED_APPS += ["channels"]
+#INSTALLED_APPS += ["channels"]
 
 ASGI_APPLICATION = "market.asgi.application"
 
 # Dev simple : InMemoryChannelLayer
-CHANNEL_LAYERS = {
+"""CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
-}
+}"""
 
 #CHANNEL_LAYERS = {
     #"default": {
@@ -164,12 +178,16 @@ CHANNEL_LAYERS = {
     #},
 #}
 
-STATICFILES_DIRS = [
+"""STATICFILES_DIRS = [
     BASE_DIR / "static",
-]
+]"""
+
+STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
 #USE_X_FORWARDED_HOST = True
 #SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -191,7 +209,16 @@ AUTH_USER_MODEL = 'supermarcher.Utilisateur'
 
 STATIC_URL = '/static/'
 LOGIN_URL = '/connexion/' 
-LOGIN_REDIRECT_URL = '' 
+LOGIN_REDIRECT_URL = '/' 
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+SECURE_SSL_REDIRECT = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://teddungalmarket-production.up.railway.app",
+]
