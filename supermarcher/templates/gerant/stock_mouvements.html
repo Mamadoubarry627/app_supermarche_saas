@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}
+Mouvements du stock - {{ magasin.nom }}
+{% endblock %}
+
+{% block header %}
+Mouvements du stock
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col space-y-4">
+
+    <!-- FILTRES -->
+    <div class="card p-6 rounded-xl shadow-sm">
+        <form method="get" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 items-end">
+
+            <!-- Recherche -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium label">Recherche</label>
+                <input type="text" name="search" value="{{ filters.search }}" 
+                       placeholder="Produit, référence, utilisateur..."
+                       class="px-4 py-2 border rounded-lg label">
+            </div>
+
+            <!-- Type -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium label">Type</label>
+                <select name="type"
+                        class="px-4 py-2 border rounded-lg label">
+                    <option value="">Tous</option>
+                    <option value="ENTREE" {% if filters.type == 'ENTREE' %}selected{% endif %}>Entrée</option>
+                    <option value="SORTIE" {% if filters.type == 'SORTIE' %}selected{% endif %}>Sortie</option>
+                    <option value="AJUSTEMENT" {% if filters.type == 'AJUSTEMENT' %}selected{% endif %}>Ajustement</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col">
+<label class="text-sm font-medium label">
+Période
+</label>
+
+<select name="periode"
+class="px-4 py-2 border rounded-lg label">
+
+<option value="">Toutes</option>
+
+<option value="today"
+{% if filters.periode == "today" %}selected{% endif %}>
+Aujourd'hui
+</option>
+
+<option value="yesterday"
+{% if filters.periode == "yesterday" %}selected{% endif %}>
+Hier
+</option>
+
+<option value="7days"
+{% if filters.periode == "7days" %}selected{% endif %}>
+7 derniers jours
+</option>
+
+<option value="30days"
+{% if filters.periode == "30days" %}selected{% endif %}>
+30 derniers jours
+</option>
+
+<option value="custom"
+{% if filters.periode == "custom" %}selected{% endif %}>
+Personnalisé
+</option>
+
+</select>
+</div>
+
+            <!-- Date début -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium label">Date début</label>
+                <input type="date" name="date_debut" value="{{ filters.date_debut }}"
+                       class="px-4 py-2 border rounded-lg label">
+            </div>
+
+            <!-- Date fin -->
+            <div class="flex flex-col">
+                <label class="text-sm font-medium label">Date fin</label>
+                <input type="date" name="date_fin" value="{{ filters.date_fin }}"
+                       class="px-4 py-2 border rounded-lg label">
+            </div>
+
+            <!-- Bouton Filtrer -->
+            <div class="flex items-end">
+                <button type="submit" 
+                        class="px-4 py-2 btn-main rounded-lg hover:btn-main">
+                    Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tableau Mouvements -->
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">#</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Produit</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Type</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Quantité</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Référence</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Créé par</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Date</th>
+            </tr>
+        </thead>
+        <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+            {% for mouvement in mouvements %}
+            <tr class="hover:label transition">
+                <td class="px-4 py-3 font-medium label">{{ forloop.counter }}</td>
+                <td class="px-4 py-3 label">{{ mouvement.produit.nom }}</td>
+                <td class="px-4 py-3">
+                    {% if mouvement.type_mouvement == 'ENTREE' %}
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">Entrée</span>
+                    {% elif mouvement.type_mouvement == 'SORTIE' %}
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">Sortie</span>
+                    {% else %}
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">Ajustement</span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3 label">{{ mouvement.quantite }}</td>
+                <td class="px-4 py-3 label">{{ mouvement.reference|default:"-" }}</td>
+                <td class="px-4 py-3 label">{{ mouvement.cree_par.username|default:"-" }}</td>
+                <td class="px-4 py-3 label">{{ mouvement.date_creation|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="py-6 text-center text-gray-500 dark:text-gray-400 text-lg">
+                    Aucun mouvement enregistré
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+    <!-- PAGINATION -->
+    {% if show_pagination and paginator.num_pages > 1 %}
+    <div class="flex justify-center items-center space-x-2 mt-4 flex-wrap">
+        {% if mouvements.has_previous %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ mouvements.previous_page_number }}" 
+               class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Précédent</a>
+        {% endif %}
+
+        {% for num in mouvements.paginator.page_range %}
+            {% if num >= mouvements.number|add:-2 and num <= mouvements.number|add:2 %}
+                <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}"
+                   class="px-3 py-1 rounded {% if mouvements.number == num %}bg-blue-600 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %}">
+                   {{ num }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if mouvements.has_next %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ mouvements.next_page_number }}" 
+               class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-lg">Suivant</a>
+        {% endif %}
+
+        <!-- Bouton Afficher les pages restantes -->
+        {% if mouvements.has_next %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}restantes=1"
+               class="px-4 py-2 btn-main rounded-lg hover:btn-main">
+               Pages restantes
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

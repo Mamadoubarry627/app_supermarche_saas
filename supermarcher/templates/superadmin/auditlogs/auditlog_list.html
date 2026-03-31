@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Logs</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-green-50 to-green-100 font-sans">
+
+<!-- HEADER -->
+<div class="bg-white shadow px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-gray-800">📊 Audit Logs</h1>
+
+    <a href="{% url 'dashboard_superadmin' %}" 
+       class="bg-emerald-600 text-white px-4 py-2 rounded-full shadow hover:bg-emerald-700 transition duration-300">
+       ← Retour
+    </a>
+</div>
+
+<!-- CONTAINER -->
+<div class="max-w-7xl mx-auto p-6">
+
+<!-- FILTER CARD -->
+<div class="bg-white rounded-xl shadow p-4 mb-6">
+
+    <form id="filterForm" method="GET"
+          class="grid grid-cols-1 md:grid-cols-6 gap-3">
+
+        <!-- SEARCH -->
+        <input type="text"
+               name="search"
+               value="{{ request.GET.search }}"
+               placeholder="🔎 Recherche..."
+               class="border rounded-lg px-3 py-2 w-full">
+
+        <!-- USER -->
+        <select name="user" class="border rounded-lg px-3 py-2 w-full">
+            <option value="">👤 Tous les utilisateurs</option>
+            {% for u in users %}
+                <option value="{{ u.id }}"
+                    {% if request.GET.user == u.id|stringformat:"s" %}selected{% endif %}>
+                    {{ u.first_name }} {{ u.last_name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- MAGASIN -->
+        <select name="magasin" class="border rounded-lg px-3 py-2 w-full">
+            <option value="">🏪 Tous les magasins</option>
+            {% for m in magasins %}
+                <option value="{{ m.id }}"
+                    {% if request.GET.magasin == m.id|stringformat:"s" %}selected{% endif %}>
+                    {{ m.nom }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- ACTION -->
+        <select name="action" class="border rounded-lg px-3 py-2 w-full">
+            <option value="">⚡ Toutes les actions</option>
+            {% for value, label in logs.model.Action.choices %}
+                <option value="{{ value }}"
+                    {% if request.GET.action == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- FROM -->
+        <input type="date"
+               name="from"
+               value="{{ request.GET.from }}"
+               class="border rounded-lg px-3 py-2 w-full">
+
+        <!-- TO -->
+        <input type="date"
+               name="to"
+               value="{{ request.GET.to }}"
+               class="border rounded-lg px-3 py-2 w-full">
+
+    </form>
+
+</div>
+
+<!-- TABLE -->
+<div class="bg-white rounded-xl shadow overflow-hidden">
+
+    <div class="p-4 border-b flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-700">Historique des actions</h2>
+        <span class="text-sm text-gray-500">
+            Total: {{ page_obj.paginator.count }}
+        </span>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+
+            <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                <tr>
+                    <th class="px-6 py-3">Utilisateur</th>
+                    <th class="px-6 py-3">Action</th>
+                    <th class="px-6 py-3">Module</th>
+                    <th class="px-6 py-3">Objet</th>
+                    <th class="px-6 py-3">IP</th>
+                    <th class="px-6 py-3">Date</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y">
+
+            {% for log in logs %}
+            <tr class="hover:bg-gray-50 transition">
+
+                <td class="px-6 py-4 font-medium text-gray-800">
+
+                    {% if log.utilisateur %}
+                        
+                        {% if log.action == "LOGIN_FAILED_PASSWORD" %}
+                            <div class="flex items-center gap-2 text-yellow-600">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                                {{ log.utilisateur.get_full_name|default:log.utilisateur.username }}
+                                (mot de passe incorrect)
+                            </div>
+
+                        {% elif log.action == "LOGIN_BLOCKED_BUSINESS_RULE" %}
+                            <div class="flex items-center gap-2 text-orange-500">
+                                <span class="w-2 h-2 bg-orange-400 rounded-full"></span>
+                                {{ log.utilisateur.get_full_name|default:log.utilisateur.username }}
+                                (connexion bloquée par règle métier)
+                            </div>
+
+                        {% else %}
+                            <div class="flex items-center gap-2 text-green-600">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                {{ log.utilisateur.get_full_name|default:log.utilisateur.username }}
+                            </div>
+                        {% endif %}
+
+                    {% else %}
+                        <div class="flex items-center gap-2 text-red-600">
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                            Tentative de connexion inconnue
+                        </div>
+                    {% endif %}
+
+                </td>
+
+                <td class="px-6 py-4">
+                    {% if log.action == "DELETE" %}
+                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs">Suppression</span>
+                    {% elif log.action == "CREATE" %}
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">Création</span>
+                    {% elif log.action == "UPDATE" %}
+                        <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">Modification</span>
+                    {% elif log.action == "LOGIN" %}
+                        <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">Connexion</span>
+                    {% elif log.action == "LOGIN_FAILED" %}
+                        <span class="bg-red-200 text-red-800 px-2 py-1 rounded-full text-xs">Échec login</span>
+                    {% else %}
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                            {{ log.action }}
+                        </span>
+                    {% endif %}
+                </td>
+
+                <td class="px-6 py-4 text-gray-700">
+                    {{ log.modele|title }}
+                </td>
+
+                <td class="px-6 py-4 text-gray-500">
+                    {{ log.objet_id|default:"-" }}
+                </td>
+
+                <td class="px-6 py-4 text-gray-500">
+                    {{ log.ip_address|default:"-" }}
+                </td>
+
+                <td class="px-6 py-4 text-gray-500">
+                    {{ log.date_action|date:"d/m/Y H:i:s" }}
+                </td>
+
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center py-10 text-gray-500">
+                    Aucun log trouvé
+                </td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- PAGINATION -->
+<div class="flex justify-between items-center mt-6">
+
+    <div class="text-sm text-gray-600">
+        Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+    </div>
+
+    <div class="flex space-x-2">
+
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+           class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">
+            ← Précédent
+        </a>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+           class="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">
+            Suivant →
+        </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- ⚡ AUTO FILTER SCRIPT -->
+<script>
+const form = document.getElementById("filterForm");
+
+// auto submit on change
+form.querySelectorAll("select, input").forEach(el => {
+    el.addEventListener("change", () => {
+        form.submit();
+    });
+});
+
+// debounce search
+let timer;
+const search = form.querySelector('input[name="search"]');
+
+search.addEventListener("input", function () {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+        form.submit();
+    }, 500);
+});
+</script>
+
+</body>
+</html>

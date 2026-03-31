@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Détails magasin</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+}
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px rgba(0,0,0,0.1);
+}
+</style>
+</head>
+
+<body class="bg-gradient-to-br from-emerald-50 via-white to-emerald-100 min-h-screen">
+
+<div class="max-w-7xl mx-auto p-8">
+
+  <!-- HEADER -->
+  <div class="flex flex-col md:flex-row items-center justify-between mb-10 gap-3">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ magasin.nom }}</h1>
+      <p class="text-gray-500 mt-1 text-sm md:text-base">Informations générales du magasin</p>
+    </div>
+    <a href="{% url 'dashboard_superadmin' %}" 
+       class="bg-emerald-600 text-white px-4 py-2 rounded-full shadow hover:bg-emerald-700 transition duration-300">
+       ← Retour
+    </a>
+  </div>
+
+  <!-- GRID CARTES -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+    <!-- PRODUITS -->
+    <div class="card-hover bg-white p-5 rounded-2xl shadow-md transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 uppercase font-medium text-xs">Produits</p>
+          <h2 class="text-xl md:text-2xl font-bold mt-1 text-gray-900">{{ nb_produits }}</h2>
+        </div>
+        <div class="bg-emerald-100 p-2.5 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v6m16 0l-8 5-8-5"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- UTILISATEURS -->
+    <div class="card-hover bg-white p-5 rounded-2xl shadow-md transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 uppercase font-medium text-xs">Utilisateurs</p>
+          <h2 class="text-xl md:text-2xl font-bold mt-1 text-gray-900">{{ nb_utilisateurs }}</h2>
+        </div>
+        <div class="bg-blue-100 p-2.5 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V4H2v16h5m10 0v-4a4 4 0 00-8 0v4m8 0H9"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAISSIERS -->
+    <div class="card-hover bg-white p-5 rounded-2xl shadow-md transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 uppercase font-medium text-xs">Caissiers</p>
+          <h2 class="text-xl md:text-2xl font-bold mt-1 text-gray-900">{{ nb_caissiers }}</h2>
+        </div>
+        <div class="bg-purple-100 p-2.5 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUITS PERIMES -->
+    <div class="card-hover bg-white p-5 rounded-2xl shadow-md transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 uppercase font-medium text-xs">Produits périmés</p>
+          <h2 class="text-xl md:text-2xl font-bold mt-1 text-red-500">{{ produits_perimes }}</h2>
+        </div>
+        <div class="bg-red-100 p-2.5 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M5 19h14L12 5 5 19z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- GERANT -->
+    <div class="card-hover bg-white p-5 rounded-2xl shadow-md transition-all duration-300">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-400 uppercase font-medium text-xs">Gérant</p>
+          <h2 class="text-base md:text-lg font-semibold mt-1 text-gray-900">
+            {% if gerant %}
+              {{ gerant.first_name }} {{ gerant.last_name }}
+              <p class="text-xs text-gray-500">@{{ gerant.username }}</p>
+            {% else %}
+              Aucun gérant
+            {% endif %}
+          </h2>
+        </div>
+        <div class="bg-yellow-100 p-2.5 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1118 11"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- THÈME DU MAGASIN -->
+  <div class="card-hover p-6 rounded-2xl shadow-md mt-6
+    {% if theme and theme.mode_sombre %} bg-gray-900 text-white {% else %} bg-white text-gray-900 {% endif %}">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <p class="uppercase font-medium text-xs {% if theme and theme.mode_sombre %} text-gray-400 {% else %} text-gray-500 {% endif %}">Thème du magasin</p>
+        {% if theme %}
+          <h2 class="text-lg font-bold mt-1 flex items-center gap-2">
+            Couleur principale :
+            <span class="w-6 h-6 rounded-full border border-gray-300" style="background-color: {{ theme.couleur_principale }}"></span>
+            {{ theme.couleur_principale }}
+          </h2>
+          <p class="mt-1 text-sm">Mode sombre : {{ theme.mode_sombre|yesno:"Oui,Non" }}</p>
+        {% else %}
+          <h2 class="text-lg font-bold mt-1">Aucun thème défini</h2>
+        {% endif %}
+      </div>
+      <div class="p-4 rounded-xl {% if theme and theme.mode_sombre %} bg-gray-700 {% else %} bg-gray-100 {% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 {% if theme and theme.mode_sombre %} text-gray-300 {% else %} text-gray-600 {% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 3v1m0 16v1m8.66-8.66l-.71.71M4.05 4.05l-.71.71m0 14.14l.71.71M19.95 19.95l.71.71M21 12h-1M4 12H3"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

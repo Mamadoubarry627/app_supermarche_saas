@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Détails Fournisseur - {{ magasin.nom }}{% endblock %}
+{% block header %}Détails Fournisseur{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Bouton Retour -->
+    <div class="flex justify-end">
+        <a href="{% url 'fournisseurs_liste' %}" class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 hover:text-green-700 hover:bg-gray-50 transition">
+      <!-- Flèche gauche -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Retour
+        </a>
+    </div>
+    <!-- Informations Fournisseur -->
+    <div class="card rounded-2xl shadow p-6">
+        <h1 class="text-3xl font-bold label label:text-white">{{ fournisseur.nom }} {{ fournisseur.prenom }}</h1>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 label label:text-gray-300">
+            <p><strong>Téléphone:</strong> {{ fournisseur.telephone|default:"-" }}</p>
+            <p><strong>Email:</strong> {{ fournisseur.email|default:"-" }}</p>
+            <p><strong>Adresse:</strong> {{ fournisseur.adresse|default:"-" }}</p>
+            <p><strong>Date création:</strong> {{ fournisseur.date_creation|date:"d/m/Y H:i" }}</p>
+        </div>
+    </div>
+
+    <!-- Historique des derniers achats -->
+    <div class="card rounded-2xl shadow p-6">
+        <h2 class="text-2xl font-semibold label label:text-white mb-4">Derniers achats</h2>
+
+        {% if derniers_achats %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for achat in derniers_achats %}
+            <div class="card card:bg-gray-800 rounded-xl shadow p-4 flex flex-col justify-between hover:shadow-lg transition">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-bold label">{{ achat.numero_facture }}</span>
+                    <span class="text-sm label">{{ achat.date_creation|date:"d/m/Y" }}</span>
+                </div>
+                <p class="text-lg font-bold text-green-600">{{ achat.montant_total }} {{ magasin.devise }}</p>
+                <div class="mt-2">
+                    {% if achat.statut == 'EN_ATTENTE' %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-yellow-200 text-yellow-800">En attente</span>
+                    {% elif achat.statut == 'TERMINE' %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-green-200 text-green-800">Terminé</span>
+                    {% elif achat.statut == 'ANNULE' %}
+                        <span class="px-2 py-1 text-xs rounded-full bg-red-200 text-red-800">Annulé</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 dark:text-gray-400">Aucun achat récent avec ce fournisseur.</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

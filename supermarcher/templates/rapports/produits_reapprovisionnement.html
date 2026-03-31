@@ -1,0 +1,29 @@
+{% load humanize %}
+<h2 class="label font-bold mb-2">Produits à réapprovisionner</h2>
+<!-- Tableau Produits à Réapprovisionner -->
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Produit</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Stock</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Seuil alerte</th>
+            </tr>
+        </thead>
+        <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+            {% for p in produits_reapprovisionnement %}
+            <tr class="hover:label transition">
+                <td class="px-4 py-3 label">{{ p.nom }}</td>
+                <td class="px-4 py-3 label">{{ p.quantite_stock|intcomma }}</td>
+                <td class="px-4 py-3 label">{{ p.seuil_alerte|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="py-6 text-center text-gray-500 dark:text-gray-400 text-lg">
+                    Aucun produit à réapprovisionner
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

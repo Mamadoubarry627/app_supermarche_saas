@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titre }} - {{ magasin.nom }}{% endblock %}
+
+{% block header %}{{ titre }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto card card:bg-gray-900 rounded-2xl shadow p-6">
+
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+            <label class="block text-sm font-medium mb-1 label label:text-gray-300">
+                Nom
+            </label>
+            {{ form.nom }}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1 label label:text-gray-300">
+                prénom
+            </label>
+            {{ form.prenom }}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-1 label label:text-gray-300">
+                    Téléphone
+                </label>
+                {{ form.telephone }}
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1 label label:text-gray-300">
+                    Email
+                </label>
+                {{ form.email }}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1 label label:text-gray-300">
+                Adresse
+            </label>
+            {{ form.adresse }}
+        </div>
+
+        <div class="flex justify-end pt-4 gap-4">
+            <a href="{% url 'fournisseurs_liste' %}" class="px-4 py-2 bg-gray-300 label:bg-gray-700 rounded-lg">
+                Annuler
+            </a>
+            <button type="submit" class="px-4 py-2 btn-main rounded-lg hover:btn-main">
+                Enregistrer
+            </button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

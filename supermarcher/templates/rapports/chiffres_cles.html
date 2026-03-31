@@ -1,0 +1,28 @@
+{% load humanize %}
+<h2 class="label font-bold mb-2">Chiffres clés</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div class="card card:bg-gracard p-4 rounded-lg shadow hover:shadow-lg transition">
+    <div class="text-sm label">Chiffre d’affaires</div>
+    <div class="text-xl font-bold label">{{ total_ca|floatformat:0|intcomma }} GNF</div>
+  </div>
+  <div class="card card:bg-graycard p-4 rounded-lg shadow hover:shadow-lg transition">
+    <div class="text-sm label">TVA collectée</div>
+    <div class="text-xl font-bold label">{{ total_tva|floatformat:0|intcomma }} GNF</div>
+  </div>
+  <div class="card card:bg-graycard p-4 rounded-lg shadow hover:shadow-lg transition">
+    <div class="text-sm label">Remises appliquées</div>
+    <div class="text-xl font-bold label">{{ total_remises|floatformat:0|intcomma }} GNF</div>
+  </div>
+  <div class="card card:bg-graycard p-4 rounded-lg shadow hover:shadow-lg transition">
+    <div class="text-sm label">Panier moyen</div>
+    <div class="text-xl font-bold label">{{ panier_moyen|floatformat:0|intcomma }} GNF</div>
+  </div>
+  <div class="card card:bg-graycard p-4 rounded-lg shadow hover:shadow-lg transition">
+    <div class="text-sm label">Bénéfice total</div>
+    <div class="text-xl font-bold label">{{ benefice_total|floatformat:0|intcomma }} GNF</div>
+  </div>
+  <div class="bg-red-100 text-red-700 p-4 rounded-lg shadow hover:shadow-lg transition">
+    <div class="text-sm">Ventes annulées</div>
+    <div class="text-xl font-bold">{{ ventes_annulees|intcomma }}</div>
+  </div>
+</div>

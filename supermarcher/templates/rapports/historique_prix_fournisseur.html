@@ -1,0 +1,42 @@
+{% load humanize %}
+
+<h2 class="label font-bold mb-2">Historique des prix par fournisseur</h2>
+
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Fournisseur</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Facture</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Montant</th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-200">
+            {% for item in historique_prix_fournisseur %}
+            <tr>
+                <td class="px-4 py-3">
+                    {{ item.fournisseur__prenom }} {{ item.fournisseur__nom }}
+                </td>
+
+                <td class="px-4 py-3">
+                    {{ item.numero_facture }}
+                </td>
+
+                <td class="px-4 py-3">
+                    {{ item.montant_total|floatformat:2|intcomma }} {{ magasin.devise }}
+                </td>
+            </tr>
+
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center py-6 text-gray-500">
+                    Aucun historique trouvé
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>

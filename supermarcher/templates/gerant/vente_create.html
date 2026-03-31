@@ -1,0 +1,628 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}
+    Nouvelle Vente - {{ magasin.nom }}
+{% endblock %}
+
+{% block header %}
+    Nouvelle Vente
+{% endblock %}
+
+{% block content %}
+    {% if request.user.role == "GERANT" %}
+        <div class="flex justify-end items-center mb-6">
+            <a
+                href="{% url 'ventes_liste' %}"
+                class="px-4 py-2 btn-main rounded-lg hover:btn-main transition"
+            >
+                Historiques des ventes
+            </a>
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 card rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4 label">
+                Produits
+            </h2>
+
+            <input
+                type="text"
+                id="search"
+                placeholder="🔎 Rechercher un produit..."
+                class="w-full mb-4 p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
+            >
+
+            <div
+                class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[65vh] overflow-y-auto"
+                id="produits-container"
+            >
+                {% for produit in produits_disponibles %}
+                    <div
+                        onclick="
+                            const prodId = Number('{{ produit.id }}');
+                            console.log('Clic produit ID:', prodId, 'Nom:', '{{ produit.nom|escapejs }}');
+                            ajouterProduit(
+                                prodId,
+                                '{{ produit.nom|escapejs }}',
+                                '{{ produit.prix_vente|default:0 }}',
+                                '{{ produit.taux_tva|default:0 }}',
+                                '{{ produit.quantite_stock|default:0 }}'
+                            )
+                        "
+                        class="cursor-pointer bg-blue-50 label:bg-gray-800 p-4 rounded-2xl shadow hover:bg-blue-100 label:hover:bg-gray-700 transition duration-200"
+                    >
+                        <p class="font-semibold text-gray-700 label:text-white">
+                            {{ produit.nom }}
+                        </p>
+                        <p class="text-sm text-gray-500 label:text-gray-300">
+                            {{ produit.prix_vente|intcomma }} {{ magasin.devise }}
+                        </p>
+                        <p class="text-xs text-gray-400">
+                            Stock: {{ produit.quantite_stock }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card rounded-2xl shadow-lg p-6 flex flex-col">
+            <h2 class="text-2xl font-bold mb-4 label">
+                🧾 Panier
+            </h2>
+
+            <form method="post" class="flex flex-col h-full" id="venteForm">
+                {% csrf_token %}
+
+                {% if error %}
+                    <div class="mb-4 p-3 rounded bg-red-100 text-red-700 font-semibold">
+                        ⚠️ {{ error }}
+                    </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <label class="text-sm label">
+                        Nom du client (optionnel)
+                    </label>
+                    <input
+                        type="text"
+                        name="client_nom"
+                        value="{{ form.client_nom.value|default:'' }}"
+                        class="label w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
+                        placeholder="Ex: Mamadou Diallo"
+                    >
+                </div>
+
+                <div id="panier" class="space-y-3 flex-1 overflow-y-auto mb-4 pr-1"></div>
+                <input type="hidden" name="panier_data" id="panier_data">
+
+                <div class="mb-4">
+                    <label class="text-sm font-semibold label">
+                        Remise
+                    </label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value="0"
+                        id="remiseInput"
+                        oninput="renderPanier()"
+                        class="label w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
+                    >
+                </div>
+
+                <div class="border-t pt-4 mt-auto space-y-3">
+                    <div class="flex justify-between">
+                        <span class="font-medium label">Sous-total</span>
+                        <span id="sousTotal" class="label">0 {{ magasin.devise }}</span>
+                    </div>
+
+                    <div class="flex justify-between font-bold text-lg label">
+                        <span>Total</span>
+                        <span id="total" class="label">0 {{ magasin.devise }}</span>
+                    </div>
+
+                    <input type="hidden" name="sous_total" id="hiddenSousTotal">
+                    <input type="hidden" name="montant_total" id="hiddenTotal">
+                    <input type="hidden" name="remise" id="hiddenRemise">
+
+                    <div class="mt-4">
+                        <label class="text-sm font-semibold label">
+                            Mode de paiement
+                        </label>
+                        <select
+                            name="mode_paiement"
+                            class="label w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
+                        >
+                            <option value="ESPECES">Espèces</option>
+                            <option value="ORANGE_MONEY">Orange Money</option>
+                            <option value="WAVE">Wave</option>
+                        </select>
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="validerBtn"
+                        class="w-full mt-6 btn-main hover:btn-main p-3 rounded-2xl text-lg font-semibold transition duration-200"
+                    >
+                        ✅ Valider la Vente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notifications" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <input
+        type="text"
+        id="barcodeInput"
+        autocomplete="off"
+        class="fixed -top-10 opacity-0 pointer-events-none"
+    >
+
+    {% if request.GET.vente_id %}
+        <div id="printModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-white label:bg-gray-800 p-8 rounded-2xl shadow-2xl w-96 text-center">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 label:text-white">
+                    🧾 Vente enregistrée !
+                </h2>
+                <p class="text-gray-600 label:text-gray-300 mb-6">
+                    Voulez-vous imprimer le reçu maintenant ?
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button
+                        type="button"
+                        onclick="imprimerRecu()"
+                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-xl font-semibold"
+                    >
+                        ✅ Oui, imprimer
+                    </button>
+                    <button
+                        type="button"
+                        onclick="annulerImpression()"
+                        class="bg-gray-300 hover:bg-gray-400 px-6 py-2 rounded-xl font-semibold"
+                    >
+                        ❌ Non
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+           function imprimerRecu() {
+            const venteId = new URLSearchParams(window.location.search).get("vente_id");
+
+            if (!venteId) {
+                console.error("vente_id manquant !");
+                return;
+            }
+
+            const modal = document.getElementById("printModal");
+            modal.classList.add("hidden");
+
+            setTimeout(() => {
+                window.location.href = `/ventes/${venteId}/imprimer/`;
+            }, 150);
+        }
+
+            function annulerImpression() {
+                window.location.href = "{% url 'vente_create' %}";
+            }
+        </script>
+    {% endif %}
+
+    <script>
+        let panier = {};
+
+        {% if panier_initial %}
+            {% for item in panier_initial %}
+                panier["{{ item.id }}"] = {
+                    nom: "{{ item.nom|escapejs }}",
+                    prix: parseFloat("{{ item.prix_vente|default:0 }}"),
+                    taux_tva: parseFloat("{{ item.taux_tva|default:0 }}"),
+                    quantite: parseInt("{{ item.quantite|default:1 }}"),
+                    stock: parseInt("{{ item.quantite_stock|default:0 }}")
+                };
+            {% endfor %}
+        {% endif %}
+
+        function showToast(message, type = "success") {
+            const container = document.getElementById("notifications");
+            const notif = document.createElement("div");
+
+            let bgClass = "bg-green-500";
+            if (type === "error") bgClass = "bg-red-500";
+            if (type === "warning") bgClass = "bg-yellow-500";
+            if (type === "info") bgClass = "bg-blue-500";
+
+            notif.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-lg animate-pulse`;
+            notif.innerText = message;
+
+            container.appendChild(notif);
+
+            setTimeout(() => {
+                notif.remove();
+            }, 2500);
+        }
+
+        function ajouterProduit(id, nom, prix, taux_tva, stock) {
+        prix = parseFloat(prix);
+        taux_tva = parseFloat(taux_tva);
+        stock = parseInt(stock);
+
+        // 🔥 Produit déjà dans le panier
+        if (panier[id]) {
+
+            // ❌ Stock atteint → on bloque immédiatement
+            if (panier[id].quantite >= stock) {
+                showToast(`❌ Stock épuisé pour ${nom} (max: ${stock})`, "error");
+                return;
+            }
+
+            // ✅ On augmente la quantité
+            panier[id].quantite += 1;
+            showToast(`➕ ${nom} ajouté (Qté: ${panier[id].quantite})`, "success");
+
+        } else {
+
+            // ❌ Produit en rupture dès le départ
+            if (stock <= 0) {
+                showToast(`❌ ${nom} en rupture de stock`, "error");
+                return;
+            }
+
+            // ✅ Nouveau produit → nouvelle ligne
+            panier[id] = {
+                nom: nom,
+                prix: prix,
+                taux_tva: taux_tva,
+                quantite: 1,
+                stock: stock
+            };
+
+            showToast(`🛒 ${nom} ajouté`, "success");
+        }
+
+        // 🔄 Mise à jour du panier
+        renderPanier();
+    }
+
+        function changerQuantite(id, variation) {
+            if (!panier[id]) return;
+
+            const item = panier[id];
+            const nouvelleQuantite = item.quantite + variation;
+
+            if (nouvelleQuantite <= 0) {
+                const nom = item.nom;
+                delete panier[id];
+                showToast(`🗑️ Produit retiré : ${nom}`, "info");
+            } else if (nouvelleQuantite > item.stock) {
+                showToast(`⚠️ Stock insuffisant pour ${item.nom}`, "warning");
+            } else {
+                item.quantite = nouvelleQuantite;
+                if (variation > 0) {
+                    showToast(`➕ Quantité ajoutée : ${item.nom}`, "success");
+                } else {
+                    showToast(`➖ Quantité réduite : ${item.nom}`, "info");
+                }
+            }
+
+            renderPanier();
+        }
+
+        function renderPanier() {
+            const panierDiv = document.getElementById("panier");
+            panierDiv.innerHTML = "";
+
+            let sousTotal = 0;
+            let montantTVA = 0;
+            let index = 0;
+
+            Object.keys(panier).forEach(id => {
+                const item = panier[id];
+                if (!item.nom) return;
+
+                const totalLigne = item.prix * item.quantite;
+                sousTotal += totalLigne;
+                montantTVA += (totalLigne * item.taux_tva) / 100;
+
+                const div = document.createElement("div");
+                div.className = "bg-blue-50 label:bg-gray-800 p-3 rounded-xl shadow";
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-center gap-3">
+                        <div>
+                            <p class="font-semibold">${item.nom}</p>
+                            <p class="text-sm">${item.prix.toLocaleString()} {{ magasin.devise }}</p>
+                            <p class="text-xs text-gray-500">TVA: ${item.taux_tva}%</p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onclick="changerQuantite('${id}', -1)"
+                                class="px-3 py-1 bg-red-500 text-white rounded-lg"
+                            >
+                                -
+                            </button>
+                            <span class="min-w-[24px] text-center">${item.quantite}</span>
+                            <button
+                                type="button"
+                                onclick="changerQuantite('${id}', 1)"
+                                class="px-3 py-1 bg-green-500 text-white rounded-lg"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="form-${index}-produit" value="${id}">
+                    <input type="hidden" name="form-${index}-quantite" value="${item.quantite}">
+                    <input type="hidden" name="form-${index}-prix_unitaire" value="${item.prix}">
+                `;
+
+                panierDiv.appendChild(div);
+                index++;
+            });
+
+            const remise = parseFloat(document.getElementById("remiseInput").value) || 0;
+            const total = sousTotal + montantTVA - remise;
+
+            document.getElementById("sousTotal").innerText = `${sousTotal.toLocaleString()} {{ magasin.devise }}`;
+            document.getElementById("total").innerText = `${total.toLocaleString()} {{ magasin.devise }}`;
+            document.getElementById("hiddenSousTotal").value = sousTotal;
+            document.getElementById("hiddenTotal").value = total;
+            document.getElementById("hiddenRemise").value = remise;
+            document.getElementById("panier_data").value = JSON.stringify(
+                Object.keys(panier).map(id => ({
+                    id: id,
+                    quantite: panier[id].quantite
+                }))
+            );
+
+            const btn = document.getElementById("validerBtn");
+            if (Object.keys(panier).length === 0 || total <= 0) {
+                btn.disabled = true;
+                btn.classList.add("opacity-50", "cursor-not-allowed");
+            } else {
+                btn.disabled = false;
+                btn.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+        }
+
+        async function traiterCodeBarre(code) {
+            if (!code) return;
+
+            try {
+                const response = await fetch(`/produit/barcode/${encodeURIComponent(code)}/`);
+                const data = await response.json();
+
+                if (data.success) {
+                    ajouterProduit(
+                        data.id,
+                        data.nom,
+                        data.prix,
+                        data.taux_tva,
+                        data.stock
+                    );
+                    showToast(`📦 Produit scanné : ${data.nom}`, "success");
+                } else {
+                    showToast(`❌ Code-barres introuvable : ${code}`, "error");
+                }
+            } catch (error) {
+                showToast("❌ Erreur lors du scan du produit", "error");
+            }
+        }
+
+        document.getElementById("venteForm").addEventListener("submit", function(e) {
+            if (Object.keys(panier).length === 0) {
+                e.preventDefault();
+                alert("⚠️ Impossible de valider une vente vide !");
+                return;
+            }
+
+            const total = parseFloat(document.getElementById("hiddenTotal").value) || 0;
+            if (total <= 0) {
+                e.preventDefault();
+                alert("⚠️ Le total doit être supérieur à 0 !");
+            }
+        });
+
+        document.getElementById("search").addEventListener("input", function() {
+            const filter = this.value.toLowerCase();
+
+            document.querySelectorAll("#produits-container > div").forEach(div => {
+                const nom = div.querySelector("p.font-semibold").innerText.toLowerCase();
+                div.classList.toggle("hidden", !nom.includes(filter));
+            });
+        });
+
+        const barcodeInput = document.getElementById("barcodeInput");
+
+        function estChampEditable(element) {
+            if (!element) return false;
+            const tag = element.tagName;
+            return (
+                tag === "INPUT" ||
+                tag === "TEXTAREA" ||
+                tag === "SELECT" ||
+                element.isContentEditable
+            );
+        }
+
+        function focusBarcodeInput() {
+            const active = document.activeElement;
+
+            if (active && estChampEditable(active) && active !== barcodeInput) {
+                return;
+            }
+
+            barcodeInput.focus();
+        }
+
+        document.addEventListener("click", function(event) {
+            const target = event.target;
+            if (!estChampEditable(target)) {
+                focusBarcodeInput();
+            }
+        });
+
+        window.addEventListener("load", function() {
+            renderPanier();
+            focusBarcodeInput();
+        });
+
+        let buffer = "";
+
+        barcodeInput.addEventListener("input", function(e) {
+            buffer += e.data || "";
+        });
+
+        barcodeInput.addEventListener("keydown", async function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+
+                const code = buffer
+                    .replace(/\r/g, '')
+                    .replace(/\n/g, '')
+                    .replace(/\t/g, '')
+                    .replace(/\s+/g, '');
+
+                buffer = "";
+
+                await traiterCodeBarre(code);
+                focusBarcodeInput();
+            }
+        });
+
+        window.scanProduitDepuisTelephone = async function(code) {
+            await traiterCodeBarre(code);
+            focusBarcodeInput();
+        };
+    </script>
+{% if request.user.is_authenticated %}
+<script>
+    const userId = {{ request.user.id }};
+    const username = "{{ request.user.username }}";
+
+    // 🔥 Token fiable (URL ou backend)
+    // On utilise default_if_none pour s'assurer que jwt_access existe
+    const token = "{{ request.GET.token|default:jwt_access|default:'' }}";
+
+    console.log("👤 User ID:", userId);
+    console.log("👤 Username:", username);
+    console.log("🔑 Token:", token);
+
+    let panierSocket = null;
+    let reconnectInterval = 2000; // 2 secondes
+    let maxReconnectInterval = 10000;
+
+    function connectWebSocket() {
+        let wsUrl = `ws://${window.location.host}/ws/panier/${userId}/`;
+
+        if (token) {
+            wsUrl += `?token=${token}`;
+        }
+
+        console.log("🌐 Connexion WS vers:", wsUrl);
+
+        panierSocket = new WebSocket(wsUrl);
+
+        // ✅ Connexion OK
+        panierSocket.onopen = function () {
+            console.log("✅ WebSocket connecté :", username);
+            reconnectInterval = 2000; // reset backoff
+        };
+
+        // 📥 Message reçu
+        panierSocket.onmessage = function (e) {
+            console.log("📥 RAW WS:", e.data);
+
+            try {
+                const data = JSON.parse(e.data);
+                console.log("📦 JSON PARSÉ:", data);
+
+                if (data.type === "scan" && "id" in data) {
+                    console.log("✅ PRODUIT VALIDE:", data.nom);
+
+                    const key = data.id.toString();
+
+                    if (panier[key]) {
+                        if (panier[key].quantite < panier[key].stock) {
+                            panier[key].quantite += 1;
+                           // showToast(`➕ ${data.nom} ajouté`, "success");
+                        } else {
+                            showToast(`❌ Stock insuffisant pour ${data.nom}`, "error");
+                            return;
+                        }
+                    } else {
+                        if (parseInt(data.stock) > 0) {
+                            const key = data.id.toString();
+
+                                panier[key] = {
+                                    id: Number(data.id),
+                                    nom: data.nom,
+                                    prix: Number(data.prix),
+                                    taux_tva: Number(data.taux_tva),
+                                    quantite: panier[key]?.quantite + 1 || 1,
+                                    stock: Number(data.stock)
+                                };
+
+                                //showToast(`🛒 ${data.nom} ajouté`, "success");
+                                console.log("🛒 PANIER FINAL:", panier);
+
+                            } else {
+                                showToast(`❌ ${data.nom} en rupture`, "error");
+                                return;
+                            }
+                    }
+
+                    renderPanier();
+                    showToast(`📦 ${data.nom} ajouté depuis téléphone`, "success");
+                } else {
+                    console.warn("⚠️ Message ignoré:", data);
+                }
+
+            } catch (err) {
+                console.error("❌ JSON ERROR:", err);
+            }
+        };
+
+        // 🔴 Fermeture
+        panierSocket.onclose = function (event) {
+            console.warn("🔴 WebSocket fermé");
+            console.log("Code:", event.code);
+            console.log("Raison:", event.reason);
+
+            // 🔁 Reconnexion automatique
+            setTimeout(() => {
+                console.log("🔄 Tentative de reconnexion...");
+                connectWebSocket();
+            }, reconnectInterval);
+
+            // 🔥 backoff (augmente progressivement)
+            reconnectInterval = Math.min(
+                reconnectInterval * 1.5,
+                maxReconnectInterval
+            );
+        };
+
+        // ❌ Erreur
+        panierSocket.onerror = function (err) {
+            console.error("❌ WebSocket erreur :", err);
+            panierSocket.close(); // force reconnect via onclose
+        };
+    }
+
+    // 🚀 Lancer connexion
+    connectWebSocket();
+</script>
+{% else %}
+<script>
+    console.warn("⚠️ Utilisateur non authentifié, WebSocket non ouvert");
+</script>
+{% endif %}
+{% endblock %}

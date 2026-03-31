@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}
+Produits - {{ magasin.nom }}
+{% endblock %}
+
+{% block header %}
+Produits
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col">
+{% if request.user.role == "GERANT" %}
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold label">Liste des produits</h1>
+        <a href="{% url 'produit_nouveau' %}" 
+            class="px-4 py-2 btn-main rounded-lg hover:btn-main transition">
+            + Nouveau Produit
+        </a>
+    </div>
+{% endif %}
+<form method="GET" class="card rounded-2xl shadow p-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+
+    <!-- Recherche -->
+    <input type="text" name="search" placeholder="Rechercher produit..."
+           value="{{ request.GET.search }}"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- Catégorie -->
+    <select name="categorie" class="px-4 py-2 border rounded-lg label">
+        <option value="">Toutes catégories</option>
+        {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if request.GET.categorie == cat.id|stringformat:"s" %}selected{% endif %}>
+            {{ cat.nom }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <!-- Prix min -->
+    <input type="number" step="0.01" name="prix_min"
+           value="{{ request.GET.prix_min }}"
+           placeholder="Prix min"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- Prix max -->
+    <input type="number" step="0.01" name="prix_max"
+           value="{{ request.GET.prix_max }}"
+           placeholder="Prix max"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- Stock min -->
+    <input type="number" name="stock_min"
+           value="{{ request.GET.stock_min }}"
+           placeholder="Stock min"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- Actif -->
+    <select name="actif" class="px-4 py-2 border rounded-lg label">
+        <option value="">Tous statuts</option>
+        <option value="1" {% if request.GET.actif == "1" %}selected{% endif %}>Actif</option>
+        <option value="0" {% if request.GET.actif == "0" %}selected{% endif %}>Inactif</option>
+    </select>
+
+    <!-- Alerte -->
+    <select name="alerte" class="px-4 py-2 border rounded-lg label">
+        <option value="">Tous</option>
+        <option value="1" {% if request.GET.alerte == "1" %}selected{% endif %}>
+            Stock faible
+        </option>
+    </select>
+
+    <!-- Tri -->
+    <select name="tri" class="px-4 py-2 border rounded-lg label">
+        <option value="nom">Nom A-Z</option>
+        <option value="-nom">Nom Z-A</option>
+        <option value="prix_vente">Prix croissant</option>
+        <option value="-prix_vente">Prix décroissant</option>
+        <option value="quantite_stock">Stock croissant</option>
+        <option value="-quantite_stock">Stock décroissant</option>
+    </select>
+
+    <div class="flex space-x-2">
+        <button type="submit"
+                class="px-4 py-2 btn-main rounded-lg hover:btn-main transition">
+            Filtrer
+        </button>
+
+        <a href="{% url 'produits_liste' %}"
+           class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+            Actualiser
+        </a>
+    </div>
+
+</form>
+    <!-- Tableau Produits -->
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">#</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Nom</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Catégorie</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Prix Vente</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Stock</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actif</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+            {% for produit in produits %}
+            <tr class="hover:label transition">
+                <td class="px-4 py-3 font-medium label">{{ forloop.counter }}</td>
+                <td class="px-4 py-3 label">{{ produit.nom }}</td>
+                <td class="px-4 py-3 label">{{ produit.categorie.nom|default:"-" }}</td>
+                <td class="px-4 py-3 label">
+                    <input type="number" step="0.01" min="0"
+                        value="{{ produit.prix_vente }}"
+                        class="w-20 border border-gray-300 rounded px-2 py-1 label"
+                        data-produit-id="{{ produit.id }}"
+                        data-field="prix_vente"
+                        {% if request.user.role != 'GERANT' %} disabled {% endif %}> {{ magasin.devise }}
+                </td>
+
+                <td class="px-4 py-3 label flex items-center">
+                    <input type="number" min="0"
+                        value="{{ produit.quantite_stock }}"
+                        class="w-16 border border-gray-300 rounded px-2 py-1 label"
+                        data-produit-id="{{ produit.id }}"
+                        data-field="quantite_stock"
+                        {% if request.user.role != 'GERANT' %} disabled {% endif %}>
+                    {% if produit.quantite_stock <= produit.seuil_alerte %}
+                        <span class="px-2 py-1 ml-2 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
+                            ⚠️ Faible
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3">
+                    {% if produit.actif %}
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                        Actif
+                    </span>
+                    {% else %}
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
+                        Inactif
+                    </span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3 flex gap-2">
+                    <a href="{% url 'produit_detail' produit.id %}"
+                       class="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition shadow-sm">
+                        <span class="material-icons text-sm">visibility</span> Voir
+                    </a>
+                    {% if request.user.role == "GERANT" %}
+                    <a href="{% url 'produit_edit' produit.id %}"
+                       class="flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800 transition shadow-sm">
+                        <span class="material-icons text-sm">edit</span> Modifier
+                    </a>
+                    <button type="button"
+                            class="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800 transition shadow-sm btn-supprimer"
+                            data-produit-nom="{{ produit.nom }}"
+                            data-produit-url="{% url 'produit_delete' produit.id %}">
+                        <span class="material-icons text-sm">delete</span> Supprimer
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="py-6 text-center text-gray-500 dark:text-gray-400 text-lg">
+                    Aucun produit enregistré
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<!-- Modal générique -->
+<div id="modal-supprimer" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-6 w-96 transform transition-transform duration-300 scale-90">
+        <div class="flex items-center space-x-4 mb-4">
+            <!-- Icône d'avertissement rouge -->
+            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600 dark:text-red-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.8-2.8l-6.93-12a2 2 0 00-3.46 0l-6.93 12A2 2 0 005.07 19z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Confirmer la suppression</h3>
+        </div>
+        <p class="text-gray-700 dark:text-gray-300 mb-6" id="modal-message">
+            <!-- message dynamique -->
+        </p>
+        <div class="flex justify-end space-x-2">
+            <button id="modal-annuler" 
+                    class="px-4 py-2 rounded-lg bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 transition">
+                Annuler
+            </button>
+            <form id="modal-form" method="POST">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center space-x-2">
+                    <!-- Icône SVG à gauche du texte -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Supprimer</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notification stylé et centré en haut -->
+<div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-2xl shadow-xl font-semibold text-lg opacity-0 transition-all duration-300 z-50">
+    Mise à jour effectuée
+</div>
+
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<script>
+const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+// Gestion des champs modifiables
+document.querySelectorAll('input[data-produit-id]').forEach(input => {
+    input.addEventListener('blur', (e) => {
+        const produitId = e.target.dataset.produitId;
+        const field = e.target.dataset.field;
+        const value = e.target.value;
+
+        fetch(`/produit/modifier/${produitId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({ field, value })
+        })
+        .then(resp => resp.json())
+        .then(data => {
+            if(data.success){
+                const toast = document.getElementById('toast');
+                toast.textContent = `Produit ${field} mis à jour`;
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+                setTimeout(() => toast.classList.remove('opacity-100'), 2000);
+                setTimeout(() => toast.classList.add('opacity-0'), 2300);
+            } else {
+                alert(data.error || "Erreur lors de la mise à jour");
+            }
+        });
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') input.blur(); // déclenche blur → fetch
+    });
+});
+
+// Gestion du modal de suppression
+const modal = document.getElementById('modal-supprimer');
+const modalMessage = document.getElementById('modal-message');
+const modalForm = document.getElementById('modal-form');
+const btnAnnuler = document.getElementById('modal-annuler');
+
+document.querySelectorAll('.btn-supprimer').forEach(button => {
+    button.addEventListener('click', () => {
+        const nom = button.dataset.produitNom;
+        const url = button.dataset.produitUrl;
+
+        modalMessage.innerHTML = `Voulez-vous vraiment supprimer le produit "<strong>${nom}</strong>" ?`;
+        modalForm.action = url;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.add('scale-100'), 10);
+    });
+});
+
+btnAnnuler.addEventListener('click', () => {
+    modal.classList.add('hidden');
+    modal.classList.remove('scale-100');
+});
+
+// Fermer le modal si clic en dehors
+modal.addEventListener('click', (e) => {
+    if(e.target === modal){
+        modal.classList.add('hidden');
+        modal.classList.remove('scale-100');
+    }
+});
+</script>
+{% endblock %}

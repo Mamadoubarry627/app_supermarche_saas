@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %} Détails de la Vente - {{ magasin.nom }} {% endblock %}
+{% block header %}
+Détails de la Vente
+{% endblock %}
+{% block content %}
+<div class="flex flex-col">
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+<h2 class="text-3xl font-bold mb-6 label">
+    Détails de la Vente - <span class="text-blue-500">{{ vente.numero_facture }}</span>
+</h2>
+
+    <!-- Bouton Retour avec flèche -->
+    <a href="{% url 'ventes_liste' %}" 
+       class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 hover:text-green-700 hover:bg-gray-50 transition">
+      <!-- Flèche gauche -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Retour
+    </a>
+</div>
+</div>
+
+
+<div class="card p-6 rounded-3xl shadow-xl space-y-6 transition duration-300">
+
+    <!-- Informations vente -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+            <p class="font-bold label">Client</p>
+            <p class="label">{{ vente.client_nom|default:"-" }}</p>
+        </div>
+        <div>
+            <p class="font-bold label">Date</p>
+            <p class="label">{{ vente.date_creation|date:"d/m/Y H:i" }}</p>
+        </div>
+        <div>
+            <p class="font-bold label">Statut</p>
+            <span class="inline-block px-4 py-1 rounded-full font-semibold
+                         {% if vente.statut == 'COMPLETEE' %}
+                             bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100
+                         {% elif vente.statut == 'ANNULEE' %}
+                             bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100
+                         {% else %}
+                             bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100
+                         {% endif %}">
+                {{ vente.statut }}
+            </span>
+        </div>
+    </div>
+
+    <hr class="border-gray-300 label:border-gray-700">
+
+    <!-- Table des lignes de vente -->
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto border-collapse">
+            <thead>
+                <tr class="btn-main uppercase text-sm">
+                    <th class="px-4 py-2 text-left label">Produit</th>
+                    <th class="px-4 py-2 text-right label">Quantité</th>
+                    <th class="px-4 py-2 text-right label">Prix</th>
+                    <th class="px-4 py-2 text-right label">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ligne in vente.lignes.all %}
+                <tr class="border-b border-gray-200 label:border-gray-700 hover:bg-gray-50 label:hover:bg-gray-800 transition">
+                    <td class="px-4 py-2 label">{{ ligne.produit.nom }}</td>
+                    <td class="px-4 py-2 text-right label">{{ ligne.quantite }}</td>
+                    <td class="px-4 py-2 text-right label">{{ ligne.prix_unitaire|intcomma }} {{ magasin.devise }}</td>
+                    <td class="px-4 py-2 text-right font-semibold label">{{ ligne.total|intcomma }} {{ magasin.devise }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <hr class="border-gray-300 label:border-gray-700">
+
+    <!-- Totaux -->
+    <div class="space-y-2 label text-sm md:text-base">
+        <div class="flex justify-between">
+            <span>Sous-total :</span>
+            <span class="font-medium">{{ vente.sous_total|intcomma }} {{ magasin.devise }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span>TVA :</span>
+            <span class="font-medium">{{ vente.montant_tva|intcomma }} {{ magasin.devise }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span>Remise :</span>
+            <span class="font-medium">{{ vente.remise|intcomma }} {{ magasin.devise }}</span>
+        </div>
+        <div class="flex justify-between text-lg font-bold label border-t border-gray-300 dark:border-gray-700 pt-2">
+            <span>Total :</span>
+            <span>{{ vente.montant_total|intcomma }} {{ magasin.devise }}</span>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

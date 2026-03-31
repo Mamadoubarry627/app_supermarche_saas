@@ -1,0 +1,28 @@
+{% load humanize %}
+<h2 class="label font-bold mb-2">Ventes par catégorie</h2>
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Catégorie</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Nombre de ventes</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Montant total</th>
+            </tr>
+        </thead>
+        <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+            {% for cat in ventes_par_categorie %}
+            <tr class="hover:label transition">
+                <td class="px-4 py-3 label">{{ cat.produit__categorie__nom }}</td>
+                <td class="px-4 py-3 label">{{ cat.nombre_ventes }}</td>
+                <td class="px-4 py-3 label">{{ cat.total_ventes|floatformat:2|intcomma }} {{ magasin.devise }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" class="py-6 text-center text-gray-500 dark:text-gray-400 text-lg">
+                    Aucune vente par catégorie
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

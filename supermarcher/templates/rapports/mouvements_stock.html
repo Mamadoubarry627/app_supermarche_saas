@@ -1,0 +1,30 @@
+{% load humanize %}
+<h2 class="label font-bold mb-2">Mouvements de stock</h2>
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Produit</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Type</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Quantité</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Référence</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Date</th>
+            </tr>
+        </thead>
+        <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+            {% for m in mouvements %}
+            <tr class="hover:label transition">
+                <td class="px-4 py-3 label">{{ m.produit.nom }}</td>
+                <td class="px-4 py-3 label">{{ m.type_mouvement }}</td>
+                <td class="px-4 py-3 label">{{ m.quantite|intcomma }}</td>
+                <td class="px-4 py-3 label">{{ m.reference|default:"-" }}</td>
+                <td class="px-4 py-3 label">{{ m.date_creation|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="py-6 text-center text-gray-500 dark:text-gray-400 text-lg">Aucun mouvement</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

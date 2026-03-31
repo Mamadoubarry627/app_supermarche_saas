@@ -1,0 +1,463 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/logo.png' %}">
+<link rel="apple-touch-icon" href="{% static 'images/logo.png' %}">
+<title>{% block title %}Dashboard{% endblock %}</title>
+<script>
+if ({{ theme_dark|yesno:"true,false" }}) {
+    document.documentElement.classList.add('dark');
+}
+</script>
+<script>
+tailwind.config = { darkMode: 'class' }
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<style>
+
+:root {
+
+  --primary: {{ theme_color }};
+  --primary-light: {{ theme_light }};
+  --primary-hover: {{ theme_colors.primary_hover }};
+  --text-color: {{ theme_colors.text }};
+
+  --main-bg: {{ theme_light }};
+  --body-bg: rgba(0,0,0,0.02);
+
+  --card-bg: white;
+
+}
+
+/* BODY */
+body{
+  background: var(--body-bg);
+  color: var(--text-color);
+}
+
+/* MAIN */
+main{
+  background: var(--main-bg);
+  transition: background .3s;
+}
+
+/* SIDEBAR */
+.sidebar{
+  background: var(--primary);
+  transition: background .3s;
+}
+
+/* HEADER */
+header{
+  background: var(--primary);
+  transition: background .3s;
+}
+
+/* BOUTONS */
+.btn-main{
+  background: var(--primary);
+  color:white;
+}
+
+.btn-main:hover{
+  background: var(--primary-hover);
+}
+/* ======================= */
+/* TEXTES */
+/* ======================= */
+
+.label{
+  font-size:14px;
+  font-weight:500;
+  margin-bottom:4px;
+  color:#475569;
+}
+
+.dark .label{
+  color:#cbd5f5;
+}
+
+/* ======================= */
+/* INPUTS */
+/* ======================= */
+
+.input{
+  width:100%;
+  border:1px solid #e2e8f0;
+  padding:8px 10px;
+  border-radius:8px;
+  background:white;
+}
+
+.dark .input{
+  background:#020617;
+  border-color:#334155;
+  color:white;
+}
+
+/* ======================= */
+/* SECTIONS */
+/* ======================= */
+
+.section{
+  padding:24px;
+  border-radius:14px;
+  background:var(--card-bg);
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ======================= */
+/* CARDS */
+/* ======================= */
+
+.card{
+  background:var(--card-bg);
+  border-radius:12px;
+  padding:24px;
+}
+
+/* ======================= */
+/* MODE SOMBRE */
+/* ======================= */
+
+.dark body{
+  --body-bg:#0f172a;
+}
+
+.dark main{
+  --main-bg:#111827;
+}
+
+.dark .sidebar{
+  background:#020617;
+}
+
+.dark .card{
+  --card-bg:#1f2937;
+}
+
+/* Classes pour animation toast */
+.toast {
+    min-width: 220px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.error {
+    background-color: #fee2e2; /* rouge clair */
+    color: #b91c1c;
+}
+
+.toast.success {
+    background-color: #dcfce7; /* vert clair */
+    color: #15803d;
+}
+</style>
+</head>
+
+<body class="h-screen overflow-hidden">
+
+{% if produits_stock_bas %}
+<div class="bg-red-100 text-red-700 p-2 rounded-lg mb-4 text-center">
+⚠ {{ produits_stock_bas.count }} produits en stock faible
+</div>
+{% endif %}
+
+<div class="flex h-screen">
+
+  {% include "gerant/sidebar.html" %}
+
+  <div class="flex-1 flex flex-col h-full">
+
+    <!-- ============================= -->
+    <!-- TOPBAR -->
+    <!-- ============================= -->
+    <header class="px-6 py-6 flex justify-between items-center sidebar">
+      <!-- Titre -->
+      <div class="flex items-center space-x-3">
+        <h1 class="text-lg font-semibold text-gray-700 dark:text-white">
+          {% block header %}Dashboard{% endblock %}
+        </h1>
+      </div>
+
+      <!-- Utilisateur / Dark mode / Date & heure -->
+      <div class="flex items-center space-x-4">
+
+        <!-- Dark mode toggle -->
+        <button id="darkModeToggle" class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center">
+          <span id="darkModeIcon" class="material-icons">dark_mode</span>
+        </button>
+<!-- Date et heure stylisée -->
+<div id="currentTime" 
+     class="text-sm text-gray-600 dark:text-gray-400 font-medium bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full shadow-sm w-max text-center">
+</div>
+        <!-- Nom + Avatar / Initiales -->
+<div class="flex items-center space-x-3">
+
+<!-- Bloc utilisateur stylisé -->
+<div class="flex flex-col justify-center space-y-0.5">
+  <!-- Nom complet -->
+  <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+    {{ request.user.first_name }} {{ request.user.last_name }}
+  </span>
+  
+  <!-- Rôle de l'utilisateur en badge léger -->
+  <span class="text-xs font-medium text-white bg-blue-500 dark:bg-blue-600 px-2 py-0.5 rounded-full w-max">
+    {{ request.user.role }}
+  </span>
+</div>
+
+  <!-- Avatar ou Initiales -->
+  {% if request.user.profile_image %}
+  <img src="{{ request.user.profile_image.url }}"
+       class="h-10 w-10 rounded-full border-2 border-gray-200 shadow-sm object-cover transition transform hover:-translate-y-1 hover:scale-105 cursor-pointer">
+  {% else %}
+  {% with request.user.first_name|slice:":1" as first_initial %}
+  {% with request.user.last_name|slice:":1" as last_initial %}
+  <div class="h-10 w-10 flex items-center justify-center rounded-full border-2 border-gray-200 shadow-sm bg-gradient-to-tr from-green-400 to-blue-500 text-white font-semibold transition transform hover:-translate-y-1 hover:scale-105 cursor-pointer">
+    {{ first_initial }}{{ last_initial }}
+  </div>
+  {% endwith %}
+  {% endwith %}
+  {% endif %}
+
+</div>
+
+      </div>
+    </header>
+{% if messages %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("toast-container");
+
+    {% for message in messages %}
+        showToast("{{ message|escapejs }}", "{{ message.tags }}");
+    {% endfor %}
+});
+</script>
+{% endif %}
+    <!-- ============================= -->
+    <!-- CONTENU PAGE -->
+    <!-- ============================= -->
+    <main class="p-6 flex-1 overflow-y-auto">
+      {% block content %}{% endblock %}
+    </main>
+
+  </div>
+</div>
+
+<!-- Toast Container (placer juste après <body> ou dans main) -->
+<div id="toastContainer" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center space-y-2 pointer-events-none"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const html = document.documentElement;
+  const toggle = document.getElementById("darkModeToggle");
+  const icon = document.getElementById("darkModeIcon");
+
+  // État initial depuis Django
+  let darkMode = {{ theme_dark|yesno:"true,false" }};
+  if(darkMode){
+    html.classList.add("dark");
+    icon.innerText = "light_mode";
+  } else {
+    icon.innerText = "dark_mode";
+  }
+
+  // Toggle et sauvegarde en DB
+  toggle.addEventListener("click", () => {
+    fetch("{% url 'toggle_dark_mode' %}", {
+      method: "POST",
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.dark){
+        html.classList.add("dark");
+        icon.innerText = "light_mode";
+      } else {
+        html.classList.remove("dark");
+        icon.innerText = "dark_mode";
+      }
+    });
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    // ======== BOUTON VALIDER VENTE ========
+    const validerBtn = document.getElementById("validerBtn");
+    if (!panier || Object.keys(panier).length === 0) {
+        validerBtn.disabled = true;
+        validerBtn.classList.add("opacity-50", "cursor-not-allowed");
+    }
+
+    // Appelle renderPanier pour mettre à jour correctement l'état
+    renderPanier();
+
+    // ======== SCANNER CODE-BARRE ========
+    const barcodeInput = document.getElementById("barcodeInput");
+    const toastContainer = document.getElementById("toastContainer");
+
+    if (barcodeInput) {
+
+        barcodeInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+
+                const code = this.value.trim();
+                this.value = "";
+
+                if (!code) return;
+
+                fetch(`/produit/barcode/${code}/`)
+                    .then(res => {
+                        if (!res.ok) throw new Error("Erreur réseau");
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            ajouterProduit(data.id, data.nom, data.prix, data.taux_tva, data.stock);
+                        } else {
+                            showToast("Produit introuvable", "error");
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast("Impossible de scanner le produit.", "error");
+                    })
+                    .finally(() => {
+                        barcodeInput.focus();
+                    });
+            }
+        });
+
+        // Scanner rapide, mais n'interrompt pas la saisie manuelle
+        document.addEventListener("keydown", function(e){
+            const activeTag = document.activeElement.tagName.toLowerCase();
+            if(barcodeInput && activeTag !== "input" && activeTag !== "select" && activeTag !== "textarea"){
+                barcodeInput.focus();
+            }
+        });
+
+        // focus initial au chargement
+        barcodeInput.focus();
+    }
+
+});
+
+// Fonction toast
+function showToast(message, type = "error", duration = 3000) {
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <span class="material-icons text-sm">
+            ${type === "error" ? "error_outline" : "check_circle"}
+        </span>
+        <span>${message}</span>
+    `;
+    toastContainer.appendChild(toast);
+
+    // Affichage animé
+    requestAnimationFrame(() => toast.classList.add("show"));
+
+    // Suppression après duration
+    setTimeout(() => {
+        toast.classList.remove("show");
+        toast.addEventListener("transitionend", () => toast.remove());
+    }, duration);
+}
+
+function changerQuantite(id, valeur){
+    if(!panier[id]) return;
+
+    panier[id].quantite += valeur;
+
+    // Stock insuffisant
+    if(valeur > 0 && panier[id].quantite > panier[id].stock){
+        panier[id].quantite -= valeur;
+        showToast(`Stock insuffisant pour ${panier[id].nom}`, "error");
+        return;
+    }
+
+    // Produit supprimé du panier
+    if(panier[id].quantite <= 0){
+        showToast(`${panier[id].nom} a été retiré du panier`, "info");
+        delete panier[id];
+    } else {
+        // Quantité mise à jour
+        showToast(`${panier[id].nom} : ${panier[id].quantite}`, "success");
+    }
+
+    renderPanier();
+}
+
+// Ajouter produit avec vérification stock et toast
+function ajouterProduit(id, nom, prix, taux_tva = 0, stock = 0) {
+    if (!panier[id]) panier[id] = { nom, prix: parseFloat(prix), quantite: 0, taux_tva: parseFloat(taux_tva), stock };
+
+    if (panier[id].quantite + 1 > stock) {
+        showToast(`Stock insuffisant pour ${nom}`, "error");
+        return;
+    }
+
+    panier[id].quantite += 1;
+    renderPanier();
+    showToast(`${nom} ajouté au panier`, "success");
+}
+
+// =============================
+// Date & Heure en direct
+// =============================
+function updateTime() {
+    const now = new Date();
+
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    };
+
+    const dateStr = now.toLocaleDateString('fr-FR', options);
+
+    const timeStr = now.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+
+    const el = document.getElementById('currentTime');
+    if (el) {
+        el.innerText = `${dateStr} • ${timeStr}`;
+    }
+}
+
+setInterval(updateTime, 1000);
+updateTime();
+
+</script>
+
+</body>
+
+</html>

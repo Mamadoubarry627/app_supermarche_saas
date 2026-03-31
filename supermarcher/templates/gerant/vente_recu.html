@@ -1,0 +1,145 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Reçu {{ vente.numero_facture }} - {{ magasin.nom }}</title>
+
+<style>
+    body {
+        font-family: "Courier New", monospace;
+        background: #f4f4f4;
+    }
+
+    .ticket {
+        width: 320px;
+        background: white;
+        margin: 20px auto;
+        padding: 20px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        font-size: 13px;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .bold {
+        font-weight: bold;
+    }
+
+    .line {
+        border-top: 1px dashed #000;
+        margin: 10px 0;
+    }
+
+    table {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    td {
+        padding: 3px 0;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .total {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .barcode {
+        font-size: 28px;
+        letter-spacing: 3px;
+        margin-top: 10px;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="ticket">
+
+    <!-- HEADER -->
+    <div class="center bold" style="font-size:18px;">
+        {{ vente.magasin.nom }}
+    </div>
+
+    <div class="center">
+        {{ vente.magasin.adresse|default:"" }}<br>
+        Tél: {{ vente.magasin.telephone|default:"-" }}
+    </div>
+
+    <div class="line"></div>
+
+    <div>
+        Date: {{ vente.date_creation|date:"d/m/Y H:i" }}<br>
+        Reçu: {{ vente.numero_facture }}<br>
+        Client: {{ vente.client_nom|default:"-" }}
+    </div>
+
+    <div class="line"></div>
+
+    <!-- PRODUITS -->
+    <table>
+        {% for ligne in vente.lignes.all %}
+        <tr>
+            <td colspan="2">{{ ligne.produit.nom }}</td>
+        </tr>
+        <tr>
+            <td>{{ ligne.quantite }} x {{ ligne.prix_unitaire|intcomma }}</td>
+            <td class="right">{{ ligne.total|intcomma }} {{ magasin.devise }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="line"></div>
+
+    <!-- TOTAUX -->
+    <table>
+        <tr>
+            <td>Sous-total</td>
+            <td class="right">{{ vente.sous_total|intcomma }} {{ magasin.devise }}</td>
+        </tr>
+        <tr>
+            <td>TVA</td>
+            <td class="right">{{ vente.montant_tva|intcomma }} {{ magasin.devise }}</td>
+        </tr>
+        <tr>
+            <td>Remise</td>
+            <td class="right">{{ vente.remise|intcomma }} {{ magasin.devise }}</td>
+        </tr>
+    </table>
+
+    <div class="line"></div>
+
+    <table>
+        <tr class="total">
+            <td>TOTAL</td>
+            <td class="right">{{ vente.montant_total|intcomma }} {{ magasin.devise }}</td>
+        </tr>
+    </table>
+
+    <div class="line"></div>
+
+    <!-- FOOTER -->
+    <div class="center bold">
+        MERCI POUR VOTRE CONFIANCE !
+    </div>
+
+    <div class="line"></div>
+
+    <div class="center">
+        {{ vente.numero_facture }}
+    </div>
+<!-- QR CODE -->
+<div class="center" style="margin-top:10px;">
+    <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" width="100" height="100">
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}
+Détails Achat - {{ magasin.nom }}
+{% endblock %}
+
+{% block header %}Détails Achat{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto card rounded-2xl shadow p-6 space-y-6">
+    <!-- Bouton retour -->
+      <div class="flex gap-3 flex-wrap justify-end">
+        <a href="{% url 'achats_liste' %}" 
+           class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 hover:text-green-700 hover:bg-gray-50 transition">
+      <!-- Flèche gauche -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Retour
+        </a>
+    </div>
+    <!-- En-tête facture -->
+    <div class="space-y-1">
+        <h1 class="text-2xl font-bold label">Facture {{ achat.numero_facture }}</h1>
+        <p class="label"><strong class="text-l font-bold">Fournisseur:</strong> 
+        {% if achat.fournisseur %}
+            {{ achat.fournisseur.nom }}
+        {% else %}
+            -
+        {% endif %}
+        </p>
+        <p class="label"><strong class="text-l font-bold">Montant total:</strong> {{ achat.montant_total|intcomma }} {{ magasin.devise }}</p>
+        <p class="label"><strong class="text-l font-bold">Statut:</strong> {{ achat.get_statut_display }}</p>
+        <p class="label"><strong class="text-l font-bold">Date création:</strong> {{ achat.date_creation|date:"d/m/Y H:i" }}</p>
+    </div>
+
+    <!-- Lignes d'achat -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700">
+            <thead class="btn-main">
+                <tr>
+                    <th class="px-4 py-2 text-left text-sm font-semibold ">Produit</th>
+                    <th class="px-4 py-2 text-right text-sm font-semibold ">Quantité</th>
+                    <th class="px-4 py-2 text-right text-sm font-semibold ">Prix Unitaire ({{ magasin.devise }})</th>
+                    <th class="px-4 py-2 text-right text-sm font-semibold ">Total ({{ magasin.devise }})</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 label:divide-gray-700">
+                {% for ligne in achat.lignes.all %}
+                <tr>
+                    <td class="px-4 py-2 label">{{ ligne.produit.nom }}</td>
+                    <td class="px-4 py-2 text-right label">{{ ligne.quantite|intcomma }}</td>
+                    <td class="px-4 py-2 text-right label">{{ ligne.prix_unitaire|intcomma }} {{ magasin.devise }}</td>
+                    <td class="px-4 py-2 text-right font-semibold label">{{ ligne.total|intcomma }} {{ magasin.devise }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-4 py-2 text-center label">Aucune ligne d'achat</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

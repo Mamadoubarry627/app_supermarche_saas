@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Détails Utilisateur - {{ magasin.nom }}{% endblock %}
+
+{% block header %}Détails Utilisateur{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-8 p-4">
+<!-- Bouton retour -->
+        <div class="pt-4 flex justify-end gap-4">
+            <a href="{% url 'gerant_liste' %}" 
+              class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 hover:text-green-700 hover:bg-gray-50 transition">
+      <!-- Flèche gauche -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Retour
+            </a>
+        </div>
+    <!-- Informations utilisateur -->
+    <div class="card p-8 rounded-3xl shadow-lg transition duration-300 hover:shadow-2xl">
+        <h2 class="text-2xl font-bold mb-6 label label:text-gray-100">Informations</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 label label:text-gray-300">
+            <p><span class="font-semibold text-indigo-600">Nom d’utilisateur :</span> {{ utilisateur.username }}</p>
+            <p><span class="font-semibold text-indigo-600">Nom complet :</span> {{ utilisateur.first_name }} {{ utilisateur.last_name }}</p>
+            <p><span class="font-semibold text-indigo-600">Email :</span> {{ utilisateur.email }}</p>
+            <p><span class="font-semibold text-indigo-600">Téléphone :</span> {{ utilisateur.telephone|default:"-" }}</p>
+            <p><span class="font-semibold text-indigo-600">Rôle :</span> {{ utilisateur.get_role_display }}</p>
+            <p><span class="font-semibold text-indigo-600">Magasin :</span> {% if utilisateur.magasin %}{{ utilisateur.magasin.nom }}{% else %}-{% endif %}</p>
+            <p><span class="font-semibold text-indigo-600">Date création :</span> {{ utilisateur.date_creation|date:"d/m/Y H:i" }}</p>
+        </div>
+    </div>
+
+    <!-- Dernières opérations -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Achats -->
+        <div class="card p-6 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300">
+            <h3 class="font-semibold text-lg mb-4 text-red-500 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M5 2a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2H5z"/></svg>
+                Derniers Achats
+            </h3>
+            {% if derniers_achats %}
+                <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    {% for achat in derniers_achats %}
+                        <li class="p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                            <span class="font-medium">Facture:</span> {{ achat.numero_facture }} 
+                            <span class="text-gray-500 dark:text-gray-400">- {{ achat.date_creation|date:"d/m/Y" }} ({{ achat.montant_total }} {{ magasin.devise }})</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="label text-sm italic">Aucun achat enregistré.</p>
+            {% endif %}
+        </div>
+
+        <!-- Ventes -->
+        <div class="card p-6 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300">
+            <h3 class="font-bold text-lg mb-4 label flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16z"/></svg>
+                Dernières Ventes
+            </h3>
+            {% if dernieres_ventes %}
+                <ul class="space-y-2 text-sm text-gray-700 label:text-gray-300">
+                    {% for vente in dernieres_ventes %}
+                        <li class="p-2 rounded-lg border label label:border-gray-700 hover:label label:hover:bg-gray-800 transition">
+                            <span class="font-medium">Facture:</span> {{ vente.numero_facture }} 
+                            <span class="label label:text-gray-400">- {{ vente.date_creation|date:"d/m/Y" }} ({{ vente.montant_total }} {{ magasin.devise }})</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="label text-sm italic">Aucune vente enregistrée.</p>
+            {% endif %}
+        </div>
+
+        <!-- Mouvements de stock -->
+        <div class="card p-6 rounded-3xl shadow-lg hover:shadow-2xl transition duration-300">
+            <h3 class="font-bold text-lg mb-4 text-blue-500 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3h12v2H4V3z"/></svg>
+                Derniers Mouvements Stock
+            </h3>
+            {% if derniers_mouvements %}
+                <ul class="space-y-2 text-sm label label:text-gray-300">
+                    {% for mvt in derniers_mouvements %}
+                        <li class="p-2 rounded-lg border label label:border-gray-700 hover:label label:hover:bg-gray-800 transition">
+                            <span class="font-medium">{{ mvt.produit.nom }}</span> - {{ mvt.type_mouvement }} - {{ mvt.quantite }}
+                            <span class="text-gray-500 label:text-gray-400">{{ mvt.date_creation|date:"d/m/Y H:i" }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="label text-sm italic">Aucun mouvement enregistré.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

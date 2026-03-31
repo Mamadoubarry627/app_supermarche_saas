@@ -1,0 +1,28 @@
+{% load humanize %}
+
+<h2 class="label font-bold mb-2">Valeur client</h2>
+
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Client</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase">Total dépensé</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+            {% for client in valeur_client %}
+            <tr>
+                <td class="px-4 py-3">{{ client.client_nom }}</td>
+                <td class="px-4 py-3">{{ client.total_depense|floatformat:2|intcomma }} {{ magasin.devise }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" class="text-center py-6 text-gray-500">
+                    Aucun client trouvé
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

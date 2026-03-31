@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if form.instance.pk %}
+Modifier le produit - {{ magasin.nom }}
+{% else %}
+Nouveau produit - {{ magasin.nom }}
+{% endif %}
+{% endblock %} 
+
+{% block header %}
+{% if form.instance.pk %}
+Modifier le produit
+{% else %}
+Nouveau produit
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="flex flex-col max-w-3xl mx-auto card rounded-2xl shadow p-6">
+
+{% if form.non_field_errors %}
+<div class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
+
+    <div class="px-4 py-3 rounded-lg shadow-lg bg-red-500 text-white text-sm font-medium animate-fade-in">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+
+</div>
+{% endif %}
+
+    <div class="mt-6 flex space-x-2 justify-end">
+        <a href="{% url 'produits_liste' %}" 
+           class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 hover:text-green-700 hover:bg-gray-50 transition">
+      <!-- Flèche gauche -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Retour
+        </a>
+        </div>
+    <h1 class="text-2xl font-bold label mb-6">
+        {% if form.instance.pk %}
+            Modifier le produit
+        {% else %}
+            Ajouter un nouveau produit
+        {% endif %}
+    </h1>
+
+    <form method="POST" class="space-y-4 card">
+    {% csrf_token %}
+
+    <div class="space-y-2">
+        <label class="label">
+            Categorie
+            </label>
+        {{ form.categorie }}
+    </div>
+    <div class="space-y-1">
+    <label class="label">Nom</label>
+    {{ form.nom }}
+
+    {% if form.nom.errors %}
+        <p class="text-sm text-red-600">
+            {{ form.nom.errors.0 }}
+        </p>
+    {% endif %}
+</div>
+    <div class="space-y-1">
+    <label class="label">Code barre </label>
+    {{ form.code_barre }}
+
+    {% if form.code_barre.errors %}
+        <p class="text-sm text-red-600">
+            {{ form.code_barre.errors.0 }}
+        </p>
+    {% endif %}
+</div>
+    <div class="space-y-1">
+    <label class="label">SKU</label>
+    {{ form.sku }}
+
+    {% if form.sku.errors %}
+        <p class="text-sm text-red-600">
+            {{ form.sku.errors.0 }}
+        </p>
+    {% endif %}
+</div>
+    <div class="space-y-2">
+        <label class="label">
+            Description
+        </label>
+        {{ form.description }}
+    </div>
+    <div class="space-y-2">
+        <label class="label">
+            Prix d'achat
+        </label>
+        {{ form.prix_achat }}
+    </div>
+    <div class="space-y-1">
+    <label class="label">Prix de vente</label>
+    {{ form.prix_vente }}
+
+    {% if form.prix_vente.errors %}
+        <p class="text-sm text-red-600">
+            {{ form.prix_vente.errors.0 }}
+        </p>
+    {% endif %}
+</div>
+    <div class="space-y-2">
+        <label class="label">
+            Taux de TVA
+        </label>
+        {{ form.taux_tva }}
+    </div>
+    <div class="space-y-2">
+        <label class="label">
+            Quantité en stock
+        </label>
+        {{ form.quantite_stock }}
+    </div>
+    <div class="space-y-2">
+        <label class="label">
+            Seuil d'alerte
+        </label>
+        {{ form.seuil_alerte }}
+    </div>
+
+    <div class="space-y-2">
+        <label class="label">
+            Date de fabrication
+        </label>
+        {{ form.date_fabrication }}
+    </div>
+    <div class="space-y-2">
+        <label class="label">
+            Date d'expiration
+        </label>
+        {{ form.date_expiration }}
+    </div>
+
+    <div class="flex items-center space-x-2 mt-2">
+        {{ form.actif }}
+        <span class="text-gray-700 dark:text-gray-300 font-medium">Actif</span>
+    </div>
+
+    <div class="mt-6">
+        <button type="submit" class="px-6 py-2 btn-main rounded-lg hover:btn-main transition">
+            {% if form.instance.pk %}
+                Enregistrer les modifications
+            {% else %}
+                Ajouter
+            {% endif %}
+        </button>
+    </div>
+
+</form>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("input, select, textarea").forEach(el => {
+        if (el.classList.contains("error") || el.hasAttribute("aria-invalid")) {
+            el.classList.add("border-red-500");
+        }
+    });
+});
+</script>
+{% endblock %}

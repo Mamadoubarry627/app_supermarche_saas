@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Accès suspendu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center px-4 py-10">
+
+    <div class="w-full max-w-2xl animate-[fadeIn_.5s_ease-out]">
+        <div class="bg-white/90 backdrop-blur-sm shadow-[0_20px_60px_rgba(220,38,38,0.15)] rounded-3xl border border-red-100 overflow-hidden">
+
+            <!-- Header -->
+            <div class="relative bg-gradient-to-r from-red-600 via-red-500 to-orange-500 px-8 py-8">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -translate-y-10 translate-x-10"></div>
+
+                <div class="relative flex items-start gap-4">
+                    <div class="shrink-0 w-14 h-14 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-lg">
+                        <!-- Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A2 2 0 004.5 20h15a2 2 0 001.71-3.14l-7.5-13a2 2 0 00-3.42 0z" />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white text-sm font-medium border border-white/20 mb-3">
+                            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                            Statut de sécurité
+                        </span>
+
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                            Accès suspendu
+                        </h1>
+                        <p class="text-red-50 mt-2 text-sm md:text-base leading-relaxed">
+                            Votre accès au système est temporairement indisponible.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="px-8 py-10">
+                <div class="bg-gradient-to-br from-red-50 to-orange-50 border border-red-200 rounded-2xl p-6 mb-8 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1 shrink-0">
+                            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                                <!-- Info Icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-gray-800 text-lg leading-relaxed font-semibold">
+                                {{ message }}
+                            </p>
+
+                            {% if type_blocage == "user" %}
+                                <p class="text-gray-600 mt-3 leading-relaxed">
+                                    Votre profil utilisateur a été désactivé. Vous ne pouvez plus accéder au système tant qu’un administrateur ne l’a pas réactivé.
+                                </p>
+                            {% elif type_blocage == "magasin" %}
+                                <p class="text-gray-600 mt-3 leading-relaxed">
+                                    Le magasin auquel vous êtes rattaché a été désactivé ou suspendu. L'accès à l'application est donc bloqué.
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'connexion' %}"
+                       class="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gray-900 text-white font-semibold shadow-lg shadow-gray-900/10 hover:bg-black hover:scale-[1.02] active:scale-[0.98] transition duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                        Retour à la connexion
+                    </a>
+                </div>
+                <!-- Footer note -->
+                <div class="mt-6 pt-6 border-t border-gray-100">
+                    <p class="text-sm text-gray-500 leading-relaxed">
+                        Si vous pensez qu’il s’agit d’une erreur, contactez un administrateur pour vérifier l’état de votre compte ou de votre magasin.
+                    </p>
+                </div>
+                <div class="mt-6 pt-6 border-t border-gray-100">
+    <p class="text-sm text-gray-500 leading-relaxed">
+        Pour toute assistance, contactez l’administrateur :
+    </p>
+
+    <div class="mt-4 flex flex-col sm:flex-row gap-3">
+       <a href="mailto:mb817026@gmail.com"
+           class="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition">
+            <!-- icon mail -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 7.5v9A2.25 2.25 0 0119.5 18.75h-15A2.25 2.25 0 012.25 16.5v-9m19.5 0A2.25 2.25 0 0019.5 5.25h-15A2.25 2.25 0 002.25 7.5m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 9.659A2.25 2.25 0 012.25 7.743V7.5" />
+            </svg>
+            email@gmail.com
+        </a>
+
+        <a href="tel:+224610965082"
+           class="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition">
+            <!-- icon phone -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372a1.5 1.5 0 00-1.22-1.473l-4.423-.885a1.5 1.5 0 00-1.465.54l-.97 1.293a1.5 1.5 0 01-1.61.53 12.035 12.035 0 01-7.19-7.19 1.5 1.5 0 01.53-1.61l1.293-.97a1.5 1.5 0 00.54-1.465l-.885-4.423A1.5 1.5 0 005.372 2.25H4A1.75 1.75 0 002.25 4v2.75z" />
+            </svg>
+            +224 610 96 50 82
+        </a>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta charset="UTF-8">
+<title>Gestion utilisateurs</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Poppins', sans-serif; }
+  .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+  table tbody tr:hover { background-color: #f0fdf4; }
+</style>
+</head>
+
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen">
+
+<div class="max-w-7xl mx-auto p-6">
+
+  <!-- HEADER -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Gestion des utilisateurs</h1>
+    <a href="{% url 'dashboard_superadmin' %}" class="bg-emerald-600 text-white px-4 py-2 rounded-full shadow hover:bg-emerald-700 transition">← Retour</a>
+  </div>
+
+  <!-- BOUTON AJOUT -->
+  <div class="flex justify-end mb-4">
+    <a href="{% url 'ajouter_utilisateur' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition">
+      + Nouvel utilisateur
+    </a>
+  </div>
+
+  <!-- TABLE -->
+  <div class="bg-white shadow-md rounded-xl overflow-hidden">
+    <table class="w-full text-left table-auto">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="p-3 text-xs md:text-sm font-medium text-gray-500 uppercase">Nom</th>
+          <th class="p-3 text-xs md:text-sm font-medium text-gray-500 uppercase">Email</th>
+          <th class="p-3 text-xs md:text-sm font-medium text-gray-500 uppercase">Rôle</th>
+          <th class="p-3 text-xs md:text-sm font-medium text-gray-500 uppercase">Magasin</th>
+          <th class="p-3 text-xs md:text-sm font-medium text-gray-500 uppercase">Statut</th>
+          <th class="p-3 text-xs md:text-sm font-medium text-gray-500 uppercase text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {% for user in utilisateurs %}
+        <tr class="border-b hover:bg-green-50 transition">
+          <td class="p-3 text-sm text-gray-700">{{ user.first_name }} {{ user.last_name }}</td>
+          <td class="p-3 text-sm text-gray-700">{{ user.email }}</td>
+          <td class="p-3">
+            {% if user.role == "SUPERADMIN" %}
+              <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">Super Admin</span>
+            {% elif user.role == "GERANT" %}
+              <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">Gérant</span>
+            {% else %}
+              <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Caissier</span>
+            {% endif %}
+          </td>
+          <td class="p-3 text-sm text-gray-700">{% if user.magasin %}{{ user.magasin.nom }}{% else %}-{% endif %}</td>
+          <td class="p-3">
+            {% if user.is_active %}
+              <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">Actif</span>
+            {% else %}
+              <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-semibold">Inactif</span>
+            {% endif %}
+          </td>
+          <td class="p-3 text-center space-x-2 flex justify-center">
+            <!-- VOIR -->
+            <a href="{% url 'voir_utilisateur' user.id %}" class="text-blue-600 hover:text-blue-800 transition" title="Voir">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5 c4.478 0 8.268 2.943 9.542 7 -1.274 4.057-5.064 7-9.542 7 -4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </a>
+            <!-- MODIFIER -->
+            <a href="{% url 'modifier_utilisateur' user.id %}" class="text-yellow-600 hover:text-yellow-800 transition" title="Modifier">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2m-1-1v2m6.414 3.586a2 2 0 010 2.828 L7 23H3v-4L17.414 5.586a2 2 0 012.828 0z"/>
+              </svg>
+            </a>
+            <!-- ACTIVER / DESACTIVER -->
+            <a href="{% url 'toggle_utilisateur' user.id %}" class="transition" title="{% if user.is_active %}Désactiver{% else %}Activer{% endif %}">
+              {% if user.is_active %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-orange-600 hover:text-orange-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/>
+              </svg>
+              {% else %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-600 hover:text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-5.197-3.03 A1 1 0 008 9v6 a1 1 0 001.555.832l5.197-3.03 a1 1 0 000-1.664z"/>
+              </svg>
+              {% endif %}
+            </a>
+            <!-- SUPPRIMER -->
+            {% if user.role != "SUPERADMIN" %}
+            <button onclick="ouvrirModalSuppression({{ user.id }}, {{ user.peut_supprimer|yesno:'true,false' }})" class="text-red-600 hover:text-red-800 transition" title="Supprimer">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862 a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6"/>
+              </svg>
+            </button>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODALS CENTRÉS -->
+<div id="modalDelete" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-xl w-80 p-5 text-center card-hover">
+    <div class="flex justify-center mb-3">
+      <div class="bg-red-100 p-3 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+    <h2 class="text-lg font-bold text-gray-800 mb-1">Confirmer la suppression</h2>
+    <p class="text-gray-600 mb-4 text-sm">Cet utilisateur n'a aucune activité.<br>Voulez-vous vraiment le supprimer ?</p>
+    <div class="flex justify-center gap-3">
+      <button onclick="fermerModal()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Annuler</button>
+      <a id="deleteLink" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Supprimer</a>
+    </div>
+  </div>
+</div>
+
+<div id="modalWarning" class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-xl w-80 p-5 text-center card-hover">
+    <div class="flex justify-center mb-3">
+      <div class="bg-yellow-100 p-3 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01 M10.29 3.86l-7.5 13A2 2 0 004.5 20h15 a2 2 0 001.71-3.14l-7.5-13a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+    </div>
+    <h2 class="text-lg font-bold text-gray-800 mb-1">Suppression impossible</h2>
+    <p class="text-gray-600 mb-4 text-sm">Cet utilisateur possède déjà des actions dans le système.<br>Il ne peut pas être supprimé.</p>
+    <button onclick="fermerModal()" class="px-5 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Compris</button>
+  </div>
+</div>
+
+<script>
+function ouvrirModalSuppression(id, peutSupprimer){
+  if(peutSupprimer){
+    let modal = document.getElementById("modalDelete");
+    modal.classList.remove("hidden"); modal.classList.add("flex");
+    document.getElementById("deleteLink").href = "/supprimer-utilisateur/" + id + "/";
+  } else {
+    let modal = document.getElementById("modalWarning");
+    modal.classList.remove("hidden"); modal.classList.add("flex");
+  }
+}
+function fermerModal(){
+  document.getElementById("modalDelete").classList.add("hidden");
+  document.getElementById("modalDelete").classList.remove("flex");
+  document.getElementById("modalWarning").classList.add("hidden");
+  document.getElementById("modalWarning").classList.remove("flex");
+}
+</script>
+
+</body>
+</html>

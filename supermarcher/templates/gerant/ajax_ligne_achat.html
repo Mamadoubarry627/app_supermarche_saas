@@ -1,0 +1,25 @@
+<div class="ligne-item bg-green-100 dark:bg-green-800 p-4 rounded-lg shadow space-y-2 border border-green-300 dark:border-green-600 relative">
+    <div class="flex space-x-2">
+        <div class="flex-1">
+            <label>Produit</label>
+            {{ form_ligne.produit }}
+        </div>
+        <div class="w-24">
+            <label>Quantité</label>
+            {{ form_ligne.quantite }}
+        </div>
+        <div class="w-28">
+            <label>Prix U</label>
+            {{ form_ligne.prix_unitaire }}
+        </div>
+        <div class="w-28">
+            <label>Total</label>
+            {{ form_ligne.total_affichage }}
+        </div>
+        <div class="flex-shrink-0 flex items-end">
+            <button type="button" class="supprimer-ligne bg-red-600 text-white p-2 rounded hover:bg-red-700">
+                <span class="material-icons">delete</span>
+            </button>
+        </div>
+    </div>
+</div>

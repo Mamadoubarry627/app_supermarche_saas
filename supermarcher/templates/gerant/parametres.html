@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %} Paramètres - {{ magasin.nom }}{% endblock %}
+{% block header %}
+Paramètres du magasin
+{% endblock %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto rounded-2xl shadow p-8 space-y-8"
+     style="background-color: var(--primary-light);">
+
+<h1 class="text-2xl font-bold label">
+Paramètres du magasin
+</h1>
+
+<form method="POST" enctype="multipart/form-data" class="space-y-10">
+{% csrf_token %}
+
+<!-- ======================= -->
+<!-- INFORMATIONS MAGASIN -->
+<!-- ======================= -->
+
+<div class="card space-y-6">
+
+<h2 class="text-lg font-semibold label">
+Informations du magasin
+</h2>
+
+<div class="grid md:grid-cols-2 gap-6">
+
+<div>
+<label class="label">
+Nom du magasin
+</label>
+{{ form_magasin.nom }}
+</div>
+
+<div>
+<label class="label">
+Devise
+</label>
+{{ form_magasin.devise }}
+</div>
+
+<div>
+<label class="label">
+Adresse
+</label>
+{{ form_magasin.adresse }}
+</div>
+
+<div>
+<label class="label">
+Téléphone
+</label>
+{{ form_magasin.telephone }}
+</div>
+
+<div>
+<label class="label">
+Ville
+</label>
+{{ form_magasin.ville }}
+</div>
+
+<div>
+<label class="label">
+Pays
+</label>
+{{ form_magasin.pays }}
+</div>
+
+</div>
+
+</div>
+
+<!-- ======================= -->
+<!-- PERSONNALISATION -->
+<!-- ======================= -->
+
+<div class="card p-6 space-y-6">
+
+  <!-- Titre -->
+  <div class="flex items-center gap-2">
+    <span class="text-lg">🎨</span>
+    <h2 class="text-lg font-semibold label">
+      Personnalisation du thème
+    </h2>
+  </div>
+
+  <!-- COULEUR PRINCIPALE -->
+  <div class="flex items-center justify-between flex-wrap gap-6">
+
+    <div class="space-y-2">
+      <label class="block text-sm font-medium mb-2 label">
+        Couleur principale du site
+      </label>
+      <input type="color"
+             name="couleur_principale"
+             value="{{ theme.couleur_principale|default:'#16a34a' }}"
+             class="w-20 h-12 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:scale-105 transition-transform"
+             id="colorInput">
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div id="colorPreview"
+           class="w-12 h-12 rounded-xl border shadow-inner"
+           style="background: {{ theme.couleur_principale|default:'#16a34a' }}">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LOGO -->
+  <div class="space-y-3">
+    <label class="block text-sm font-medium label">
+      Logo du magasin
+    </label>
+
+    <div class="flex items-center gap-6">
+
+      <!-- Aperçu du logo avec overlay et instruction -->
+      <div class="relative group w-24 h-24">
+        {% if theme.logo %}
+        <img id="logoPreview"
+             src="{{ theme.logo.url }}"
+             class="h-24 w-24 object-cover rounded-full border-4 border-gray-200 shadow-md bg-white transition group-hover:scale-105"/>
+        {% else %}
+        <img id="logoPreview"
+             src=""
+             class="h-24 w-24 object-cover rounded-full border-4 border-gray-200 shadow-md bg-white hidden"/>
+        <div id="noLogo"
+             class="h-24 w-24 flex items-center justify-center text-xs border rounded-full label">
+          Aucun logo
+        </div>
+        {% endif %}
+
+        <!-- Overlay au hover -->
+        <label for="id_logo"
+               class="absolute inset-0 flex items-center justify-center bg-black/30 text-white rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition">
+          <span class="text-sm font-medium">Cliquer pour changer</span>
+        </label>
+      </div>
+
+      <!-- Input réel caché -->
+      <div class="hidden">
+        {{ form_theme.logo }}
+      </div>
+
+      <!-- Petit texte explicatif sous le logo -->
+      <div class="flex flex-col justify-center">
+        <span class="text-xs text-gray-500 label">
+          Cliquez sur l'image pour changer le logo
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<!-- ======================= -->
+<!-- BOUTON -->
+<!-- ======================= -->
+
+<div class="flex justify-end">
+<button type="submit"
+        class="btn-main px-6 py-3 rounded-lg font-semibold shadow hover:opacity-90 transition">
+Enregistrer les paramètres
+</button>
+</div>
+
+</form>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  const colorInput = document.getElementById("colorInput")
+  const preview = document.getElementById("colorPreview")
+
+  if(colorInput){
+    colorInput.addEventListener("input", function(){
+      preview.style.background = this.value
+      // Met à jour la variable CSS pour que body/main réagisse directement
+      document.documentElement.style.setProperty('--primary', this.value)
+      document.documentElement.style.setProperty('--primary-light', this.value+'11') // transparence très claire
+    })
+  }
+
+})
+</script>
+<script>
+const inputLogo = document.querySelector('#id_logo');
+const preview = document.querySelector('#logoPreview');
+const noLogo = document.querySelector('#noLogo');
+
+inputLogo.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            preview.src = event.target.result;
+            preview.classList.remove('hidden');
+
+            if (noLogo){
+                noLogo.style.display = "none";
+            }
+        }
+
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

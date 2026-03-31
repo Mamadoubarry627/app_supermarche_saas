@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}
+Ventes - {{ magasin.nom }}
+{% endblock %}
+{% block header %}
+Ventes
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col">
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+
+  <!-- Titre -->
+  <h1 class="text-2xl font-bold label">
+    Historique des ventes
+  </h1>
+
+  <!-- Boutons d'action -->
+  <div class="flex gap-3 flex-wrap">
+{% if request.user.role == "GERANT" %}
+    <!-- Bouton Retour avec flèche -->
+    <a href="{% url 'vente_create' %}" 
+       class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 hover:text-green-700 hover:bg-gray-50 transition">
+      <!-- Flèche gauche -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Retour
+    </a>
+{% endif %}
+    <!-- Bouton Télécharger PDF-->
+    <a href="{% url 'ventes_pdf' %}?{{ request.GET.urlencode }}"
+       class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+     
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v8m4-4H8" />
+      </svg>
+      Télécharger PDF
+    </a>
+
+  </div>
+
+</div>
+
+<form method="GET" class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+
+    <!-- 🔎 Recherche -->
+    <input type="text" name="search" placeholder="Rechercher (facture, client, montant)"
+           value="{{ request.GET.search }}"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- 📅 Date début -->
+    <input type="date" name="date_debut"
+           value="{{ request.GET.date_debut }}"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- 📅 Date fin -->
+    <input type="date" name="date_fin"
+           value="{{ request.GET.date_fin }}"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- 📌 Filtre rapide -->
+    <select name="filtre" class="px-4 py-2 border rounded-lg label">
+        <option value="">Filtre rapide</option>
+        <option value="today">Aujourd’hui</option>
+        <option value="month">Ce mois</option>
+        <option value="year">Cette année</option>
+    </select>
+
+    <!-- 💰 Montant min -->
+    <input type="number" name="montant_min" placeholder="Montant min"
+           value="{{ request.GET.montant_min }}"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- 💰 Montant max -->
+    <input type="number" name="montant_max" placeholder="Montant max"
+           value="{{ request.GET.montant_max }}"
+           class="px-4 py-2 border rounded-lg label">
+
+    <!-- 📦 Statut -->
+    <select name="statut" class="px-4 py-2 border rounded-lg label">
+        <option value="">Tous statuts</option>
+        <option value="COMPLETEE">Complétée</option>
+        <option value="ANNULEE">Annulée</option>
+    </select>
+
+    <button type="submit"
+            class="px-4 py-2 btn-main rounded-lg hover:btn-main">
+        Filtrer
+    </button>
+
+</form>
+    <!-- Tableau Ventes -->
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">#</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Numéro facture</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Client</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Total</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Statut</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+            {% for vente in ventes %}
+            <tr class="hover:label transition">
+                <td class="px-4 py-3 font-medium label">{{ forloop.counter }}</td>
+                <td class="px-4 py-3 label">{{ vente.numero_facture }}</td>
+                <td class="px-4 py-3 label">{{ vente.client_nom|default:"-" }}</td>
+                <td class="px-4 py-3 label">{{ vente.montant_total|intcomma }} {{ magasin.devise }}</td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold
+                        {% if vente.statut == 'COMPLETEE' %}
+                            bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100
+                        {% else %}
+                            bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100
+                        {% endif %}">
+                        {{ vente.get_statut_display }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 flex gap-2">
+                    <a href="{% url 'vente_detail' vente.id %}"
+                       class="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition shadow-sm">
+                        <span class="material-icons text-sm">visibility</span> Voir
+                    </a>
+                    <a href="{% url 'vente_recu_html' vente.id %}" target="_blank"
+                       class="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 transition shadow-sm">
+                        <span class="material-icons text-sm">print</span> Imprimer
+                    </a>
+                    {% if vente.statut == 'ANNULEE' %}
+                    <a href="{% url 'vente_delete' vente.id %}" 
+                       onclick="return confirm('Supprimer définitivement cette vente ?')"
+                       class="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800 transition shadow-sm">
+                        <span class="material-icons text-sm">delete</span> Supprimer
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="py-6 text-center text-gray-500 dark:text-gray-400 text-lg">
+                    Aucune vente enregistrée
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}

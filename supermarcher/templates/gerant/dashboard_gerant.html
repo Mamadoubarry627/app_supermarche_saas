@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Dashboard - {{ magasin.nom }}{% endblock %}
+
+{% block header %}
+Dashboard - {{ magasin.nom }}
+{% endblock %}
+
+{% block content %}
+
+<!-- ===================== -->
+<!-- ACTIONS RAPIDES -->
+<!-- ===================== -->
+<div class="flex flex-wrap gap-4 mb-8">
+
+    <a href="{% url 'vente_create' %}" 
+       class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl shadow flex items-center gap-2">
+        <span class="material-icons">point_of_sale</span>
+        Nouvelle Vente
+    </a>
+
+    {% if request.user.role == "GERANT" %}
+    <a href="{% url 'achat_nouveau' %}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow flex items-center gap-2">
+        <span class="material-icons">add_shopping_cart</span>
+        Nouvel Achat
+    </a>
+
+    <a href="{% url 'produit_nouveau' %}" 
+       class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl shadow flex items-center gap-2">
+        <span class="material-icons">inventory_2</span>
+        Ajouter Produit
+    </a>
+    {% endif %}
+
+    <a href="{% url 'rapport_journalier' %}" 
+       class="bg-gray-700 hover:bg-gray-800 text-white px-6 py-3 rounded-xl shadow flex items-center gap-2">
+        <span class="material-icons">assessment</span>
+        Rapport du jour
+    </a>
+
+</div>
+
+<!-- ===================== -->
+<!-- KPI -->
+<!-- ===================== -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+<div class="card p-6 shadow">
+<p class="text-sm text-gray-500">Chiffre du jour</p>
+<h2 class="text-3xl font-bold text-green-600 mt-2">
+{{ chiffre_jour|intcomma }} {{ magasin.devise }}
+</h2>
+</div>
+
+<div class="card p-6 shadow">
+<p class="text-sm text-gray-500">Bénéfice du jour</p>
+<h2 class="text-3xl font-bold text-blue-600 mt-2">
+{{ benefice_jour|intcomma }} {{ magasin.devise }}
+</h2>
+</div>
+
+<div class="card p-6 shadow">
+<p class="text-sm text-gray-500">Produits</p>
+<h2 class="text-3xl font-bold mt-2">
+{{ produits_count }}
+</h2>
+</div>
+
+<div class="card p-6 shadow {% if alertes_stock > 0 %}border border-red-200{% endif %}">
+<p class="text-sm text-gray-500">Alertes Stock</p>
+
+<h2 class="text-3xl font-bold mt-2
+{% if alertes_stock > 0 %}
+text-red-600
+{% endif %}
+">
+{{ alertes_stock }}
+</h2>
+
+</div>
+
+</div>
+
+
+<!-- ===================== -->
+<!-- RACCOURCIS -->
+<!-- ===================== -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+
+{% if request.user.role == "GERANT" %}
+
+<a href="{% url 'stock_mouvements' %}" class="card p-6 shadow hover:shadow-xl text-center">
+<span class="material-icons text-3xl text-indigo-600">inventory</span>
+<p class="mt-2 font-semibold">Gestion Stock</p>
+</a>
+
+<a href="{% url 'fournisseurs_liste' %}" class="card p-6 shadow hover:shadow-xl text-center">
+<span class="material-icons text-3xl text-orange-600">store</span>
+<p class="mt-2 font-semibold">Fournisseurs</p>
+</a>
+
+<a href="{% url 'gerant_liste' %}" class="card p-6 shadow hover:shadow-xl text-center">
+<span class="material-icons text-3xl text-pink-600">people</span>
+<p class="mt-2 font-semibold">Employés</p>
+</a>
+
+
+<a href="{% url 'rapports' %}" class="card p-6 shadow hover:shadow-xl text-center">
+<span class="material-icons text-3xl text-gray-700">bar_chart</span>
+<p class="mt-2 font-semibold">Rapports</p>
+</a>
+{% endif %}
+</div>
+
+
+<!-- ===================== -->
+<!-- TABLEAUX -->
+<!-- ===================== -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+<!-- TOP PRODUITS -->
+<div class="card p-6 shadow">
+
+<h3 class="font-semibold mb-4 flex items-center gap-2">
+<span class="material-icons text-green-600">trending_up</span>
+Top 5 Produits
+</h3>
+
+{% for produit in top_produits %}
+
+<div class="flex justify-between items-center border-b py-2">
+
+<span class="font-medium">
+{{ produit.produit__nom }}
+</span>
+
+<span class="font-bold text-green-600">
+{{ produit.total_vendu }}
+</span>
+
+</div>
+
+{% empty %}
+
+<p class="text-gray-500">
+Aucune vente
+</p>
+
+{% endfor %}
+
+</div>
+
+
+<!-- DERNIERES VENTES -->
+<div class="card p-6 shadow">
+
+<h3 class="font-semibold mb-4 flex items-center gap-2">
+<span class="material-icons text-blue-600">receipt_long</span>
+Dernières Ventes
+</h3>
+
+{% for vente in ventes_recentes %}
+
+<div class="flex justify-between items-center border-b py-2">
+
+<span class="font-medium">
+{{ vente.numero_facture }}
+</span>
+
+<span class="text-green-600 font-bold">
+{{ vente.montant_total|intcomma }} {{ magasin.devise }}
+</span>
+
+</div>
+
+{% empty %}
+
+<p class="text-gray-500">
+Aucune vente
+</p>
+
+{% endfor %}
+
+</div>
+
+
+<!-- PRODUITS EXPIRES -->
+<div class="card p-6 shadow border border-red-200">
+
+<h3 class="font-semibold mb-4 text-red-700 flex items-center gap-2">
+<span class="material-icons text-red-600">warning</span>
+Produits expirés
+</h3>
+
+{% for produit in produits_expires %}
+
+<div class="flex justify-between items-center border-b py-2">
+
+<span class="font-medium">
+{{ produit.nom }}
+</span>
+
+<span class="text-xs font-bold px-2 py-1 rounded bg-red-600 text-white">
+Expiré
+</span>
+
+</div>
+
+{% empty %}
+
+<p class="text-gray-500">
+Aucun produit expiré
+</p>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<!-- ===================== -->
+<!-- NOUVEAUX WIDGETS -->
+<!-- ===================== -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+<!-- TOP CAISSIERS -->
+<div class="card p-6 shadow">
+
+<h3 class="font-semibold mb-4">
+Top Caissiers (Aujourd'hui)
+</h3>
+
+{% for caissier in top_caissiers %}
+
+<div class="flex justify-between border-b py-2">
+
+<span>
+{{ caissier.cree_par__first_name }}
+{{ caissier.cree_par__last_name }}
+</span>
+
+<span class="font-bold text-green-600">
+{{ caissier.total_ventes }} ventes
+</span>
+
+</div>
+
+{% empty %}
+
+<p class="text-gray-500">Aucune donnée</p>
+
+{% endfor %}
+
+</div>
+
+
+<!-- PRODUITS EXPIRATION -->
+<div class="card p-6 shadow">
+
+<h3 class="font-semibold mb-4 text-red-600">
+Produits bientôt expirés
+</h3>
+
+{% for produit in produits_expiration %}
+
+<div class="flex justify-between border-b py-2">
+
+<span>{{ produit.nom }}</span>
+
+<span class="text-red-600 font-bold">
+{{ produit.date_expiration }}
+</span>
+
+</div>
+
+{% empty %}
+
+<p class="text-gray-500">
+Aucun produit proche expiration
+</p>
+
+{% endfor %}
+
+</div>
+
+
+<!-- STOCK FAIBLE -->
+<div class="card p-6 shadow">
+
+<h3 class="font-semibold mb-4 text-red-600">
+Stock Critique
+</h3>
+
+{% for produit in produits_stock_faible %}
+
+<div class="flex justify-between border-b py-2">
+
+<span>{{ produit.nom }}</span>
+
+<span class="text-red-600 font-bold">
+{{ produit.quantite_stock }}
+</span>
+
+</div>
+
+{% empty %}
+
+<p class="text-gray-500">
+Stock OK
+</p>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<!-- ===================== -->
+<!-- GRAPHIQUE -->
+<!-- ===================== -->
+<div class="card p-6 shadow">
+
+<h3 class="font-semibold mb-4">
+Chiffre d'affaires 6 derniers mois
+</h3>
+
+<canvas id="ventesChart"></canvas>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+new Chart(document.getElementById('ventesChart'), {
+
+type: 'line',
+
+data: {
+
+labels: {{ chart_labels|safe }},
+
+datasets: [
+
+{
+
+data: {{ chart_data|safe }},
+
+borderColor: '#16a34a',
+
+backgroundColor: 'rgba(22,163,74,0.1)',
+
+fill: true,
+
+tension: 0.4
+
+}
+
+]
+
+},
+
+options: {
+
+plugins: { legend: { display: false } },
+
+responsive: true
+
+}
+
+});
+
+</script>
+
+{% endblock %}

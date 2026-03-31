@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ titre }} - {{ magasin.nom }}{% endblock %}
+{% block header %}{{ titre }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto card rounded-2xl shadow p-6">
+
+    <h1 class="text-2xl font-bold label mb-6">
+        {{ titre }}
+    </h1>
+
+    <form method="POST" class="space-y-5">
+        {% csrf_token %}
+
+        <div>
+            <label class="block text-sm font-medium label mb-1">
+                Nom
+            </label>
+            {{ form.nom }}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium label mb-1">
+                Description
+            </label>
+            {{ form.description }}
+        </div>
+
+        <div class="flex justify-end space-x-3 pt-4">
+            <a href="{% url 'categories_liste' %}"
+               class="px-4 py-2 bg-gray-200 btn-main:bg-gray-700 rounded-lg">
+                Annuler
+            </a>
+
+            <button type="submit"
+                    class="px-4 py-2 btn-main rounded-lg hover:btn-main">
+                Enregistrer
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

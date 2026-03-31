@@ -1,0 +1,31 @@
+{% load humanize %}
+<h2 class="label font-bold mb-2">Performance par employé</h2>
+<!-- Tableau Performance Caissiers -->
+<div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700 card">
+        <thead class="btn-main">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Employé</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">CA total</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Nb ventes</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Ventes annulées</th>
+            </tr>
+        </thead>
+        <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+            {% for p in performance_caissier %}
+            <tr class="hover:label transition">
+                <td class="px-4 py-3 label">{{ p.cree_par__username }}</td>
+                <td class="px-4 py-3 label">{{ p.total_ventes|intcomma }}</td>
+                <td class="px-4 py-3 label">{{ p.nb_ventes|intcomma }}</td>
+                <td class="px-4 py-3 label">{{ p.ventes_annulees|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="py-6 text-center label label:text-gray-400 text-lg">
+                    Aucun caissier enregistré
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

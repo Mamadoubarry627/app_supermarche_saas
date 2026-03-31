@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Nouvel Achat - {{magasin.nom}}{% endblock %}
+{% block header %}Ajouter un Achat{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen card">
+
+    <div class="max-w-5xl mx-auto card p-8 shadow-xl rounded-2xl">
+
+        <!-- HEADER -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold label">
+                🧾 Nouvel Achat
+            </h2>
+
+            <a href="{% url 'achats_liste' %}" 
+               class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                ← Retour
+            </a>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- INFOS -->
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+
+                <div class="space-y-1">
+                    <label class="label">Fournisseur</label>
+                    {{ form.fournisseur|add_class:"input w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-green-500" }}
+                </div>
+
+                <div class="space-y-1">
+                    <label class="label">Numéro facture</label>
+                    {{ form.numero_facture|add_class:"input w-full rounded-lg border-gray-300 dark:border-gray-600" }}
+                </div>
+
+                <div class="space-y-1">
+                    <label class="label">Statut</label>
+                    {{ form.statut|add_class:"input w-full rounded-lg border-gray-300 dark:border-gray-600" }}
+                </div>
+
+            </div>
+
+            <!-- PRODUITS -->
+            <div class="card p-6 dark:card shadow-inner rounded-xl border border-gray-200 dark:border-gray-700">
+
+                <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
+
+                    <h3 class="text-lg font-semibold label">
+                        Produits
+                    </h3>
+
+                    <div class="flex items-center gap-3 flex-wrap">
+
+                        <input type="text" id="search-produit"
+                            placeholder="🔍 Rechercher un produit..."
+                            class="input w-64 rounded-lg border-gray-300 dark:border-gray-600">
+
+                        <button type="button" id="add-ligne"
+                            class="btn-main px-4 py-2 rounded-lg shadow whitespace-nowrap">
+                            ➕ Ajouter
+                        </button>
+
+                    </div>
+
+                </div>
+
+                {{ formset.management_form }}
+
+                <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table id="table-produits" class="w-full text-sm">
+
+                        <thead class="btn-main">
+                            <tr>
+                                <th class="p-3 text-left">Produit</th>
+                                <th class="p-3 text-center">Quantité</th>
+                                <th class="p-3 text-center">Prix</th>
+                                <th class="p-3 text-center">Total</th>
+                                <th class="p-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for form in formset %}
+                            <tr class="ligne-form transition">
+
+                                <td class="p-2">
+                                    {{ form.produit|add_class:"input w-full rounded-lg" }}
+                                </td>
+
+                                <td class="p-2">
+                                    {{ form.quantite|add_class:"input w-full text-center rounded-lg" }}
+                                </td>
+
+                                <td class="p-2">
+                                    {{ form.prix_unitaire|add_class:"input w-full text-center rounded-lg" }}
+                                </td>
+
+                                <td class="p-2 text-center">
+                                    <div class="px-3 py-2 rounded-lg text-white bg-gray-100 dark:bg-gray-900 font-semibold">
+                                        <span class="ligne-total ">0.00</span> {{ magasin.devise }}
+                                    </div>
+                                </td>
+
+                                <td class="p-2 text-center">
+                                    <button type="button"
+                                        class="btn-delete group relative inline-flex items-center justify-center
+                                            w-9 h-9 rounded-lg border border-red-500 text-red-500
+                                            hover:bg-red-500 hover:text-white
+                                            active:scale-95 transition-all duration-200
+                                            dark:border-red-400 dark:text-red-400
+                                            dark:hover:bg-red-400 dark:hover:text-gray-900">
+
+                                        <!-- ICON SVG -->
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="w-4 h-4"
+                                            fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+
+                                            <path stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M6 7h12M10 11v6M14 11v6M9 7l1-2h4l1 2M7 7l1 14h8l1-14"/>
+                                        </svg>
+
+                                        <!-- TOOLTIP -->
+                                        <span class="absolute -top-8 scale-0 group-hover:scale-100
+                                                    transition bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                                            Supprimer
+                                        </span>
+
+                                    </button>
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <!-- TOTAL -->
+                <div class="text-right mt-6">
+                    <div class="inline-block bg-gray-200 dark:bg-gray-900 px-5 py-3 rounded-xl shadow">
+                        <span class="text-lg font-bold text-white">
+                            Total : <span id="montant-total">0.00</span> {{ magasin.devise }}
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BTN -->
+            <div class="mt-8 text-right">
+                <button type="submit"
+                        class="btn-main px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition">
+                    💾 Enregistrer
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<!-- ===================== -->
+<!-- PRODUITS PRIX -->
+<!-- ===================== -->
+<script>
+const PRODUITS_PRIX = {
+    {% for produit in produits %}
+        "{{ produit.id }}": {{ produit.prix_achat|default:0 }},
+    {% endfor %}
+};
+</script>
+
+<!-- ===================== -->
+<!-- JS DYNAMIQUE -->
+<!-- ===================== -->
+<script>
+window.addEventListener("load", function () {
+
+    let totalForms = document.querySelector('#id_lignes-TOTAL_FORMS');
+    let tableBody = document.querySelector('#table-produits tbody');
+    let addBtn = document.getElementById('add-ligne');
+
+    window.calculerTotalGlobal = function() {
+        let total = 0;
+        document.querySelectorAll('.ligne-total').forEach(el => {
+            total += parseFloat(el.innerText) || 0;
+        });
+        document.getElementById('montant-total').innerText = total.toFixed(2);
+    }
+
+    window.calculerLigne = function(row) {
+        let qte = row.querySelector('input[name*="quantite"]').value;
+        let prix = row.querySelector('input[name*="prix_unitaire"]').value;
+
+        let total = (qte * prix) || 0;
+        row.querySelector('.ligne-total').innerText = total.toFixed(2);
+
+        calculerTotalGlobal();
+    }
+
+    function autoPrix(row) {
+        let select = row.querySelector('select[name*="produit"]');
+        let prixInput = row.querySelector('input[name*="prix_unitaire"]');
+
+        let produitId = select.value;
+
+        if (PRODUITS_PRIX[produitId]) {
+            prixInput.value = PRODUITS_PRIX[produitId];
+            showToast("Produit ajoutée", "success");
+        }
+
+        calculerLigne(row);
+    }
+
+    window.bindEvents = function(row) {
+        row.querySelector('input[name*="quantite"]')
+            .addEventListener('input', () => calculerLigne(row));
+
+        row.querySelector('input[name*="prix_unitaire"]')
+            .addEventListener('input', () => calculerLigne(row));
+
+        row.querySelector('select[name*="produit"]')
+            .addEventListener('change', () => autoPrix(row));
+    }
+
+    document.querySelectorAll('.ligne-form').forEach(bindEvents);
+
+    addBtn.addEventListener('click', function () {
+        let formIndex = totalForms.value;
+
+        let firstRow = document.querySelector('.ligne-form');
+        let newRow = firstRow.cloneNode(true);
+
+        newRow.querySelectorAll('input, select').forEach(function (input) {
+            let name = input.name.replace(/-\d+-/, `-${formIndex}-`);
+            let id = input.id.replace(/-\d+-/, `-${formIndex}-`);
+
+            input.name = name;
+            input.id = id;
+
+            if (input.type !== 'hidden') input.value = '';
+        });
+
+        newRow.querySelector('.ligne-total').innerText = "0";
+
+        tableBody.appendChild(newRow);
+        bindEvents(newRow);
+
+        totalForms.value = parseInt(totalForms.value) + 1;
+
+        showToast("Ligne ajoutée", "success");
+    });
+
+    tableBody.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-supprimer')) {
+            if (document.querySelectorAll('.ligne-form').length > 1) {
+                e.target.closest('tr').remove();
+                calculerTotalGlobal();
+                showToast("Ligne supprimée", "error");
+            }
+        }
+    });
+
+});
+
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest(".btn-delete");
+
+    if (!btn) return;
+
+    const row = btn.closest("tr");
+
+    // éviter suppression dernière ligne
+    if (document.querySelectorAll(".ligne-form").length <= 1) {
+        showToast("Impossible de supprimer la dernière ligne", "error");
+        return;
+    }
+
+    // animation smooth
+    row.classList.add("opacity-0", "scale-95", "transition-all", "duration-200");
+
+    setTimeout(() => {
+        row.remove();
+        calculerTotalGlobal();
+        showToast("Ligne supprimée", "success");
+    }, 150);
+});
+
+
+document.getElementById("search-produit").addEventListener("input", function () {
+    let search = this.value.toLowerCase();
+
+    document.querySelectorAll('select[name*="produit"]').forEach(select => {
+
+        Array.from(select.options).forEach(option => {
+            let text = option.text.toLowerCase();
+
+            if (text.includes(search) || option.value === "") {
+                option.style.display = "block";
+            } else {
+                option.style.display = "none";
+            }
+        });
+
+    });
+});
+
+function trouverLigneVide() {
+    return [...document.querySelectorAll('.ligne-form')]
+        .find(row => {
+            let select = row.querySelector('select[name*="produit"]');
+            return !select.value; // ligne vide
+        });
+}
+
+function trouverProduitDejaExistant(produitId) {
+    return [...document.querySelectorAll('.ligne-form')]
+        .find(row => {
+            let select = row.querySelector('select[name*="produit"]');
+            return select.value == produitId;
+        });
+}
+
+function ajouterProduitDepuisScan(produitId) {
+
+    produitId = String(produitId); // sécurité
+
+    // 🔥 1. produit déjà présent → +1
+    let existingRow = trouverProduitDejaExistant(produitId);
+
+    if (existingRow) {
+        let qteInput = existingRow.querySelector('input[name*="quantite"]');
+        qteInput.value = (parseInt(qteInput.value) || 0) + 1;
+
+        calculerLigne(existingRow);
+        showToast("➕ Quantité augmentée", "success");
+        return;
+    }
+
+    let row = null;
+
+    // 🔥 2. chercher ligne vide
+    row = trouverLigneVide();
+
+    // 🔥 3. sinon créer nouvelle ligne
+    if (!row) {
+        let totalForms = document.querySelector('#id_lignes-TOTAL_FORMS');
+        let tableBody = document.querySelector('#table-produits tbody');
+
+        let formIndex = totalForms.value;
+        let firstRow = document.querySelector('.ligne-form');
+
+        row = firstRow.cloneNode(true);
+
+        row.querySelectorAll('input, select').forEach(function (input) {
+            let name = input.name.replace(/-\d+-/, `-${formIndex}-`);
+            let id = input.id.replace(/-\d+-/, `-${formIndex}-`);
+
+            input.name = name;
+            input.id = id;
+
+            if (input.type !== 'hidden') input.value = '';
+        });
+
+        tableBody.appendChild(row);
+        totalForms.value = parseInt(totalForms.value) + 1;
+
+        bindEvents(row);
+    }
+
+    // 🔥 4. remplir correctement la ligne
+    let select = row.querySelector('select[name*="produit"]');
+    let qteInput = row.querySelector('input[name*="quantite"]');
+    let prixInput = row.querySelector('input[name*="prix_unitaire"]');
+
+    // ✅ IMPORTANT : vérifier que le produit existe dans le select
+    let optionExiste = [...select.options].find(opt => opt.value == produitId);
+
+    if (!optionExiste) {
+        showToast("❌ Produit introuvable dans la liste", "error");
+        return;
+    }
+
+    // ✅ 🔥 FIX PRINCIPAL : on set la valeur AVANT le change
+    select.value = produitId;
+
+    // déclenche ton autoPrix()
+    select.dispatchEvent(new Event('change'));
+
+    // quantité
+    qteInput.value = 1;
+
+    // prix fallback sécurité
+    if (!prixInput.value && PRODUITS_PRIX[produitId]) {
+        prixInput.value = PRODUITS_PRIX[produitId];
+    }
+
+    calculerLigne(row);
+
+    showToast(`📦 ${optionExiste.text} ajouté`, "success");
+}
+</script>
+{% if request.user.is_authenticated %}
+<script>
+const userId = {{ request.user.id }};
+const token = "{{ jwt_access|default:'' }}";
+
+let socket = null;
+let retryCount = 0;
+let maxRetries = 5;
+
+function connectWS() {
+    let wsUrl = `ws://${window.location.host}/ws/panier/${userId}/`;
+
+    // ✅ AJOUT TOKEN (TRÈS IMPORTANT)
+    if (token) {
+        wsUrl += `?token=${token}`;
+    }
+
+    console.log("🌐 WS URL:", wsUrl);
+
+    socket = new WebSocket(wsUrl);
+
+    socket.onopen = () => {
+        console.log("✅ WS connecté (ACHAT)");
+        retryCount = 0;
+    };
+
+    socket.onmessage = (e) => {
+        console.log("📥 WS ACHAT:", e.data);
+
+        try {
+            const data = JSON.parse(e.data);
+
+            if (data.type === "scan" && data.id) {
+                ajouterProduitDepuisScan(data.id);
+            }
+
+        } catch (err) {
+            console.error("❌ JSON error:", err);
+        }
+    };
+
+    socket.onclose = () => {
+        console.warn("🔴 WS fermé");
+
+        if (retryCount < maxRetries) {
+            retryCount++;
+            setTimeout(connectWS, 2000);
+        } else {
+            console.error("❌ STOP reconnexion WS");
+        }
+    };
+
+    socket.onerror = (err) => {
+        console.error("❌ WS erreur:", err);
+        socket.close();
+    };
+}
+
+connectWS();
+</script>
+{% endif %}
+{% endblock %}

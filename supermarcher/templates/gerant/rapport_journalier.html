@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Rapport du jour - {{ magasin.nom }}{% endblock %}
+{% block header %}Rapport du jour - {{ jour }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8 card">
+    <div class="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+    <!-- FILTRE JOUR -->
+    <form method="get" class="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-gray-900 p-4 rounded-xl shadow-lg transition hover:shadow-2xl">
+        <label class="font-semibold text-gray-700 dark:text-gray-200">Sélectionner un jour :</label>
+        <input type="date" name="jour" value="{{ jour }}"
+               class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white transition">
+        <button type="submit" 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition duration-300">Afficher</button>
+    </form>
+
+    <!-- BOUTON RETOUR -->
+    <a href="{% url 'dashboard_gerant' %}" 
+       class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-green-100 dark:hover:bg-green-700 hover:text-green-800 dark:hover:text-white transition shadow-sm hover:shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Retour
+    </a>
+
+</div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- VENTES -->
+        <section class="p-6 rounded-3xl shadow-xl bg-gradient-to-tr from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 transform hover:scale-105 transition">
+            <h2 class="text-2xl font-bold mb-4 text-blue-800 dark:text-blue-300 flex items-center gap-2">📊 Ventes du {{ jour }}</h2>
+            
+            <p class="mb-1 text-gray-700 dark:text-gray-300"><strong>Total de ventes :</strong> <span class="font-semibold">{{ total_ventes }}</span></p>
+            <p class="mb-3 text-gray-700 dark:text-gray-300"><strong>Montant total encaissé :</strong> <span class="font-semibold">{{ montant_total|intcomma }} {{ magasin.devise }}</span></p>
+
+            <h3 class="font-semibold mt-4 mb-2 text-blue-600 dark:text-blue-300">Produits vendus :</h3>
+            <ul class="list-disc list-inside space-y-1">
+                {% for p in produits_vendus %}
+                    <li class="text-gray-700 dark:text-gray-200">{{ p.produit__nom }} - <span class="font-semibold">{{ p.quantite }}</span></li>
+                {% empty %}
+                    <li class="text-gray-500 dark:text-gray-400">Aucun produit vendu</li>
+                {% endfor %}
+            </ul>
+
+            <h3 class="font-semibold mt-4 mb-2 text-blue-600 dark:text-blue-300">Mode de paiement :</h3>
+            <ul class="list-disc list-inside space-y-1">
+                {% for m in mode_paiement %}
+                    <li class="text-gray-700 dark:text-gray-200">{{ m.mode_paiement }} : <span class="font-semibold">{{ m.total|intcomma }} {{ magasin.devise }}</span></li>
+                {% empty %}
+                    <li class="text-gray-500 dark:text-gray-400">Aucun paiement enregistré</li>
+                {% endfor %}
+            </ul>
+
+            <h3 class="font-semibold mt-4 mb-2 text-blue-600 dark:text-blue-300">Performance caissiers :</h3>
+            <ul class="list-disc list-inside space-y-1">
+                {% for c in performance_caissier %}
+                    <li class="text-gray-700 dark:text-gray-200">{{ c.cree_par__username }} - Ventes : {{ c.total_ventes }}, Total : <span class="font-semibold">{{ c.montant_total|intcomma }} {{ magasin.devise }}</span></li>
+                {% empty %}
+                    <li class="text-gray-500 dark:text-gray-400">Aucun caissier</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- PRODUITS -->
+        <section class="p-6 rounded-3xl shadow-xl bg-gradient-to-tr from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800 transform hover:scale-105 transition">
+            <h2 class="text-2xl font-bold mb-4 text-green-800 dark:text-green-300 flex items-center gap-2">🛒 Produits</h2>
+
+            <h3 class="font-semibold mt-2 mb-2 text-green-600 dark:text-green-300">Produits stock faible :</h3>
+            <ul class="list-disc list-inside space-y-1">
+                {% for p in produits_stock_faible %}
+                    <li class="text-gray-700 dark:text-gray-200">{{ p.nom }} (<span class="font-semibold">{{ p.quantite_stock }}</span>)</li>
+                {% empty %}
+                    <li class="text-gray-500 dark:text-gray-400">Tout est OK</li>
+                {% endfor %}
+            </ul>
+
+            <h3 class="font-semibold mt-4 mb-2 text-green-600 dark:text-green-300">Produits jamais vendus :</h3>
+            <ul class="list-disc list-inside space-y-1">
+                {% for p in produits_jamais_vendus %}
+                    <li class="text-gray-700 dark:text-gray-200">{{ p.nom }}</li>
+                {% empty %}
+                    <li class="text-gray-500 dark:text-gray-400">Tous les produits ont été vendus</li>
+                {% endfor %}
+            </ul>
+
+            <h3 class="font-semibold mt-4 mb-2 text-green-600 dark:text-green-300">Produits les plus vendus :</h3>
+            <ul class="list-disc list-inside space-y-1">
+                {% for p in produits_plus_vendus %}
+                    <li class="text-gray-700 dark:text-gray-200">{{ p.produit__nom }} - <span class="font-semibold">{{ p.quantite }}</span></li>
+                {% empty %}
+                    <li class="text-gray-500 dark:text-gray-400">Aucun produit vendu</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- FINANCES -->
+        <section class="p-6 rounded-3xl shadow-xl bg-gradient-to-tr from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-900/40 transform hover:scale-105 transition">
+            <h2 class="text-2xl font-bold mb-4 text-yellow-800 dark:text-yellow-300 flex items-center gap-2">💰 Finances</h2>
+            
+            <p class="mb-2 text-gray-700 dark:text-gray-200"><strong>Chiffre d’affaires total :</strong> <span class="font-semibold">{{ montant_total|intcomma }} {{ magasin.devise }}</span></p>
+            <p class="mb-4 text-gray-700 dark:text-gray-200"><strong>Panier moyen :</strong> <span class="font-semibold">{{ panier_moyen|floatformat:2 }} {{ magasin.devise }}</span></p>
+
+            <h3 class="font-semibold mt-2 mb-2 text-yellow-600 dark:text-yellow-300">Marge par produit :</h3>
+            <ul class="list-disc list-inside space-y-1">
+                {% for m in marge_par_produit %}
+                    <li class="text-gray-700 dark:text-gray-200">{{ m.produit__nom }} : <span class="font-semibold">{{ m.marge|intcomma }}</span></li>
+                {% empty %}
+                    <li class="text-gray-500 dark:text-gray-400">Aucune marge calculée</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

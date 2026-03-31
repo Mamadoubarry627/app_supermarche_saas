@@ -1,0 +1,177 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if mode == "modifier" %}Modifier le magasin{% else %}Créer un magasin{% endif %} - SuperAdmin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+
+        @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen">
+
+<div class="max-w-5xl mx-auto p-8">
+{% if messages %}
+<div class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+
+    <div class="space-y-3">
+
+        {% for message in messages %}
+
+            <div
+                class="p-4 rounded-xl shadow-2xl border text-center font-medium
+                animate-[fadeIn_0.3s_ease-out]
+                {% if message.tags == 'success' %}
+                    bg-green-100 border-green-400 text-green-800
+                {% elif message.tags == 'error' %}
+                    bg-red-100 border-red-400 text-red-800
+                {% elif message.tags == 'warning' %}
+                    bg-yellow-100 border-yellow-400 text-yellow-800
+                {% else %}
+                    bg-blue-100 border-blue-400 text-blue-800
+                {% endif %}
+            ">
+
+                <div class="flex items-center justify-center gap-2">
+
+                    {% if message.tags == 'success' %}
+                        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
+
+                    {% elif message.tags == 'error' %}
+                        <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+
+                    {% elif message.tags == 'warning' %}
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01M10.29 3.86l-7.4 12.84A1.5 1.5 0 004.1 19h15.8a1.5 1.5 0 001.2-2.3l-7.4-12.84a1.5 1.5 0 00-2.42 0z" />
+                        </svg>
+
+                    {% else %}
+                        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M12 4h.01" />
+                        </svg>
+                    {% endif %}
+
+                    <span>{{ message }}</span>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+{% endif %}
+    <!-- TITRE ET BOUTON RETOUR -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+                {% if mode == "modifier" %}Modifier le magasin{% else %}Créer un magasin{% endif %}
+            </h1>
+            <p class="text-gray-600 mt-1 text-sm md:text-base">Créer un nouveau magasin et son gérant automatiquement.</p>
+        </div>
+        <a href="{% url 'dashboard_superadmin' %}" 
+       class="bg-emerald-600 text-white px-4 py-2 rounded-full shadow hover:bg-emerald-700 transition duration-300">
+       ← Retour
+    </a>
+    </div>
+
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+
+        <!-- CARD MAGASIN -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6">Informations du magasin</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Nom du magasin</label>
+                    {{ form.nom|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Ville</label>
+                    {{ form.ville|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Pays</label>
+                    {{ form.pays|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Téléphone</label>
+                    {{ form.telephone|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block font-semibold mb-1 text-gray-700">Adresse</label>
+                    {{ form.adresse|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block font-semibold mb-1 text-gray-700">Email du magasin</label>
+                    {{ form.email|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD GERANT -->
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6">Compte du gérant</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Nom utilisateur</label>
+                    {{ form.gerant_username|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Email</label>
+                    {{ form.gerant_email|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Mot de passe</label>
+                    {{ form.gerant_password|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-colors" }}
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700">Confirmer le mot de passe</label>
+                    {{ form.gerant_password2|add_class:"w-full p-3 rounded-lg border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-colors" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- BOUTON SOUMISSION -->
+        <div class="flex justify-end">
+            <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition-colors shadow-md hover:shadow-lg font-semibold">
+                {% if mode == "modifier" %}Modifier le magasin{% else %}Créer le magasin{% endif %}
+            </button>
+        </div>
+    </form>
+
+</div>
+</body>
+</html>

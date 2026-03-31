@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Catégories - {{ magasin.nom }}{% endblock %}
+{% block header %}Catégories{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto card rounded-2xl shadow p-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <h1 class="text-3xl font-extrabold label">
+            Catégories
+        </h1>
+
+        <a href="{% url 'categorie_nouvelle' %}"
+           class="px-5 py-2 btn-main rounded-lg hover:btn-main transition flex items-center gap-2 font-medium shadow">
+           <span class="material-icons text-base">add</span> Nouvelle Catégorie
+        </a>
+    </div>
+
+    <!-- Filtres -->
+<div class="card p-6 rounded-xl mb-6 shadow-sm">
+    <form method="get" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+
+        <!-- Recherche -->
+        <div class="flex flex-col">
+            <label class="text-sm font-medium label">Recherche</label>
+            <input type="text" name="search" value="{{ filters.search }}" 
+                   placeholder="Nom de la catégorie, description..."
+                   class="px-4 py-2 border rounded-lg label">
+        </div>
+
+        <!-- Produits min -->
+        <div class="flex flex-col">
+            <label class="text-sm font-medium label">Produits min</label>
+            <input type="number" name="min_produits" value="{{ filters.min_produits }}"
+                   placeholder="0"
+                   class="px-4 py-2 border rounded-lg label">
+        </div>
+
+        <!-- Produits max -->
+        <div class="flex flex-col">
+            <label class="text-sm font-medium label">Produits max</label>
+            <input type="number" name="max_produits" value="{{ filters.max_produits }}"
+                   placeholder="100"
+                   class="px-4 py-2 border rounded-lg label">
+        </div>
+
+        <!-- Statut -->
+        <div class="flex flex-col">
+            <label class="text-sm font-medium label">Statut</label>
+            <select name="statut"
+                    class="px-4 py-2 border rounded-lg label">
+                <option value="" {% if filters.statut == "" %}selected{% endif %}>Tous</option>
+                <option value="avec" {% if filters.statut == "avec" %}selected{% endif %}>Avec produits</option>
+                <option value="vide" {% if filters.statut == "vide" %}selected{% endif %}>Vide</option>
+            </select>
+        </div>
+
+        <!-- Tri -->
+        <div class="flex flex-col">
+            <label class="text-sm font-medium label">Trier par</label>
+            <select name="tri"
+                    class="px-4 py-2 border rounded-lg label">
+                <option value="nom" {% if filters.tri == "nom" %}selected{% endif %}>Nom ↑</option>
+                <option value="-nom" {% if filters.tri == "-nom" %}selected{% endif %}>Nom ↓</option>
+                <option value="nb_produits" {% if filters.tri == "nb_produits" %}selected{% endif %}>Produits ↑</option>
+                <option value="-nb_produits" {% if filters.tri == "-nb_produits" %}selected{% endif %}>Produits ↓</option>
+            </select>
+        </div>
+
+        <!-- Bouton Filtrer -->
+        <div class="flex items-end">
+            <button type="submit" 
+                    class="px-4 py-2 btn-main rounded-lg hover:btn-main transition shadow font-medium w-full h-12">
+                Filtrer
+            </button>
+        </div>
+
+    </form>
+</div>
+
+    <!-- Tableau -->
+    <div class="overflow-x-auto rounded-lg shadow">
+        <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700">
+            <thead class="btn-main">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Nom</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Description</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Produits</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="label divide-y divide-gray-200 label:divide-gray-700">
+                {% for categorie in categories %}
+                <tr class="hover:label transition">
+                    <td class="px-4 py-3 font-medium label">{{ categorie.nom }}</td>
+                    <td class="px-4 py-3 label">{{ categorie.description|default:"-" }}</td>
+                    <td class="px-4 py-3">
+                        {% if categorie.nb_produits > 0 %}
+                        <span class="px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 text-xs font-semibold">
+                            {{ categorie.nb_produits }}
+                        </span>
+                        {% else %}
+                        <span class="px-2 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100 text-xs font-semibold">
+                            0
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 flex gap-2">
+                        <a href="{% url 'categorie_modifier' categorie.id %}"
+                           class="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition shadow-sm">
+                            <span class="material-icons text-sm">edit</span> Modifier
+                        </a>
+
+                        <a href="{% url 'categorie_supprimer' categorie.id %}"
+                           class="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800 transition shadow-sm">
+                            <span class="material-icons text-sm">delete</span> Supprimer
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="py-6 text-center text-gray-500 dark:text-gray-400 text-lg">
+                        Aucune catégorie trouvée
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

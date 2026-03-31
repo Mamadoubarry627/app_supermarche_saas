@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Gestion des rapports - {{ magasin.nom }}{% endblock %}
+{% block header %}Gestion des rapports{% endblock %}
+
+{% block content %}
+
+<!-- ===================================== -->
+<!-- RAPPORTS - CATEGORIES ET FILTRES -->
+<!-- ===================================== -->
+<div class="space-y-6">
+
+  <!-- ===================================== -->
+  <!-- CATEGORIES DE RAPPORT -->
+  <!-- ===================================== -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <button class="categorie-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" data-categorie="ventes">
+      Rapports ventes
+    </button>
+    <button class="categorie-btn px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition" data-categorie="produits">
+      Rapports produits
+    </button>
+    {% if request.user.role == "GERANT" %}
+    <button class="categorie-btn px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition" data-categorie="stock">
+      Rapports stock
+    </button>
+    <button class="categorie-btn px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition" data-categorie="fournisseurs">
+      Rapports fournisseurs
+    </button>
+    <button class="categorie-btn px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition" data-categorie="finances">
+      Rapports finances
+    </button>
+    <button class="categorie-btn px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition" data-categorie="clients">
+      Rapports clients
+    </button>
+    {% endif %}
+  </div>
+
+  <!-- ===================================== -->
+  <!-- FILTRES RAPPORT -->
+  <!-- ===================================== -->
+  <div class="card p-4 shadow rounded-lg">
+    <form id="filtre-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+
+      <input type="hidden" name="magasin" id="magasin" value="{{ selected_magasin }}">
+
+      <!-- Utilisateur -->
+      <div class="flex flex-col">
+        <label class="label font-medium mb-1">Utilisateur</label>
+        <select name="utilisateur" id="utilisateur"
+                class="px-3 py-2 border rounded-lg"
+                {% if request.user.role == "CAISSIER" %} disabled {% endif %}>
+          {% if request.user.role == "CAISSIER" %}
+            <!-- Caissier : afficher uniquement son propre nom -->
+            <option value="{{ request.user.id }}" selected>{{ request.user.username }}</option>
+          {% else %}
+            <!-- Gérant/Superadmin : afficher tous les utilisateurs -->
+            <option value="">Tous</option>
+            {% for u in utilisateurs %}
+              <option value="{{ u.id }}"
+                {% if u.id|stringformat:"s" == selected_utilisateur %} selected {% endif %}>
+                {{ u.username }}
+              </option>
+            {% endfor %}
+          {% endif %}
+        </select>
+      </div>
+
+      <!-- Date début -->
+      <div class="flex flex-col">
+        <label class="label font-medium mb-1">Date début</label>
+        <input type="date" name="date_debut" id="date_debut" class="px-3 py-2 border rounded-lg">
+      </div>
+
+      <!-- Date fin -->
+      <div class="flex flex-col">
+        <label class="font-medium mb-1 label">Date fin</label>
+        <input type="date" name="date_fin" id="date_fin" class="px-3 py-2 border rounded-lg">
+      </div>
+
+      <!-- Jour spécifique -->
+      <div class="flex flex-col">
+        <label class="label font-medium mb-1">Jour spécifique</label>
+        <input type="date" name="jour" id="jour" class="px-3 py-2 border rounded-lg">
+      </div>
+
+      <!-- Type de rapport -->
+      <div class="flex flex-col sm:col-span-2 lg:col-span-1">
+        <label class="label font-medium mb-1">Type de rapport</label>
+        <select name="type_rapport" id="type_rapport" class="px-3 py-2 border rounded-lg">
+          <option value="">Sélectionner un rapport</option>
+        </select>
+      </div>
+
+    </form>
+    <div class="mt-4">
+    <button id="downloadPDF"
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+        Télécharger PDF
+    </button>
+</div>
+  </div>
+
+  <!-- ===================================== -->
+  <!-- BOUTONS DE PERIODE RAPIDE -->
+  <!-- ===================================== -->
+  <div class="flex flex-wrap gap-2 card">
+    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="today">
+      Aujourd'hui
+    </button>
+    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="yesterday">
+      Hier
+    </button>
+    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="week">
+      Cette semaine
+    </button>
+    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="month">
+      Ce mois
+    </button>
+  </div>
+
+</div>
+  <!-- ===================================== -->
+  <!-- LOADER -->
+  <!-- ===================================== -->
+  <div id="loader" class="hidden text-center py-10">
+    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900 mx-auto"></div>
+    <p class="text-sm text-gray-500 mt-2">Chargement du rapport...</p>
+  </div>
+
+  <!-- ===================================== -->
+  <!-- RESULTAT RAPPORT -->
+  <!-- ===================================== -->
+  <div id="rapport-container" class="overflow-x-auto"></div>
+</div>
+
+<!-- ===================================== -->
+<!-- JAVASCRIPT AJAX -->
+<!-- ===================================== -->
+<script>
+const rapports = {
+  ventes: [
+    ["produits_plus_vendus", "Produits les plus vendus"],
+    ["performance_caissier", "Performance caissier"],
+    ["chiffres_cles", "Chiffres clés"],
+    ["produits_vendus", "Produits vendus"],
+    ["ventes_annulees", "Ventes annulées"],
+    ["ventes_par_categorie", "Ventes par catégorie"],        // nouveau
+    ["ventes_par_mode_paiement", "Ventes par mode de paiement"], // nouveau
+    ["ventes_par_client", "Ventes par client"]             // nouveau
+  ],
+  produits: [
+    ["produits_reapprovisionnement", "Produits à réapprovisionner"],
+    ["produits_proches_peremption", "Produits proches de la date d’expiration"],
+    ["produits_expire", "Produits expirés"],
+    ["produits_jamais_vendus", "Produits jamais vendus"],
+    ["produits_plus_rentables", "Produits les plus rentables"],    // nouveau
+    ["rotation_stock", "Rotation de stock par produit"]             // nouveau
+  ],
+  stock: [
+    ["stock_actuel", "Stock actuel"],
+    ["mouvements_stock", "Mouvements de stock"],
+    ["valeur_stock", "Valeur totale du stock"]                     // nouveau
+  ],
+  fournisseurs: [
+    ["achats_par_fournisseur", "Achats par fournisseur"],
+    ["delai_livraison_fournisseur", "Délai moyen de livraison fournisseur"], // nouveau
+    ["historique_prix_fournisseur", "Historique des prix par fournisseur"]   // nouveau
+  ],
+  finances: [                                                        // nouvelle catégorie
+    ["ca_par_categorie", "Chiffre d’affaires par catégorie"],        // nouveau
+    ["marge_par_produit", "Marge par produit"],                      // nouveau
+    ["panier_moyen", "Panier moyen"]                               // nouveau
+  
+  ],
+  clients: [                                                         // nouvelle catégorie
+    ["clients_fideles", "Clients fidèles"],                          // nouveau
+    ["frequence_achat", "Fréquence d’achat par client"],            // nouveau
+    ["valeur_client", "Valeur client (panier moyen cumulé)"]        // nouveau
+  ]
+};
+
+const categorieBtns = document.querySelectorAll(".categorie-btn");
+const selectRapport = document.getElementById("type_rapport");
+const rapportContainer = document.getElementById("rapport-container");
+const loader = document.getElementById("loader");
+
+// ===============================
+// CHANGEMENT CATEGORIE
+// ===============================
+categorieBtns.forEach(btn => {
+  btn.addEventListener("click", function() {
+
+    // Retirer active sur tous les boutons
+    categorieBtns.forEach(b => b.classList.remove("ring-4", "ring-offset-2", "ring-blue-500"));
+
+    // Ajouter style actif sur le bouton cliqué
+    this.classList.add("ring-4", "ring-offset-2", "ring-blue-500");
+
+    const categorieActive = this.dataset.categorie;
+
+    // Réinitialiser select
+    selectRapport.innerHTML = '<option value="">Sélectionner un rapport</option>';
+
+    if (rapports[categorieActive]) {
+      rapports[categorieActive].forEach(r => {
+        const option = document.createElement("option");
+        option.value = r[0];
+        option.textContent = r[1];
+        selectRapport.appendChild(option);
+      });
+    }
+
+    // Vider le container
+    rapportContainer.innerHTML = "";
+  });
+});
+
+// ===============================
+// CHARGEMENT RAPPORT AJAX
+// ===============================
+document.getElementById("filtre-form").addEventListener("change", function() {
+
+  const typeRapport = selectRapport.value;
+  if(!typeRapport) return;
+
+  const params = new URLSearchParams({
+    type_rapport: typeRapport,
+    utilisateur: document.getElementById("utilisateur").value,
+    date_debut: document.getElementById("date_debut").value,
+    date_fin: document.getElementById("date_fin").value,
+    jour: document.getElementById("jour").value
+  });
+
+  loader.classList.remove("hidden");
+  rapportContainer.innerHTML = "";
+
+  fetch(`/rapports/ajax/?${params.toString()}`)
+  .then(async response => {
+    loader.classList.add("hidden");
+
+    if (!response.ok) {
+      // Si Django retourne une erreur HTTP (500, 404, etc.)
+      const text = await response.text();
+      throw new Error(`Erreur serveur ${response.status}: ${text}`);
+    }
+
+    return response.json();
+  })
+  .then(data => {
+    if(data.html) {
+      rapportContainer.innerHTML = data.html;
+    } else if(data.error) {
+      rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur: ${data.error}</p>`;
+    } else {
+      rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur inconnue</p>`;
+    }
+  })
+  .catch(err => {
+    // Affiche l'erreur complète
+    rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur lors du chargement du rapport:<br>${err.message}</p>`;
+    console.error(err);
+  });
+});
+
+const periodeBtns = document.querySelectorAll(".periode-btn");
+
+periodeBtns.forEach(btn => {
+
+  btn.addEventListener("click", function(){
+
+    const today = new Date();
+    let start = "";
+    let end = "";
+
+    const type = this.dataset.periode;
+
+    if(type === "today"){
+      start = end = today.toISOString().split("T")[0];
+    }
+
+    if(type === "yesterday"){
+      const y = new Date(today);
+      y.setDate(today.getDate() - 1);
+      start = end = y.toISOString().split("T")[0];
+    }
+
+    if(type === "week"){
+      const first = new Date(today);
+      first.setDate(today.getDate() - today.getDay() + 1);
+
+      start = first.toISOString().split("T")[0];
+      end = today.toISOString().split("T")[0];
+    }
+
+    if(type === "month"){
+      const first = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      start = first.toISOString().split("T")[0];
+      end = today.toISOString().split("T")[0];
+    }
+
+    document.getElementById("date_debut").value = start;
+    document.getElementById("date_fin").value = end;
+    document.getElementById("jour").value = "";
+
+    document.getElementById("filtre-form").dispatchEvent(new Event("change"));
+
+  });
+
+});
+
+document.getElementById("downloadPDF").addEventListener("click", function(){
+
+    const params = new URLSearchParams({
+        type_rapport: document.getElementById("type_rapport").value,
+        utilisateur: document.getElementById("utilisateur").value,
+        date_debut: document.getElementById("date_debut").value,
+        date_fin: document.getElementById("date_fin").value,
+        jour: document.getElementById("jour").value
+    });
+
+    window.open(`/rapports/export/pdf/?${params.toString()}`, "_blank");
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Super Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px rgba(0,0,0,0.1);
+}
+
+.modal-content {
+  transform: scale(0.9);
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+.modal-show {
+  transform: scale(1);
+  opacity: 1;
+}
+</style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 font-sans">
+{% if messages %}
+<div class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+
+    <div class="space-y-3">
+
+        {% for message in messages %}
+
+            <div
+                class="p-4 rounded-xl shadow-2xl border text-center font-medium
+                animate-[fadeIn_0.3s_ease-out]
+                {% if message.tags == 'success' %}
+                    bg-green-100 border-green-400 text-green-800
+                {% elif message.tags == 'error' %}
+                    bg-red-100 border-red-400 text-red-800
+                {% elif message.tags == 'warning' %}
+                    bg-yellow-100 border-yellow-400 text-yellow-800
+                {% else %}
+                    bg-blue-100 border-blue-400 text-blue-800
+                {% endif %}
+            ">
+
+                <div class="flex items-center justify-center gap-2">
+
+                    {% if message.tags == 'success' %}
+                        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
+
+                    {% elif message.tags == 'error' %}
+                        <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+
+                    {% elif message.tags == 'warning' %}
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01M10.29 3.86l-7.4 12.84A1.5 1.5 0 004.1 19h15.8a1.5 1.5 0 001.2-2.3l-7.4-12.84a1.5 1.5 0 00-2.42 0z" />
+                        </svg>
+
+                    {% else %}
+                        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M12 4h.01" />
+                        </svg>
+                    {% endif %}
+
+                    <span>{{ message }}</span>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+{% endif %}
+<!-- HEADER -->
+<header class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-gray-800">Dashboard Super Admin</h1>
+    <div class="flex items-center space-x-4">
+      <a href="{% url 'audit_logs' %}"
+   class="flex items-center space-x-2 bg-gray-800 text-white px-5 py-2 rounded-lg shadow hover:bg-gray-900 transition">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+       viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 17v-6h13v6M9 17H6a2 2 0 01-2-2V7a2 2 0 012-2h3m0 12v4m0-16v4"/>
+  </svg>
+
+  <span>Audit Logs</span>
+</a>
+      <div class="w-14 h-14 bg-purple-700 text-white rounded-full flex items-center justify-center font-bold text-lg border-4 border-purple-500 transform transition-transform duration-300 hover:scale-110 hover:shadow-2xl cursor-pointer">
+        {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}
+      </div>
+      <div class="flex flex-col items-center">
+        <div class="text-gray-800 font-semibold text-lg text-center">
+          {{ request.user.first_name }} {{ request.user.last_name }}
+        </div>
+        <div class="text-sm text-gray-700 bg-orange-200 px-3 py-1 rounded-full border border-gray-300 w-max mt-1 text-center">
+          {{ request.user.role|title }}
+        </div>
+      </div>
+      <form method="post" action="{% url 'deconnexion' %}">
+        {% csrf_token %}
+        <button type="submit" class="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-md hover:shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+          </svg>
+          
+        </button>
+      </form>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto p-8">
+
+<!-- STATS CARDS RELOOKÉES -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
+  
+  <!-- Magasins -->
+  <div class="bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl shadow-lg p-6 flex items-center space-x-4 transform transition hover:scale-105 hover:shadow-2xl">
+    <div class="bg-gray-300 p-4 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 7l1 12h16l1-12M5 7V5a2 2 0 012-2h10a2 2 0 012 2v2"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-gray-500 font-medium">Magasins</p>
+      <h2 class="text-3xl font-bold mt-1">{{ total_magasins }}</h2>
+    </div>
+  </div>
+
+  <!-- Magasins actifs -->
+  <div class="bg-gradient-to-r from-green-100 to-green-200 rounded-2xl shadow-lg p-6 flex items-center space-x-4 transform transition hover:scale-105 hover:shadow-2xl">
+    <div class="bg-green-300 p-4 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-green-700 font-semibold">Magasins actifs</p>
+      <h2 class="text-3xl font-bold mt-1 text-green-800">{{ magasins_actifs }}</h2>
+    </div>
+  </div>
+
+  <!-- Magasins inactifs -->
+  <div class="bg-gradient-to-r from-red-100 to-red-200 rounded-2xl shadow-lg p-6 flex items-center space-x-4 transform transition hover:scale-105 hover:shadow-2xl">
+    <div class="bg-red-300 p-4 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-red-700 font-semibold">Magasins inactifs</p>
+      <h2 class="text-3xl font-bold mt-1 text-red-800">{{ magasins_inactifs }}</h2>
+    </div>
+  </div>
+
+  <!-- Gérants -->
+  <div class="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl shadow-lg p-6 flex items-center space-x-4 transform transition hover:scale-105 hover:shadow-2xl">
+    <div class="bg-blue-300 p-4 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9 9 0 1118 11M12 12v1m0 4h.01"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-blue-700 font-semibold">Gérants</p>
+      <h2 class="text-3xl font-bold mt-1 text-blue-800">{{ total_gerants }}</h2>
+    </div>
+  </div>
+
+  <!-- Caissiers -->
+  <div class="bg-gradient-to-r from-purple-100 to-purple-200 rounded-2xl shadow-lg p-6 flex items-center space-x-4 transform transition hover:scale-105 hover:shadow-2xl">
+    <div class="bg-purple-300 p-4 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 21h14v-2H5v2z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-purple-700 font-semibold">Caissiers</p>
+      <h2 class="text-3xl font-bold mt-1 text-purple-800">{{ total_caissiers }}</h2>
+    </div>
+  </div>
+
+</div>
+
+  <!-- TABLE MAGASINS -->
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800">Derniers magasins</h2>
+      <div class="flex space-x-2">
+        <a href="{% url 'gestion_utilisateurs' %}" class="flex items-center space-x-2 bg-indigo-600 text-white px-5 py-2 rounded-lg shadow hover:bg-indigo-700 transition">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5V4H2v16h5m10 0v-4a4 4 0 00-8 0v4m8 0H9"/>
+          </svg>
+          <span>Gérer les utilisateurs</span>
+        </a>
+        <a href="{% url 'creer_magasin' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow">+ Nouveau magasin</a>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="p-3 text-gray-500">Nom</th>
+            <th class="p-3 text-gray-500">Propriétaire</th>
+            <th class="p-3 text-gray-500">Ville</th>
+            <th class="p-3 text-gray-500">Statut</th>
+            <th class="p-3 text-gray-500">Date</th>
+            <th class="p-3 text-gray-500 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for magasin in magasins %}
+          <tr class="border-b hover:bg-gray-50 transition-colors">
+            <td class="p-3 font-semibold">{{ magasin.nom }}</td>
+            <td class="p-3">{{ magasin.proprietaire.first_name }} {{ magasin.proprietaire.last_name }}</td>
+            <td class="p-3">{{ magasin.ville }}</td>
+            <td class="p-3">
+              {% if magasin.actif %}
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">Actif</span>
+              {% else %}
+                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">Inactif</span>
+              {% endif %}
+            </td>
+            <td class="p-3">{{ magasin.date_creation|date:"d/m/Y" }}</td>
+            <td class="p-3">
+              <div class="flex items-center justify-center space-x-3">
+                <!-- Voir -->
+                <a href="{% url 'voir_magasin' magasin.id %}" class="text-blue-600 hover:text-blue-800 transition" title="Voir">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                       viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5
+                             c4.478 0 8.268 2.943 9.542 7
+                             -1.274 4.057-5.064 7-9.542 7
+                             -4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </a>
+                <!-- Modifier -->
+                <a href="{% url 'modifier_magasin' magasin.id %}" class="text-yellow-600 hover:text-yellow-800 transition" title="Modifier">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
+                       viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5h2m-1-1v2m6.414 3.586a2 2 0 010 2.828L7 23H3v-4L17.414 5.586a2 2 0 012.828 0z"/>
+                  </svg>
+                </a>
+                <!-- Activer/Désactiver -->
+                {% if magasin.actif %}
+                <a href="{% url 'toggle_magasin' magasin.id %}" class="text-orange-600 hover:text-orange-800 transition" title="Désactiver">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10 9v6m4-6v6"/>
+                  </svg>
+                </a>
+                {% else %}
+                <a href="{% url 'toggle_magasin' magasin.id %}" class="text-green-600 hover:text-green-800 transition" title="Activer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M14.752 11.168l-5.197-3.03A1 1 0 008 9v6a1 1 0 001.555.832l5.197-3.03a1 1 0 000-1.664z"/>
+                  </svg>
+                </a>
+                {% endif %}
+                <!-- Supprimer -->
+                <button onclick="ouvrirModalSuppression({{ magasin.id }}, {{ magasin.est_vide|yesno:'true,false' }})" class="text-red-600 hover:text-red-800 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862
+                             a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6
+                             M9 7h6m2 0H7m5-3h0a1 1 0 011 1v1h-2V5a1 1 0 011-1z"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <!-- PAGINATION -->
+<div class="flex justify-between items-center mt-6">
+
+  <!-- Info page -->
+  <div class="text-sm text-gray-600">
+    Page {{ magasins.number }} sur {{ magasins.paginator.num_pages }}
+  </div>
+
+  <!-- Navigation -->
+  <div class="flex space-x-2">
+
+    {% if magasins.has_previous %}
+      <a href="?page={{ magasins.previous_page_number }}"
+         class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+        ← Précédent
+      </a>
+    {% endif %}
+
+    {% for num in magasins.paginator.page_range %}
+      {% if num == magasins.number %}
+
+        <span class="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+          {{ num }}
+        </span>
+
+      {% elif num >= magasins.number|add:"-2" and num <= magasins.number|add:"2" %}
+
+        <a href="?page={{ num }}"
+           class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+          {{ num }}
+        </a>
+
+      {% endif %}
+    {% endfor %}
+
+    {% if magasins.has_next %}
+      <a href="?page={{ magasins.next_page_number }}"
+         class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+        Suivant →
+      </a>
+    {% endif %}
+
+  </div>
+</div>
+    </div>
+  </div>
+<!-- MODALS CENTRÉS -->
+<div id="modalDelete" class="fixed inset-0 hidden flex items-center justify-center bg-black bg-opacity-40 z-50">
+  <div class="modal-content bg-white rounded-xl shadow-xl w-96 p-6 text-center" id="modalDeleteContent">
+    <div class="flex justify-center mb-4">
+      <div class="bg-red-100 p-4 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-2">Confirmer la suppression</h2>
+    <p class="text-gray-600 mb-6">Ce magasin est vide. Voulez-vous vraiment le supprimer ?</p>
+    <div class="flex justify-center space-x-4">
+      <button onclick="fermerModal()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">Annuler</button>
+      <a id="deleteLink" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Supprimer</a>
+    </div>
+  </div>
+</div>
+
+<div id="modalWarning" class="fixed inset-0 hidden flex items-center justify-center bg-black bg-opacity-40 z-50">
+  <div class="modal-content bg-white rounded-xl shadow-xl w-96 p-6 text-center" id="modalWarningContent">
+    <div class="flex justify-center mb-4">
+      <div class="bg-yellow-100 p-4 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86l-7.5 13A2 2 0 004.5 20h15a2 2 0 001.71-3.14l-7.5-13a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-2">Suppression impossible</h2>
+    <p class="text-gray-600 mb-6">Ce magasin contient des données.<br>Il ne peut pas être supprimé.</p>
+    <button onclick="fermerModal()" class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">Compris</button>
+  </div>
+</div>
+
+
+</main>
+
+<footer class="bg-white shadow-inner mt-12">
+  <div class="max-w-7xl mx-auto px-6 py-6 flex justify-center items-center text-gray-500 text-sm">
+    <p class="text-center hover:text-indigo-600 transition-colors">&copy; {% now "Y" %} SuperAdmin Dashboard. Tous droits réservés.</p>
+  </div>
+</footer>
+
+
+<script>
+function ouvrirModalSuppression(id, estVide){
+  const modalId = estVide ? "modalDelete" : "modalWarning";
+  const contentId = estVide ? "modalDeleteContent" : "modalWarningContent";
+  const modal = document.getElementById(modalId);
+  const content = document.getElementById(contentId);
+
+  modal.classList.remove("hidden");
+  setTimeout(()=>{ content.classList.add("modal-show"); }, 10);
+
+  if(estVide) document.getElementById("deleteLink").href = "/supprimer-magasin/" + id + "/";
+}
+
+function fermerModal(){
+  ["modalDeleteContent","modalWarningContent"].forEach(id=>{
+    const content = document.getElementById(id);
+    const modal = content.parentElement;
+    content.classList.remove("modal-show");
+    setTimeout(()=>{ modal.classList.add("hidden"); }, 300);
+  });
+}
+</script>
+
+</body>
+</html>
