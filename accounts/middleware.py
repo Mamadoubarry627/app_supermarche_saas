@@ -1,5 +1,5 @@
 from django.shortcuts import redirect
-
+#accounts/middleware.py
 class CheckUserAndMagasinActifMiddleware:
 
     def __init__(self, get_response):
@@ -18,13 +18,15 @@ class CheckUserAndMagasinActifMiddleware:
             '/toggle-dark-mode/',
         ]
 
-        if request.path not in allowed_paths:
+        if not any(request.path.startswith(path) for path in allowed_paths):
             if request.user.is_authenticated:
 
                 if not request.user.is_active:
                     return redirect('/inactive/')
 
-                if request.user.magasin and not request.user.magasin.actif:
+                magasin = getattr(request.user, "magasin", None)
+
+                if magasin and not magasin.actif:
                     return redirect('/inactive/')
 
         response = self.get_response(request)
