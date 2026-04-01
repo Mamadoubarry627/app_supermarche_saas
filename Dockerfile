@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN python manage.py collectstatic --noinput
 
 # Port Railway
-ENV PORT=8000
+#ENV PORT=8000
 
 # Lancement Django propre
-CMD ["gunicorn", "market.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "gunicorn market.wsgi:application --bind 0.0.0.0:$PORT"]

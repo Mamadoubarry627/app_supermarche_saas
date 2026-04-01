@@ -26,13 +26,13 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
-"""
+#ALLOWED_HOSTS = []
+
 ALLOWED_HOSTS = [
     "teddungalmarket-production.up.railway.app",
     "127.0.0.1",
     "localhost"
-]"""
+]
 
 # Application definition
 #supermarcher
@@ -219,6 +219,7 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
 SECURE_SSL_REDIRECT = True
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://teddungalmarket-production.up.railway.app",
