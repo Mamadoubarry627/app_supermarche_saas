@@ -1,7 +1,9 @@
-{% load widget_tweaks %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logo.png' %}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if mode == "modifier" %}Modifier le magasin{% else %}Créer un magasin{% endif %} - SuperAdmin</title>
