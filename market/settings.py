@@ -26,13 +26,15 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-#ALLOWED_HOSTS = []
-
 ALLOWED_HOSTS = [
-    "teddungalmarket-production.up.railway.app",
-    "127.0.0.1",
-    "localhost"
+    "teddungalmarket-production.up.railway.app"           
 ]
+
+#ALLOWED_HOSTS = [
+    #"teddungalmarket-production.up.railway.app",
+    #"127.0.0.1",
+    #"localhost"
+#]
 
 # Application definition
 #supermarcher
