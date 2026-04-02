@@ -21,6 +21,7 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 RUN python manage.py collectstatic --noinput
 
+RUN pip show daphne
 # Port Railway
 ENV PORT=8000
 
