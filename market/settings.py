@@ -168,14 +168,17 @@ AUTHENTICATION_BACKENDS = [
 ASGI_APPLICATION = "market.asgi.application"
 
 import os
-import dj_database_url
 
-# Channels Redis
+REDIS_URL = os.getenv("REDIS_URL")
+
+if not REDIS_URL:
+    raise Exception("REDIS_URL manquant (Railway env)")
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.environ.get("REDIS_URL")],
+            "hosts": [REDIS_URL],
         },
     },
 }
