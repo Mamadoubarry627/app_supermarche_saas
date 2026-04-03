@@ -353,7 +353,8 @@ class ProduitForm(forms.ModelForm):
             }),
             'quantite_stock': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-2 border rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-white',
-                'readonly': 'readonly'
+                'readonly': 'readonly',
+                'placeholder': 'Géré automatiquement'
             }),
             'seuil_alerte': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white'
@@ -542,8 +543,17 @@ class AchatForm(forms.ModelForm):
         widgets = {
             'fournisseur': forms.Select(attrs={'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white'}),
             'numero_facture': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white'}),
-            'statut': forms.Select(attrs={'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white'}),
+            'statut': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white',
+                'disabled': True
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # 🔥 forcer la valeur affichée
+        self.fields['statut'].initial = getattr(Achat.Statut, "TERMINE", "TERMINE")
 
 class LigneAchatForm(forms.ModelForm):
     class Meta:

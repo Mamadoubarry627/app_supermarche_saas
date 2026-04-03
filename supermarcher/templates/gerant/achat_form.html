@@ -40,7 +40,11 @@
 
                 <div class="space-y-1">
                     <label class="label">Statut</label>
-                    {{ form.statut|add_class:"input w-full rounded-lg border-gray-300 dark:border-gray-600" }}
+                    {{ form.statut }}
+
+                    <p class="text-sm text-gray-500">
+                        Ce statut est défini automatiquement après l'enregistrement.
+                    </p>
                 </div>
 
             </div>
