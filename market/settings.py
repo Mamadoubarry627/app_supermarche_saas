@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+import dj_database_url
 import os
 from pathlib import Path
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'supermarcher',
     'rest_framework',
     'corsheaders',
+    'channels',
    # "axes",
 ]
 
@@ -130,10 +131,12 @@ DATABASES = {
 }
 """
 
-import dj_database_url
-
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 # Password validation
@@ -163,23 +166,26 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-#INSTALLED_APPS += ["channels"]
-
 ASGI_APPLICATION = "market.asgi.application"
-import os
-import dj_database_url
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+REDIS_URL = os.getenv("REDIS_URL")
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [REDIS_URL],
+if REDIS_URL:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [REDIS_URL],
+            },
         },
-    },
-}
-
+    }
+else:
+    # fallback dev / build
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer"
+        }
+    }
 """STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]"""

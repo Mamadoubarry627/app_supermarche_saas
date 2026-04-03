@@ -418,12 +418,12 @@ const token = "{{ jwt_access|default:'' }}";
 let socket = null;
 let retryCount = 0;
 let maxRetries = 5;
+
 function connectWS() {
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 
     let wsUrl = `${protocol}://${window.location.host}/ws/panier/${userId}/`;
 
-    // ✅ TOKEN
     if (token) {
         wsUrl += `?token=${token}`;
     }
@@ -462,11 +462,6 @@ function connectWS() {
             console.error("❌ STOP reconnexion WS");
         }
     };
-
-    socket.onerror = (err) => {
-        console.error("❌ WS erreur:", err);
-    };
-}
 
     socket.onerror = (err) => {
         console.error("❌ WS erreur:", err);
