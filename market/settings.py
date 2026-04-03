@@ -54,6 +54,11 @@ INSTALLED_APPS = [
    # "axes",
 ]
 
+INSTALLED_APPS += [
+    "cloudinary",
+    "cloudinary_storage",
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -220,9 +225,16 @@ STATIC_URL = '/static/'
 LOGIN_URL = '/connexion/' 
 LOGIN_REDIRECT_URL = '/' 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": "dlygyralg",
+    "API_KEY": "846575384269455",
+    "API_SECRET": "r9XrD5MlSbbQsmNoNylXMIDBhms",
+}
+
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = BASE_DIR / 'media'
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
