@@ -18,11 +18,11 @@ COPY . .
 
 # Installer Python
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+#RUN pip install --no-cache-dir -r requirements.txt
 RUN python manage.py collectstatic --noinput
 
 # Port Railway
 ENV PORT=8000
 
 # Lancement Django propre
-CMD ["gunicorn", "market.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn market.wsgi:application --bind 0.0.0.0:8000"]
