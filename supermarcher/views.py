@@ -3513,6 +3513,10 @@ def parametres(request):
     form_magasin = MagasinForm(instance=magasin)
     form_theme = ThemeMagasinForm(instance=theme)
 
+    import os
+    print("CLOUD:", os.getenv("CLOUD_NAME"))
+    print("KEY:", os.getenv("CLOUDINARY_API_KEY"))
+    
     if request.method == "POST":
 
         form_magasin = MagasinForm(request.POST, instance=magasin)
@@ -3533,6 +3537,10 @@ def parametres(request):
             theme_obj.save()
 
             return redirect("parametres")
+        
+        import os
+        print("CLOUD:", os.getenv("CLOUD_NAME"))
+        print("KEY:", os.getenv("CLOUDINARY_API_KEY"))
 
     return render(request, "gerant/parametres.html", {
         "magasin": magasin,
