@@ -167,21 +167,18 @@ AUTHENTICATION_BACKENDS = [
 
 ASGI_APPLICATION = "market.asgi.application"
 
-# Dev simple : InMemoryChannelLayer
-"""CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}"""
+import os
+import dj_database_url
 
-#CHANNEL_LAYERS = {
-    #"default": {
-       # "BACKEND": "channels_redis.core.RedisChannelLayer",
-       # "CONFIG": {
-         #   "hosts": [("127.0.0.1", 6379)],
-      #  },
-    #},
-#}
+# Channels Redis
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get("REDIS_URL")],
+        },
+    },
+}
 
 """STATICFILES_DIRS = [
     BASE_DIR / "static",
