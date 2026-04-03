@@ -3,7 +3,7 @@ from urllib import request
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
-    AuditLog, Utilisateur, Magasin, Categorie, Produit,
+    AuditLog, ThemeMagasin, Utilisateur, Magasin, Categorie, Produit,
     Fournisseur, Achat, LigneAchat,
     Vente, LigneVente, MouvementStock
 )
@@ -195,7 +195,17 @@ class MouvementStockAdmin(admin.ModelAdmin):
     list_filter = ("type_mouvement", "magasin", "date_creation")
     search_fields = ("produit__nom", "reference")
     ordering = ("-date_creation",)
-    
+
+from django.utils.html import format_html
+
+@admin.register(ThemeMagasin)
+class ThemeMagasinAdmin(admin.ModelAdmin):
+    list_display = ("magasin", "couleur_principale", "logo_preview")
+
+    def logo_preview(self, obj):
+        if obj.logo:
+            return format_html('<img src="{}" width="50" height="50" />', obj.logo.url)
+        return "-"  
 
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):

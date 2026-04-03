@@ -7,7 +7,7 @@
 
 {% if request.user.magasin and request.user.magasin.theme and request.user.magasin.theme.logo %}
 <img 
-src="{{ request.user.magasin.theme.logo.url }}" 
+src="{{ theme.logo.url }}" 
 class="h-12 w-12 object-cover rounded-full border-2 border-white shadow-sm">
 {% else %}
 <div class="h-12 w-12 flex items-center justify-center rounded-full bg-white/20 text-sm font-bold">
