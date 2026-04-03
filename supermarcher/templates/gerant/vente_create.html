@@ -108,7 +108,7 @@
                         value="0"
                         id="remiseInput"
                         oninput="renderPanier()"
-                        class="label w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
+                        class="text-gray-700 w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
                     >
                 </div>
 
@@ -133,7 +133,7 @@
                         </label>
                         <select
                             name="mode_paiement"
-                            class="label w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
+                            class="text-gray-700 w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
                         >
                             <option value="ESPECES">Espèces</option>
                             <option value="ORANGE_MONEY">Orange Money</option>
@@ -335,9 +335,9 @@
                 div.innerHTML = `
                     <div class="flex justify-between items-center gap-3">
                         <div>
-                            <p class="font-semibold">${item.nom}</p>
-                            <p class="text-sm">${item.prix.toLocaleString()} {{ magasin.devise }}</p>
-                            <p class="text-xs text-gray-500">TVA: ${item.taux_tva}%</p>
+                            <p class="font-semibold text-gray-700 label:text-white">${item.nom}</p>
+                            <p class="text-sm text-gray-600 label:text-white">${item.prix.toLocaleString()} {{ magasin.devise }}</p>
+                            <p class="text-xs text-gray-500 label:text-white">TVA: ${item.taux_tva}%</p>
                         </div>
 
                         <div class="flex items-center gap-2">
@@ -348,7 +348,7 @@
                             >
                                 -
                             </button>
-                            <span class="min-w-[24px] text-center">${item.quantite}</span>
+                            <span class="min-w-[24px] text-center text-gray-700 label:text-white">${item.quantite}</span>
                             <button
                                 type="button"
                                 onclick="changerQuantite('${id}', 1)"

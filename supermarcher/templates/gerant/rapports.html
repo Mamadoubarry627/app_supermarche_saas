@@ -49,7 +49,7 @@
       <div class="flex flex-col">
         <label class="label font-medium mb-1">Utilisateur</label>
         <select name="utilisateur" id="utilisateur"
-                class="px-3 py-2 border rounded-lg"
+                class="px-3 py-2 border rounded-lg label"
                 {% if request.user.role == "CAISSIER" %} disabled {% endif %}>
           {% if request.user.role == "CAISSIER" %}
             <!-- Caissier : afficher uniquement son propre nom -->
@@ -70,25 +70,25 @@
       <!-- Date début -->
       <div class="flex flex-col">
         <label class="label font-medium mb-1">Date début</label>
-        <input type="date" name="date_debut" id="date_debut" class="px-3 py-2 border rounded-lg">
+        <input type="date" name="date_debut" id="date_debut" class="px-3 py-2 border rounded-lg label">
       </div>
 
       <!-- Date fin -->
       <div class="flex flex-col">
         <label class="font-medium mb-1 label">Date fin</label>
-        <input type="date" name="date_fin" id="date_fin" class="px-3 py-2 border rounded-lg">
+        <input type="date" name="date_fin" id="date_fin" class="px-3 py-2 border rounded-lg label">
       </div>
 
       <!-- Jour spécifique -->
       <div class="flex flex-col">
         <label class="label font-medium mb-1">Jour spécifique</label>
-        <input type="date" name="jour" id="jour" class="px-3 py-2 border rounded-lg">
+        <input type="date" name="jour" id="jour" class="px-3 py-2 border rounded-lg label">
       </div>
 
       <!-- Type de rapport -->
       <div class="flex flex-col sm:col-span-2 lg:col-span-1">
         <label class="label font-medium mb-1">Type de rapport</label>
-        <select name="type_rapport" id="type_rapport" class="px-3 py-2 border rounded-lg">
+        <select name="type_rapport" id="type_rapport" class="label px-3 py-2 border rounded-lg">
           <option value="">Sélectionner un rapport</option>
         </select>
       </div>

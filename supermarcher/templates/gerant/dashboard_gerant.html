@@ -48,33 +48,30 @@ Dashboard - {{ magasin.nom }}
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
 
 <div class="card p-6 shadow">
-<p class="text-sm text-gray-500">Chiffre du jour</p>
+<p class="text-sm label">Chiffre du jour</p>
 <h2 class="text-3xl font-bold text-green-600 mt-2">
 {{ chiffre_jour|intcomma }} {{ magasin.devise }}
 </h2>
 </div>
 
 <div class="card p-6 shadow">
-<p class="text-sm text-gray-500">Bénéfice du jour</p>
+<p class="text-sm label">Bénéfice du jour</p>
 <h2 class="text-3xl font-bold text-blue-600 mt-2">
 {{ benefice_jour|intcomma }} {{ magasin.devise }}
 </h2>
 </div>
 
 <div class="card p-6 shadow">
-<p class="text-sm text-gray-500">Produits</p>
-<h2 class="text-3xl font-bold mt-2">
+<p class="text-sm label">Produits</p>
+<h2 class="text-3xl font-bold mt-2 label">
 {{ produits_count }}
 </h2>
 </div>
 
 <div class="card p-6 shadow {% if alertes_stock > 0 %}border border-red-200{% endif %}">
-<p class="text-sm text-gray-500">Alertes Stock</p>
+<p class="text-sm label">Alertes Stock</p>
 
-<h2 class="text-3xl font-bold mt-2
-{% if alertes_stock > 0 %}
-text-red-600
-{% endif %}
+<h2 class="text-3xl font-bold mt-2 text-red-600
 ">
 {{ alertes_stock }}
 </h2>
@@ -93,23 +90,23 @@ text-red-600
 
 <a href="{% url 'stock_mouvements' %}" class="card p-6 shadow hover:shadow-xl text-center">
 <span class="material-icons text-3xl text-indigo-600">inventory</span>
-<p class="mt-2 font-semibold">Gestion Stock</p>
+<p class="mt-2 font-semibold label">Gestion Stock</p>
 </a>
 
 <a href="{% url 'fournisseurs_liste' %}" class="card p-6 shadow hover:shadow-xl text-center">
 <span class="material-icons text-3xl text-orange-600">store</span>
-<p class="mt-2 font-semibold">Fournisseurs</p>
+<p class="mt-2 font-semibold label">Fournisseurs</p>
 </a>
 
 <a href="{% url 'gerant_liste' %}" class="card p-6 shadow hover:shadow-xl text-center">
 <span class="material-icons text-3xl text-pink-600">people</span>
-<p class="mt-2 font-semibold">Employés</p>
+<p class="mt-2 font-semibold label">Employés</p>
 </a>
 
 
 <a href="{% url 'rapports' %}" class="card p-6 shadow hover:shadow-xl text-center">
 <span class="material-icons text-3xl text-gray-700">bar_chart</span>
-<p class="mt-2 font-semibold">Rapports</p>
+<p class="mt-2 font-semibold label">Rapports</p>
 </a>
 {% endif %}
 </div>
@@ -123,7 +120,7 @@ text-red-600
 <!-- TOP PRODUITS -->
 <div class="card p-6 shadow">
 
-<h3 class="font-semibold mb-4 flex items-center gap-2">
+<h3 class="font-semibold mb-4 flex items-center gap-2 label">
 <span class="material-icons text-green-600">trending_up</span>
 Top 5 Produits
 </h3>
@@ -132,7 +129,7 @@ Top 5 Produits
 
 <div class="flex justify-between items-center border-b py-2">
 
-<span class="font-medium">
+<span class="font-medium label">
 {{ produit.produit__nom }}
 </span>
 
@@ -144,7 +141,7 @@ Top 5 Produits
 
 {% empty %}
 
-<p class="text-gray-500">
+<p class="label">
 Aucune vente
 </p>
 
@@ -156,7 +153,7 @@ Aucune vente
 <!-- DERNIERES VENTES -->
 <div class="card p-6 shadow">
 
-<h3 class="font-semibold mb-4 flex items-center gap-2">
+<h3 class="font-semibold mb-4 flex items-center gap-2 label">
 <span class="material-icons text-blue-600">receipt_long</span>
 Dernières Ventes
 </h3>
@@ -165,7 +162,7 @@ Dernières Ventes
 
 <div class="flex justify-between items-center border-b py-2">
 
-<span class="font-medium">
+<span class="font-medium label">
 {{ vente.numero_facture }}
 </span>
 
@@ -177,7 +174,7 @@ Dernières Ventes
 
 {% empty %}
 
-<p class="text-gray-500">
+<p class="label">
 Aucune vente
 </p>
 
@@ -210,7 +207,7 @@ Expiré
 
 {% empty %}
 
-<p class="text-gray-500">
+<p class="label">
 Aucun produit expiré
 </p>
 
@@ -229,7 +226,7 @@ Aucun produit expiré
 <!-- TOP CAISSIERS -->
 <div class="card p-6 shadow">
 
-<h3 class="font-semibold mb-4">
+<h3 class="font-semibold mb-4 label">
 Top Caissiers (Aujourd'hui)
 </h3>
 
@@ -237,7 +234,7 @@ Top Caissiers (Aujourd'hui)
 
 <div class="flex justify-between border-b py-2">
 
-<span>
+<span class="label">
 {{ caissier.cree_par__first_name }}
 {{ caissier.cree_par__last_name }}
 </span>
@@ -250,7 +247,7 @@ Top Caissiers (Aujourd'hui)
 
 {% empty %}
 
-<p class="text-gray-500">Aucune donnée</p>
+<p class="label">Aucune donnée</p>
 
 {% endfor %}
 
@@ -278,7 +275,7 @@ Produits bientôt expirés
 
 {% empty %}
 
-<p class="text-gray-500">
+<p class="label">
 Aucun produit proche expiration
 </p>
 
@@ -308,7 +305,7 @@ Stock Critique
 
 {% empty %}
 
-<p class="text-gray-500">
+<p class="label">
 Stock OK
 </p>
 
@@ -324,7 +321,7 @@ Stock OK
 <!-- ===================== -->
 <div class="card p-6 shadow">
 
-<h3 class="font-semibold mb-4">
+<h3 class="font-semibold mb-4 label">
 Chiffre d'affaires 6 derniers mois
 </h3>
 
