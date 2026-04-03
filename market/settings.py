@@ -166,13 +166,10 @@ AUTHENTICATION_BACKENDS = [
 #INSTALLED_APPS += ["channels"]
 
 ASGI_APPLICATION = "market.asgi.application"
-
 import os
+import dj_database_url
 
-REDIS_URL = os.getenv("REDIS_URL")
-
-if not REDIS_URL:
-    raise Exception("REDIS_URL manquant (Railway env)")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 CHANNEL_LAYERS = {
     "default": {
