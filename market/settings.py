@@ -13,6 +13,7 @@ import dj_database_url
 import os
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -118,6 +119,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'market.wsgi.application'
 
+import cloudinary
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+)
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
@@ -225,7 +233,14 @@ STATIC_URL = '/static/'
 LOGIN_URL = '/connexion/' 
 LOGIN_REDIRECT_URL = '/' 
 
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUD_NAME"),
