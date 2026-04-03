@@ -519,103 +519,94 @@
     let panierSocket = null;
     let reconnectInterval = 2000; // 2 secondes
     let maxReconnectInterval = 10000;
+function connectWebSocket() {
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 
-    function connectWebSocket() {
-        let wsUrl = `ws://${window.location.host}/ws/panier/${userId}/`;
+    let wsUrl = `${protocol}://${window.location.host}/ws/panier/${userId}/`;
 
-        if (token) {
-            wsUrl += `?token=${token}`;
-        }
+    if (token) {
+        wsUrl += `?token=${token}`;
+    }
 
-        console.log("🌐 Connexion WS vers:", wsUrl);
+    console.log("🌐 Connexion WS vers:", wsUrl);
 
-        panierSocket = new WebSocket(wsUrl);
+    panierSocket = new WebSocket(wsUrl);
 
-        // ✅ Connexion OK
-        panierSocket.onopen = function () {
-            console.log("✅ WebSocket connecté :", username);
-            reconnectInterval = 2000; // reset backoff
-        };
+    // ✅ Connexion OK
+    panierSocket.onopen = function () {
+        console.log("✅ WebSocket connecté :", username);
+        reconnectInterval = 2000;
+    };
 
-        // 📥 Message reçu
-        panierSocket.onmessage = function (e) {
-            console.log("📥 RAW WS:", e.data);
+    // 📥 Message reçu
+    panierSocket.onmessage = function (e) {
+        console.log("📥 RAW WS:", e.data);
 
-            try {
-                const data = JSON.parse(e.data);
-                console.log("📦 JSON PARSÉ:", data);
+        try {
+            const data = JSON.parse(e.data);
+            console.log("📦 JSON PARSÉ:", data);
 
-                if (data.type === "scan" && "id" in data) {
-                    console.log("✅ PRODUIT VALIDE:", data.nom);
+            if (data.type === "scan" && "id" in data) {
+                const key = data.id.toString();
 
-                    const key = data.id.toString();
-
-                    if (panier[key]) {
-                        if (panier[key].quantite < panier[key].stock) {
-                            panier[key].quantite += 1;
-                           // showToast(`➕ ${data.nom} ajouté`, "success");
-                        } else {
-                            showToast(`❌ Stock insuffisant pour ${data.nom}`, "error");
-                            return;
-                        }
+                if (panier[key]) {
+                    if (panier[key].quantite < panier[key].stock) {
+                        panier[key].quantite += 1;
                     } else {
-                        if (parseInt(data.stock) > 0) {
-                            const key = data.id.toString();
-
-                                panier[key] = {
-                                    id: Number(data.id),
-                                    nom: data.nom,
-                                    prix: Number(data.prix),
-                                    taux_tva: Number(data.taux_tva),
-                                    quantite: panier[key]?.quantite + 1 || 1,
-                                    stock: Number(data.stock)
-                                };
-
-                                //showToast(`🛒 ${data.nom} ajouté`, "success");
-                                console.log("🛒 PANIER FINAL:", panier);
-
-                            } else {
-                                showToast(`❌ ${data.nom} en rupture`, "error");
-                                return;
-                            }
+                        showToast(`❌ Stock insuffisant pour ${data.nom}`, "error");
+                        return;
                     }
-
-                    renderPanier();
-                    showToast(`📦 ${data.nom} ajouté depuis téléphone`, "success");
                 } else {
-                    console.warn("⚠️ Message ignoré:", data);
+                    if (parseInt(data.stock) > 0) {
+                        panier[key] = {
+                            id: Number(data.id),
+                            nom: data.nom,
+                            prix: Number(data.prix),
+                            taux_tva: Number(data.taux_tva),
+                            quantite: 1,
+                            stock: Number(data.stock)
+                        };
+                    } else {
+                        showToast(`❌ ${data.nom} en rupture`, "error");
+                        return;
+                    }
                 }
 
-            } catch (err) {
-                console.error("❌ JSON ERROR:", err);
+                renderPanier();
+                showToast(`📦 ${data.nom} ajouté depuis téléphone`, "success");
+
+            } else {
+                console.warn("⚠️ Message ignoré:", data);
             }
-        };
 
-        // 🔴 Fermeture
-        panierSocket.onclose = function (event) {
-            console.warn("🔴 WebSocket fermé");
-            console.log("Code:", event.code);
-            console.log("Raison:", event.reason);
+        } catch (err) {
+            console.error("❌ JSON ERROR:", err);
+        }
+    };
 
-            // 🔁 Reconnexion automatique
-            setTimeout(() => {
-                console.log("🔄 Tentative de reconnexion...");
-                connectWebSocket();
-            }, reconnectInterval);
+    // 🔴 Fermeture
+    panierSocket.onclose = function (event) {
+        console.warn("🔴 WebSocket fermé");
+        console.log("Code:", event.code);
+        console.log("Raison:", event.reason);
 
-            // 🔥 backoff (augmente progressivement)
-            reconnectInterval = Math.min(
-                reconnectInterval * 1.5,
-                maxReconnectInterval
-            );
-        };
+        setTimeout(() => {
+            console.log("🔄 Tentative de reconnexion...");
+            connectWebSocket();
+        }, reconnectInterval);
 
-        // ❌ Erreur
-        panierSocket.onerror = function (err) {
-            console.error("❌ WebSocket erreur :", err);
-            panierSocket.close(); // force reconnect via onclose
-        };
-    }
+        reconnectInterval = Math.min(
+            reconnectInterval * 1.5,
+            maxReconnectInterval
+        );
+    };
+
+    // ❌ Erreur
+    panierSocket.onerror = function (err) {
+        console.error("❌ WebSocket erreur :", err);
+        panierSocket.close();
+    };
+}
 
     // 🚀 Lancer connexion
     connectWebSocket();
