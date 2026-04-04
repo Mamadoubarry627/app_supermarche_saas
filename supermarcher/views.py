@@ -1814,18 +1814,32 @@ def vente_delete(request, vente_id):
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Achat
-
 @login_required
 def achats_liste(request):
     magasin = request.user.magasin
     achats = Achat.objects.filter(magasin=magasin).order_by('-date_creation')
 
+    # ===== FILTRES =====
+    statut = request.GET.get("statut")
+    search = request.GET.get("search")
+
+    if statut:
+        achats = achats.filter(statut=statut)
+
+    if search:
+        achats = achats.filter(
+            numero_facture__icontains=search
+        ) | achats.filter(
+            fournisseur__nom__icontains=search
+        )
+
     context = {
         'achats': achats,
         'magasin': magasin,
+        'statut': statut,
+        'search': search,
     }
     return render(request, 'gerant/achats_liste.html', context)
-
 
 from django.shortcuts import render, redirect
 from django.db import transaction, DatabaseError
@@ -1952,7 +1966,6 @@ def achat_voir(request, pk):
     
 from django.db import transaction
 from supermarcher.signals import log_action
-
 @login_required
 def achat_supprimer(request, pk):
     magasin = request.user.magasin
@@ -1973,7 +1986,8 @@ def achat_supprimer(request, pk):
         achat.delete()
         return redirect('achats_liste')
 
-    return render(request, 'gerant/achat_confirm_delete.html', {'achat': achat})
+    # ❌ plus de template de confirmation
+    return redirect('achats_liste')
 
 from django.db import transaction
 from supermarcher.signals import log_action
