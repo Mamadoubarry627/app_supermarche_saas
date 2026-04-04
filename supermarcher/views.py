@@ -3280,6 +3280,16 @@ class ExportRapportPDFView(View):
         response = HttpResponse(pdf, content_type="application/pdf")
         response["Content-Disposition"] = f'attachment; filename="{type_rapport}.pdf"'
         return response
+            
+class PrintRapportView(View):
+    def get(self, request):
+        type_rapport = request.GET.get("type_rapport")
+        if not type_rapport:
+            return HttpResponse("Type de rapport manquant", status=400)
+
+        context = get_context_filtre(request, type_rapport)
+
+        return render(request, "rapports/dynamic_print.html", context)            
                    
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required

@@ -94,11 +94,18 @@
       </div>
 
     </form>
-    <div class="mt-4">
+<div class="mt-4 flex gap-3 items-center">
+
     <button id="downloadPDF"
         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
         Télécharger PDF
     </button>
+
+    <button id="printBtn"
+        class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900">
+        🖨️ Imprimer
+    </button>
+
 </div>
   </div>
 
@@ -322,6 +329,20 @@ document.getElementById("downloadPDF").addEventListener("click", function(){
     });
 
     window.open(`/rapports/export/pdf/?${params.toString()}`, "_blank");
+
+});
+
+document.getElementById("printBtn").addEventListener("click", function(){
+
+    const params = new URLSearchParams({
+        type_rapport: document.getElementById("type_rapport").value,
+        utilisateur: document.getElementById("utilisateur").value,
+        date_debut: document.getElementById("date_debut").value,
+        date_fin: document.getElementById("date_fin").value,
+        jour: document.getElementById("jour").value
+    });
+
+    window.open(`/rapports/print/?${params.toString()}`, "_blank");
 
 });
 </script>

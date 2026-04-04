@@ -66,6 +66,7 @@ urlpatterns = [
     path("produit/barcode/<str:code>/", views.produit_par_barcode, name="produit_par_barcode"),
     path("ventes/<int:pk>/ticket/", views.ticket_pdf, name="ticket_pdf"),
     path('produit/modifier/<int:produit_id>/', views.produit_modifier_ajax, name='produit_modifier_ajax'),
+    path("rapports/print/", views.PrintRapportView.as_view(), name="print_rapport"),
 
 ]
 
