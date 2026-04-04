@@ -240,6 +240,24 @@ form.addEventListener("submit", function () {
         btn.disabled = true;
     }, 50);
 });
+
+window.addEventListener("offline", () => {
+    showToast("Connexion perdue", "error");
+});
+
+window.addEventListener("online", () => {
+    showToast("Connexion rétablie", "success");
+    location.reload();
+});
+
+window.addEventListener("offline", () => {
+    showToast("Connexion perdue", "error");
+});
+
+window.addEventListener("online", () => {
+    showToast("Connexion rétablie", "success");
+    location.reload();
+});
 </script>
 </body>
 </html>

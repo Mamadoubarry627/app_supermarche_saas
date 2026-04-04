@@ -473,7 +473,14 @@ function updateTime() {
 
 setInterval(updateTime, 1000);
 updateTime();
+window.addEventListener("offline", () => {
+    showToast("Connexion perdue", "error");
+});
 
+window.addEventListener("online", () => {
+    showToast("Connexion rétablie", "success");
+    location.reload();
+});
 </script>
 
 <script>

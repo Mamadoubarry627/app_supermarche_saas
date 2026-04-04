@@ -454,7 +454,29 @@ document.addEventListener("DOMContentLoaded", function () {
     // =============================
     // 2. TOUS LES CLICS (MAGIQUE)
     // =============================
-        document.addEventListener("click", function (e) {
+    document.addEventListener("DOMContentLoaded", function () {
+
+    const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+    if (!isElectron) return;
+
+    const loader = document.getElementById("globalLoader");
+    const loaderText = document.getElementById("globalLoaderText");
+
+    function showLoader(text = "Chargement...") {
+        if (!loader) return;
+        loaderText.textContent = text;
+        loader.classList.remove("hidden");
+    }
+
+    function hideLoader() {
+        if (!loader) return;
+        loader.classList.add("hidden");
+    }
+
+    // =============================
+    // 1. UNIQUEMENT NAVIGATION VRAIE (LIENS)
+    // =============================
+    document.addEventListener("click", function (e) {
 
         const link = e.target.closest("a");
         if (!link) return;
@@ -489,7 +511,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
-
     // =============================
     // 3. BACK / FORWARD navigateur
     // =============================
@@ -497,6 +518,15 @@ document.addEventListener("DOMContentLoaded", function () {
         showLoader("Chargement...");
     });
 
+});
+
+window.addEventListener("offline", () => {
+    showToast("Connexion perdue", "error");
+});
+
+window.addEventListener("online", () => {
+    showToast("Connexion rétablie", "success");
+    location.reload();
 });
 </script>
 </body>
