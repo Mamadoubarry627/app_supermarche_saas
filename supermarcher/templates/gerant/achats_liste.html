@@ -32,17 +32,17 @@ Achats
 
 </div>
 <form method="GET" id="filterForm"
-      class="flex gap-3 mb-4 items-center transition-all duration-200">
+      class="flex gap-3 mb-4 items-center transition-all duration-200 card">
 
     <!-- Search -->
     <input type="text"
            name="search"
            value="{{ search }}"
            placeholder="Facture ou fournisseur..."
-           class="input w-64">
+           class="input w-64 label">
 
     <!-- Statut -->
-    <select name="statut" class="input w-48">
+    <select name="statut" class="input w-48 label">
         <option value="">Tous les statuts</option>
         <option value="EN_COURS" {% if statut == "EN_COURS" %}selected{% endif %}>En cours</option>
         <option value="TERMINE" {% if statut == "TERMINE" %}selected{% endif %}>Terminé</option>
