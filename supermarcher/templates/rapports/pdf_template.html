@@ -158,11 +158,38 @@ tbody tr:hover{
     font-weight:700;
     color:#222;
 }
+
+@media print {
+    body {
+        margin: 10px;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+}
 </style>
 
 </head>
 
+{% if mode == "print" %}
+<body onload="window.print(); setTimeout(()=>window.close(), 500)">
+{% else %}
 <body>
+{% endif %}
+
 <div class="page">
 
 <!-- HEADER -->
@@ -254,7 +281,6 @@ Total : {{ total_jour|floatformat:2|intcomma }} {{ magasin.devise }}
 <div>
 <h3>Coordonnées :</h3>
 <p>{{ telephone_magasin }}</p>
-<p>{{ email_magasin }}</p>
 </div>
 
 <div class="directeur">

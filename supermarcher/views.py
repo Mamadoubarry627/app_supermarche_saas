@@ -3272,7 +3272,7 @@ class ExportRapportPDFView(View):
             if context["magasin"] and hasattr(context["magasin"], "theme")
             else "#3b82f6"
         )
-
+        context["mode"] = "pdf"   # 👈 IMPORTANT
         # Rendu PDF
         html_string = render_to_string("rapports/pdf_template.html", context)
         pdf = HTML(string=html_string).write_pdf()
@@ -3289,7 +3289,9 @@ class PrintRapportView(View):
 
         context = get_context_filtre(request, type_rapport)
 
-        return render(request, "gerant/dynamic_print.html", context)            
+        context["mode"] = "print"   # 👈 IMPORTANT
+
+        return render(request, "gerant/dynamic_print.html", context)      
                    
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
