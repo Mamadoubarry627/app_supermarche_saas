@@ -162,40 +162,41 @@ document.addEventListener("DOMContentLoaded", function () {
     // =============================
     // 2. TOUS LES CLICS (MAGIQUE)
     // =============================
-    document.addEventListener("click", function (e) {
+        document.addEventListener("click", function (e) {
 
-        const el = e.target.closest("a, button");
+        const link = e.target.closest("a");
+        if (!link) return;
 
-        if (!el) return;
+        const href = link.getAttribute("href");
 
-        // Ignorer cas spéciaux
+        // ignore faux liens
         if (
-            el.hasAttribute("data-no-loader") ||
-            el.disabled ||
-            el.target === "_blank" ||
-            el.hasAttribute("download")
+            !href ||
+            href.startsWith("#") ||
+            href.startsWith("javascript:") ||
+            link.target === "_blank" ||
+            link.hasAttribute("download") ||
+            link.hasAttribute("data-no-loader")
         ) return;
 
-        // Si c'est un lien
-        if (el.tagName === "A") {
-
-            const href = el.getAttribute("href");
-
-            if (!href || href.startsWith("#") || href.startsWith("javascript:")) return;
-
-            showLoader("Ouverture...");
-        }
-
-        // Si c'est un bouton (navigation ou action)
-        if (el.tagName === "BUTTON") {
-
-            // si bouton submit déjà géré
-            if (el.type === "submit") return;
-
-            showLoader("Chargement...");
-        }
-
+        showLoader("Ouverture...");
     });
+
+    // =============================
+    // 2. FORM SUBMIT UNIQUEMENT
+    // =============================
+    document.addEventListener("submit", function () {
+        showLoader("Traitement...");
+    });
+
+    // =============================
+    // 3. BACK/FORWARD NAVIGATION
+    // =============================
+    window.addEventListener("beforeunload", function () {
+        showLoader("Chargement...");
+    });
+
+});
 
     // =============================
     // 3. BACK / FORWARD navigateur
