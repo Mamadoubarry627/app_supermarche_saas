@@ -10,17 +10,26 @@
 
     <div class="max-w-5xl mx-auto card p-8 shadow-xl rounded-2xl">
 
-        <!-- HEADER -->
         <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold label">
-                🧾 Nouvel Achat
-            </h2>
 
-            <a href="{% url 'achats_liste' %}" 
-               class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-                ← Retour
-            </a>
-        </div>
+    <!-- Titre -->
+    <h2 class="text-2xl font-bold label flex items-center gap-3">
+        <span class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--primary)] text-white shadow-sm">
+            <span class="material-icons text-xl">receipt_long</span>
+        </span>
+        Nouvel Achat
+    </h2>
+
+    <!-- Bouton -->
+    <a href="{% url 'achats_liste' %}"
+       class="flex items-center gap-2 px-4 py-2 rounded-lg btn-main hover:opacity-90 transition shadow-sm">
+
+        <span class="material-icons text-[18px]">history</span>
+        Historique Achats
+
+    </a>
+
+</div>
 
         <form method="post">
             {% csrf_token %}

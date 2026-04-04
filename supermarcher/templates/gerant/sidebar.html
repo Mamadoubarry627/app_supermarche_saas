@@ -71,7 +71,7 @@ Dashboard
 
 {% if request.user.role == "GERANT" %}
 <!-- Achats -->
-<a href="{% url 'achats_liste' %}"
+<a href="{% url 'achats_liste achat_nouveau' %}"
 class="flex items-center px-4 py-2 rounded-lg transition
 {% if '/achats/' in request.path %}
 bg-white/20
@@ -79,7 +79,7 @@ bg-white/20
 hover:bg-white/20
 {% endif %}">
 <span class="material-icons mr-2">shopping_cart</span>
-Achats
+Nouvelle Achats
 </a>
 {% endif %}
 
