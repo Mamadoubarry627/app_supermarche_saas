@@ -11,16 +11,26 @@ Achats
 {% block content %}
 <div class="flex flex-col">
 
-<!-- Bouton Retour avec flèche -->
+    <div class="flex justify-between items-center mb-6">
+
+    <!-- Titre -->
+    <h1 class="text-2xl font-bold label flex items-center gap-3">
+        <span class="flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--primary)] text-white shadow-sm">
+            <span class="material-icons text-xl">list_alt</span>
+        </span>
+        Liste des achats
+    </h1>
+
+    <!-- Bouton Retour -->
     <a href="{% url 'achat_nouveau' %}" 
-       class="flex items-center gap-2 px-4 py-2 label rounded-lg border border-gray-300 hover:text-green-700 hover:bg-gray-50 transition">
-      <!-- Flèche gauche -->
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-      Retour
+       class="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 hover:text-[var(--primary)] transition shadow-sm">
+
+        <span class="material-icons text-[18px]">arrow_back</span>
+        Retour
+
     </a>
-    </div>
+
+</div>
 
     <!-- Tableau Achats -->
 <div class="overflow-x-auto rounded-lg shadow">
