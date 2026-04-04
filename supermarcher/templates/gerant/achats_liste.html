@@ -37,7 +37,7 @@ Achats
     <!-- Search -->
     <input type="text"
            name="search"
-           value="{{ search }}"
+           value="{{ search|default:'' }}"
            placeholder="Facture ou fournisseur..."
            class="input w-64 label">
 
@@ -47,6 +47,11 @@ Achats
         <option value="EN_COURS" {% if statut == "EN_COURS" %}selected{% endif %}>En cours</option>
         <option value="TERMINE" {% if statut == "TERMINE" %}selected{% endif %}>Terminé</option>
     </select>
+
+    <a href="{% url 'achats_liste' %}"
+    class="px-3 py-2 text-sm rounded-lg bg-gray-200 hover:bg-gray-300 transition">
+    Actualiser
+    </a>
 
 </form>
     <!-- Tableau Achats -->

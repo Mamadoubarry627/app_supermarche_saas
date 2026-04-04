@@ -1817,29 +1817,28 @@ from .models import Achat
 @login_required
 def achats_liste(request):
     magasin = request.user.magasin
+
     achats = Achat.objects.filter(magasin=magasin).order_by('-date_creation')
 
-    # ===== FILTRES =====
-    statut = request.GET.get("statut")
-    search = request.GET.get("search")
+    statut = request.GET.get("statut", "")
+    search = request.GET.get("search", "")
 
     if statut:
         achats = achats.filter(statut=statut)
 
     if search:
+        from django.db.models import Q
         achats = achats.filter(
-            numero_facture__icontains=search
-        ) | achats.filter(
-            fournisseur__nom__icontains=search
+            Q(numero_facture__icontains=search) |
+            Q(fournisseur__nom__icontains=search)
         )
 
-    context = {
-        'achats': achats,
-        'magasin': magasin,
-        'statut': statut,
-        'search': search,
-    }
-    return render(request, 'gerant/achats_liste.html', context)
+    return render(request, "gerant/achats_liste.html", {
+        "achats": achats,
+        "magasin": magasin,
+        "statut": statut,
+        "search": search,
+    })
 
 from django.shortcuts import render, redirect
 from django.db import transaction, DatabaseError
