@@ -220,22 +220,25 @@ togglePassword.addEventListener("click", function () {
 });
 </script>
 <script>
+const form = document.querySelector("form");
 const btn = document.getElementById("loginBtn");
 const loader = document.getElementById("loader");
 const btnText = document.getElementById("btnText");
 
-// détecter Electron
 const isElectron = navigator.userAgent.toLowerCase().includes("electron");
 
-btn.addEventListener("click", function () {
+form.addEventListener("submit", function () {
 
-    // ❌ si pas Electron → ne rien faire (ou comportement normal navigateur)
     if (!isElectron) return;
 
     // afficher loader
     loader.classList.remove("hidden");
     btnText.textContent = "Connexion...";
-    btn.disabled = true;
+
+    // ⚠️ petit délai pour laisser le submit partir
+    setTimeout(() => {
+        btn.disabled = true;
+    }, 50);
 });
 </script>
 </body>
