@@ -3289,7 +3289,7 @@ class PrintRapportView(View):
 
         context = get_context_filtre(request, type_rapport)
 
-        return render(request, "rapports/dynamic_print.html", context)            
+        return render(request, "gerant/dynamic_print.html", context)            
                    
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
