@@ -192,23 +192,18 @@
 
         <script>
            function imprimerRecu() {
-            const venteId = new URLSearchParams(window.location.search).get("vente_id");
+                const venteId = new URLSearchParams(window.location.search).get("vente_id");
 
-            if (!venteId) {
-                console.error("vente_id manquant !");
-                return;
-            }
+                if (!venteId) {
+                    console.error("vente_id manquant !");
+                    return;
+                }
 
-            const modal = document.getElementById("printModal");
-            modal.classList.add("hidden");
+                const modal = document.getElementById("printModal");
+                modal.classList.add("hidden");
 
-            setTimeout(() => {
-                window.location.href = `/ventes/${venteId}/imprimer/`;
-            }, 150);
-        }
-
-            function annulerImpression() {
-                window.location.href = "{% url 'vente_create' %}";
+                // 🔥 ouvrir dans nouvelle fenêtre (NE CASSE PAS LA PAGE)
+                window.open(`/ventes/${venteId}/imprimer/`, "_blank");
             }
         </script>
     {% endif %}
