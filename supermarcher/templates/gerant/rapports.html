@@ -93,6 +93,34 @@
         </select>
       </div>
 
+    <div class="col-span-1 sm:col-span-2 lg:col-span-4 flex flex-wrap justify-end gap-2 mt-2">
+
+  <button type="button"
+    class="periode-btn px-4 py-2 btn-main rounded-lg transition"
+    data-periode="today">
+    Aujourd'hui
+  </button>
+
+  <button type="button"
+    class="periode-btn px-4 py-2 btn-main rounded-lg transition"
+    data-periode="yesterday">
+    Hier
+  </button>
+
+  <button type="button"
+    class="periode-btn px-4 py-2 btn-main rounded-lg transition"
+    data-periode="week">
+    Cette semaine
+  </button>
+
+  <button type="button"
+    class="periode-btn px-4 py-2 btn-main rounded-lg transition"
+    data-periode="month">
+    Ce mois
+  </button>
+
+</div>
+
     </form>
 <div class="mt-4 flex gap-3 items-center">
 
@@ -107,24 +135,6 @@
     </button>
 
 </div>
-  </div>
-
-  <!-- ===================================== -->
-  <!-- BOUTONS DE PERIODE RAPIDE -->
-  <!-- ===================================== -->
-  <div class="flex flex-wrap gap-2 card">
-    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="today">
-      Aujourd'hui
-    </button>
-    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="yesterday">
-      Hier
-    </button>
-    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="week">
-      Cette semaine
-    </button>
-    <button type="button" class="periode-btn px-4 py-2 btn-main rounded-lg hover:btn-main transition" data-periode="month">
-      Ce mois
-    </button>
   </div>
 
 </div>

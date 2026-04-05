@@ -81,52 +81,6 @@ Détails du produit
         <p class="label"><span class="font-bold">Dernière modification :</span> {{ produit.date_modification|date:"d/m/Y H:i" }}</p>
     </div>
 
-    <!-- Historique stock -->
-<div class="mt-6">
-    <h2 class="text-xl font-bold label mb-2">Historique des mouvements</h2>
-    <div class="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
-        <table class="min-w-full divide-y divide-gray-200 label:divide-gray-700">
-            <thead class="btn-main">
-                <tr>
-                    <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">#</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Type</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Quantité</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Référence</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Créé par</th>
-                    <th class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider">Date</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 label:divide-gray-700">
-                {% for mouvement in produit.mouvements.all %}
-                <tr class="transition">
-                    <td class="px-4 py-2 label">{{ forloop.counter }}</td>
-                    <td class="px-4 py-2 label">
-                        {% if mouvement.type_mouvement == 'ENTREE' %}
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold label">Entrée</span>
-                        {% elif mouvement.type_mouvement == 'SORTIE' %}
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold label">Sortie</span>
-                        {% else %}
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold label">Ajustement</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-4 py-2 label">{{ mouvement.quantite }}</td>
-                    <td class="px-4 py-2 label">{{ mouvement.reference|default:"-" }}</td>
-                    <td class="px-4 py-2 label">{{ mouvement.cree_par.username|default:"-" }}</td>
-                    <td class="px-4 py-2 label">{{ mouvement.date_creation|date:"d/m/Y H:i" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="px-4 py-2 text-center label">
-                        Aucun mouvement enregistré
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>        
-    </div>
-
 
 </div>
 {% endblock %}
