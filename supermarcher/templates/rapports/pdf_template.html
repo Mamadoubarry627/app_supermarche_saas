@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 
 <style>
+{% if mode == "pdf" %}
 @page{
     size:A4;
     margin:2cm;
@@ -16,13 +17,40 @@
         color:#666;
     }
 }
+{% endif %}
 
-body{
+/* PRINT SAFE */
+@media print {
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+
+    body {
+        margin: 0;
+        background: white;
+    }
+
+    .page {
+        box-shadow: none !important;
+        border: 2px solid #000;
+    }
+}
+
+body {
     font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif;
     font-size:13px;
     color:#222;
     line-height:1.5;
     background:#fdfdfd;
+}
+
+@media print {
+    body {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
 
 /* CONTENEUR PRINCIPAL AVEC BORDURE PROFESSIONNELLE */
@@ -185,7 +213,7 @@ tbody tr:hover{
 </head>
 
 {% if mode == "print" %}
-<body onload="window.print(); setTimeout(()=>window.close(), 500)">
+<body onload="setTimeout(() => window.print(), 300)">
 {% else %}
 <body>
 {% endif %}
