@@ -7,201 +7,229 @@
 
 <style>
 {% if mode == "pdf" %}
-@page{
-    size:A4;
-    margin:2cm;
+@page {
+    size: A4;
+    margin: 2cm;
 
-    @bottom-right{
-        content:"Page " counter(page) " / " counter(pages);
-        font-size:10px;
-        color:#666;
+    @bottom-center {
+        content: element(footer);
+    }
+
+    @bottom-right {
+        content: "Page " counter(page) " / " counter(pages);
+        font-size: 10px;
+        color: #666;
     }
 }
 {% endif %}
 
+/* =========================
+   BASE
+========================= */
+
+body {
+    font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif;
+    font-size: 13px;
+    color: #222;
+    line-height: 1.5;
+    background: #fdfdfd;
+}
+
 /* PRINT SAFE */
 @media print {
+    body {
+        margin: 0;
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
     @page {
         size: A4;
         margin: 1cm;
     }
 
-    body {
-        margin: 0;
-        background: white;
-    }   
-        .page {
-            box-shadow: none !important;
-            border: 3px double {{ couleur_principale }} !important;
-        }
-}
-
-body {
-    font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif;
-    font-size:13px;
-    color:#222;
-    line-height:1.5;
-    background:#fdfdfd;
-}
-
-@media print {
-    body {
-        background: white !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+    .page {
+        box-shadow: none !important;
+        border: 3px double {{ couleur_principale }} !important;
     }
 }
 
-/* CONTENEUR PRINCIPAL AVEC BORDURE PROFESSIONNELLE */
-.page{
-    border:3px double {{ couleur_principale }};
-    border-radius:12px;
-    padding:30px;
+/* =========================
+   PAGE CONTAINER
+========================= */
+
+.page {
+    border: 3px double {{ couleur_principale }};
+    border-radius: 12px;
+    padding: 30px;
     box-shadow: 0 0 8px rgba(0,0,0,0.1);
 
     position: relative;
-    min-height: 29.7cm; /* A4 */
+    box-sizing: border-box;
+
+    min-height: 29.7cm;
     padding-bottom: 120px; /* espace footer */
 }
 
-/* HEADER STYLE */
-.header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    border-bottom:4px solid {{ couleur_principale }};
-    padding-bottom:15px;
-    margin-bottom:30px;
-    background:rgba(0,0,0,0.02);
-    border-radius:6px 6px 0 0;
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 4px solid {{ couleur_principale }};
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+
+    background: rgba(0,0,0,0.02);
+    border-radius: 6px 6px 0 0;
 }
 
-.logo img{
-    height:70px;
-    border-radius:9px;
+.logo img {
+    height: 70px;
+    border-radius: 9px;
 }
 
-.magasin{
-    text-align:center;
-    flex:1;
+.magasin {
+    text-align: center;
+    flex: 1;
 }
 
-.magasin h1{
-    margin:0;
-    font-size:28px;
-    font-weight:700;
-    letter-spacing:1.2px;
+.magasin h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
 }
 
-.date{
-    font-size:12px;
-    text-align:right;
-    color:#555;
+.date {
+    font-size: 12px;
+    text-align: right;
+    color: #555;
 }
 
-/* TITRE DU RAPPORT */
-.titre{
-    text-align:center;
-    margin-bottom:30px;
+/* =========================
+   TITRE
+========================= */
+
+.titre {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-.titre h2{
-    font-size:30px;
-    font-weight:700;
-    letter-spacing:1px;
-    display:inline-block;
-    padding:6px 12px;
-    border-bottom:3px solid {{ couleur_principale }};
+.titre h2 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 1px;
+
+    display: inline-block;
+    padding: 6px 12px;
+
+    border-bottom: 3px solid {{ couleur_principale }};
 }
 
-/* TABLEAU STYLE PREMIUM */
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-    font-size:13px;
+/* =========================
+   TABLE
+========================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
-th{
-    background:{{ couleur_principale }};
-    color:#fff;
-    padding:10px;
-    border:1px solid #aaa;
-    font-size:10px;
-    text-transform:uppercase;
-    letter-spacing:0.5px;
+th {
+    background: {{ couleur_principale }};
+    color: #fff;
+
+    padding: 10px;
+    border: 1px solid #aaa;
+
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-td{
-    padding:10px;
-    border:1px solid #ccc;
+td {
+    padding: 10px;
+    border: 1px solid #ccc;
 }
 
-tbody tr:nth-child(even){
-    background:#f9f9f9;
+tbody tr:nth-child(even) {
+    background: #f9f9f9;
 }
 
-tbody tr:hover{
-    background:#ececec;
+tbody tr:hover {
+    background: #ececec;
 }
 
-/* TOTAL */
-.total{
-    text-align:right;
-    margin-top:20px;
-    font-weight:bold;
-    font-size:18px;
-    border-top:2px solid {{ couleur_principale }};
-    padding-top:10px;
+/* =========================
+   TOTAL
+========================= */
+
+.total {
+    text-align: right;
+    margin-top: 20px;
+
+    font-weight: bold;
+    font-size: 18px;
+
+    border-top: 2px solid {{ couleur_principale }};
+    padding-top: 10px;
 }
 
-/* FOOTER */
-.footer{
-    position: absolute;
-    bottom: 20px;
-    left: 30px;
-    right: 30px;
+/* =========================
+   FOOTER (IMPORTANT PDF)
+========================= */
 
-    display:flex;
-    justify-content:space-between;
-
-    border-top:2px solid {{ couleur_principale }};
-    padding-top:10px;
-}
 .footer {
-    margin-top: auto;
-}
-.footer h3{
-    margin-bottom:5px;
-    font-size:14px;
-    color:#333;
+    position: running(footer);
+
+    border-top: 2px solid {{ couleur_principale }};
+    padding-top: 10px;
+
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 12px;
+    color: #555;
 }
 
-.footer p{
-    margin:2px 0;
-    font-size:12px;
-    color:#555;
+.footer h3 {
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
 }
 
-.directeur{
-    text-align:right;
+.footer p {
+    margin: 2px 0;
 }
 
-.directeur h3{
-    text-align:center;
+.directeur {
+    text-align: right;
 }
 
-.directeur p{
-    font-size:16px;
-    font-weight:700;
-    color:#222;
+.directeur h3 {
+    text-align: center;
 }
+
+.directeur p {
+    font-size: 16px;
+    font-weight: 700;
+    color: #222;
+}
+
+/* =========================
+   PRINT RULES
+========================= */
 
 @media print {
-    body {
-        margin: 10px;
-    }
-
     .no-print {
         display: none !important;
     }
@@ -218,27 +246,13 @@ tbody tr:hover{
         display: table-header-group;
     }
 }
-
-.page {
-    display: flex;
-    flex-direction: column;
-    min-height: 29.7cm;
-}
-
-.content{
-    flex: 1;
-    min-height: 100%;
-}
-
-table{
-    margin-bottom: 20px;
-}
+</style>
 </style>
 
 </head>
 
 {% if mode == "print" %}
-<body onload="setTimeout(() => window.print(), 300)">
+<body onload="window.print()">
 {% else %}
 <body>
 {% endif %}
