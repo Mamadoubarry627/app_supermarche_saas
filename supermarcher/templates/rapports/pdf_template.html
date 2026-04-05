@@ -4,67 +4,63 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <style>
+<style>
+/* =========================
+   PAGE SETUP ULTRA PRO
+========================= */
 
-        /* ===== PAGE A4 ===== */
-        @page{
-            size: A4;
-            margin: 0;
-        }
+@page {
+    size: A4;
+    margin: 0;
+}
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            background: #fff;
-        }
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
 
-        body {
-            font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif;
-            font-size: 13px;
-            color: #222;
-            line-height: 1.5;
-        }
+/* =========================
+   PAGE CONTAINER (A4 FULL)
+========================= */
 
-        /* ===== FEUILLE COMPLETE ===== */
-        .page{
-            width: 210mm;
-            height: 297mm;
+.page {
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
 
-            box-sizing: border-box;
+    border: 3px double {{ couleur_principale }};
+    padding: 18mm;
 
-            /* ESPACE INTÉRIEUR POUR EVITER COLLAGE IMPRESSION */
-            padding: 18mm;
+    font-family: "DejaVu Sans", Arial, sans-serif;
+    font-size: 12.5px;
+    color: #222;
 
-            /* BORDURE PLEINE PAGE */
-            border: 3px double {{ couleur_principale }};
+    position: relative;
+    overflow: hidden;
+}
 
-            margin: 0 auto;
+/* =========================
+   HEADER FIXE
+========================= */
 
-            background: #fff;
-        }
-
-        /* ===== HEADER ===== */
+/* HEADER STYLE */
         .header{
             display:flex;
             align-items:center;
             justify-content:space-between;
-
             border-bottom:4px solid {{ couleur_principale }};
-            padding-bottom:12px;
-            margin-bottom:22px;
-
-            background: rgba(0,0,0,0.02);
+            padding-bottom:15px;
+            margin-bottom:30px;
+            background:rgba(0,0,0,0.02);
+            border-radius:6px 6px 0 0;
         }
 
-        /* LOGO AVEC BORDEURE CONSERVÉE */
         .logo img{
-            height: 70px;
-            border-radius: 10px;
-            border: 2px solid #ccc; /* 👈 bordure conservée / renforcée */
-            padding: 2px;
-            background: white;
+            height:70px;
+            border-radius:9px;
         }
 
         .magasin{
@@ -74,9 +70,9 @@
 
         .magasin h1{
             margin:0;
-            font-size:26px;
+            font-size:28px;
             font-weight:700;
-            letter-spacing:1px;
+            letter-spacing:1.2px;
         }
 
         .date{
@@ -85,124 +81,142 @@
             color:#555;
         }
 
-        /* ===== TITRE ===== */
-        .titre{
-            text-align:center;
-            margin-bottom:22px;
-        }
+/* =========================
+   TITRE DOCUMENT
+========================= */
 
-        .titre h2{
-            font-size:28px;
-            font-weight:700;
+.titre {
+    text-align: center;
+    margin: 10px 0 18px 0;
+}
 
-            display:inline-block;
-            padding:6px 14px;
+.titre h2 {
+    font-size: 22px;
+    font-weight: 700;
+    display: inline-block;
+    padding-bottom: 4px;
+    border-bottom: 2px solid {{ couleur_principale }};
+}
 
-            border-bottom:3px solid {{ couleur_principale }};
-        }
+/* =========================
+   TABLE PRO
+========================= */
 
-        /* ===== TABLE ===== */
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:10px;
-            font-size:13px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
 
-        th{
-            background: {{ couleur_principale }};
-            color: #fff;
-            padding: 10px;
-            border: 1px solid #999;
-            font-size: 10px;
-            text-transform: uppercase;
-        }
+th {
+    background: {{ couleur_principale }};
+    color: #fff;
+    padding: 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    border: 1px solid #999;
+}
 
-        td{
-            padding: 9px;
-            border: 1px solid #ccc;
-        }
+td {
+    padding: 7px;
+    border: 1px solid #ddd;
+}
 
-        tbody tr:nth-child(even){
-            background:#f7f7f7;
-        }
+tbody tr:nth-child(even) {
+    background: #f6f6f6;
+}
 
-        tbody tr:hover{
-            background:#ececec;
-        }
+/* =========================
+   TOTAL BOX
+========================= */
 
-        /* ===== TOTAL ===== */
-        .total{
-            text-align:right;
-            margin-top:18px;
-            font-weight:bold;
-            font-size:18px;
+.total {
+    margin-top: 15px;
+    text-align: right;
+    font-size: 16px;
+    font-weight: bold;
+    border-top: 2px solid {{ couleur_principale }};
+    padding-top: 8px;
+}
 
-            border-top:2px solid {{ couleur_principale }};
-            padding-top:10px;
-        }
+/* =========================
+   FOOTER FIXE
+========================= */
 
-        /* ===== FOOTER ===== */
-        .footer{
-            margin-top:35px;
-            display:flex;
-            justify-content:space-between;
+.footer {
+    position: absolute;
+    bottom: 18mm;
+    left: 18mm;
+    right: 18mm;
 
-            border-top:2px solid {{ couleur_principale }};
-            padding-top:12px;
-        }
+    display: flex;
+    justify-content: space-between;
 
-        .footer h3{
-            margin:0 0 5px 0;
-            font-size:14px;
-        }
+    border-top: 2px solid {{ couleur_principale }};
+    padding-top: 10px;
 
-        .footer p{
-            margin:2px 0;
-            font-size:12px;
-            color:#555;
-        }
+    font-size: 11px;
+}
 
-        .directeur{
-            text-align:right;
-        }
+.footer h3 {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+}
 
-        .directeur p{
-            font-size:15px;
-            font-weight:700;
-            color:#222;
-        }
+.directeur {
+    text-align: right;
+}
 
-        /* ===== PRINT CLEAN ===== */
-        @media print {
-            .page{
-                box-shadow:none;
-                margin:0;
-            }
+.directeur p {
+    font-weight: bold;
+    font-size: 13px;
+}
 
-            body{
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
+/* =========================
+   QR CODE BLOCK (OPTION)
+========================= */
 
-            tr{ page-break-inside: avoid; }
-            thead{ display: table-header-group; }
-        }
+.qr {
+    position: absolute;
+    bottom: 18mm;
+    right: 18mm;
+    width: 70px;
+    height: 70px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #777;
+}
 
-    </style>
+/* =========================
+   PRINT OPTIMISATION
+========================= */
+
+@media print {
+    .page {
+        border: 3px double {{ couleur_principale }};
+        box-shadow: none;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+}
+</style>
 </head>
 
-{% if mode == "print" %}
-<body onload="setTimeout(() => window.print(), 300)">
-{% else %}
 <body>
-{% endif %}
 
 <div class="page">
 
     <!-- HEADER -->
     <div class="header">
-
         <div class="logo">
             {% if logo_magasin %}
                 <img src="{{ logo_magasin }}">
@@ -217,7 +231,6 @@
             {{ date_generation|date:"d/m/Y" }}<br>
             {{ date_generation|date:"H:i" }}
         </div>
-
     </div>
 
     <!-- TITRE -->
@@ -258,26 +271,23 @@
                 Total : {{ total_jour|floatformat:2|intcomma }} {{ magasin.devise }}
             </div>
         {% endif %}
-
     {% else %}
-        <p style="text-align:center;font-size:18px;">
+        <p style="text-align:center; font-size:16px;">
             {{ message_vide }}
         </p>
     {% endif %}
 
     <!-- FOOTER -->
     <div class="footer">
-
         <div>
-            <h3>Coordonnées :</h3>
+            <h3>Coordonnées</h3>
             <p>{{ telephone_magasin }}</p>
         </div>
 
         <div class="directeur">
-            <h3>Generateur :</h3>
+            <h3>Généré par</h3>
             <p>{{ nom_directeur }}</p>
         </div>
-
     </div>
 
 </div>
