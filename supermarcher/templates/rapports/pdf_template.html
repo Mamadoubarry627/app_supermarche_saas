@@ -4,207 +4,211 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <style>
-        {% if mode == "pdf" %}
-        @page{
-            size: A4;
-            margin: 0; /* IMPORTANT : plus de marge pour bordure pleine page */
+<style>
+/* =========================
+   PAGE SETUP ULTRA PRO
+========================= */
 
-            @bottom-right{
-                content:"Page " counter(page) " / " counter(pages);
-                font-size:10px;
-                color:#666;
-            }
-        }
-        {% endif %}
+@page {
+    size: A4;
+    margin: 0;
+}
 
-        /* PRINT SAFE */
-        @media print {
-            @page {
-                size: A4;
-                margin: 0;
-            }
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
 
-            body {
-                margin: 0;
-                background: white;
-            }
+/* =========================
+   PAGE CONTAINER (A4 FULL)
+========================= */
 
-            .page {
-                box-shadow: none !important;
-                border: 3px double {{ couleur_principale }};
-            }
-        }
+.page {
+    width: 210mm;
+    height: 297mm;
+    box-sizing: border-box;
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
+    border: 3px double {{ couleur_principale }};
+    padding: 18mm;
 
-        body {
-            font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif;
-            font-size:13px;
-            color:#222;
-            line-height:1.5;
-            background:#fdfdfd;
-        }
+    font-family: "DejaVu Sans", Arial, sans-serif;
+    font-size: 12.5px;
+    color: #222;
 
-        /* PAGE = VRAIE FEUILLE A4 */
-        .page{
-            width: 210mm;
-            height: 297mm;
+    position: relative;
+    overflow: hidden;
+}
 
-            box-sizing: border-box;
+/* =========================
+   HEADER FIXE
+========================= */
 
-            border:3px double {{ couleur_principale }};
-            border-radius:12px;
-            padding:30px;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-            margin: 0 auto;
-        }
+    border-bottom: 3px solid {{ couleur_principale }};
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+}
 
-        /* HEADER STYLE */
-        .header{
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            border-bottom:4px solid {{ couleur_principale }};
-            padding-bottom:15px;
-            margin-bottom:30px;
-            background:rgba(0,0,0,0.02);
-            border-radius:6px 6px 0 0;
-        }
+.logo img {
+    height: 55px;
+}
 
-        .logo img{
-            height:70px;
-            border-radius:9px;
-        }
+.magasin {
+    text-align: center;
+    flex: 1;
+}
 
-        .magasin{
-            text-align:center;
-            flex:1;
-        }
+.magasin h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
 
-        .magasin h1{
-            margin:0;
-            font-size:28px;
-            font-weight:700;
-            letter-spacing:1.2px;
-        }
+.date {
+    text-align: right;
+    font-size: 11px;
+    color: #555;
+}
 
-        .date{
-            font-size:12px;
-            text-align:right;
-            color:#555;
-        }
+/* =========================
+   TITRE DOCUMENT
+========================= */
 
-        /* TITRE */
-        .titre{
-            text-align:center;
-            margin-bottom:30px;
-        }
+.titre {
+    text-align: center;
+    margin: 10px 0 18px 0;
+}
 
-        .titre h2{
-            font-size:30px;
-            font-weight:700;
-            letter-spacing:1px;
-            display:inline-block;
-            padding:6px 12px;
-            border-bottom:3px solid {{ couleur_principale }};
-        }
+.titre h2 {
+    font-size: 22px;
+    font-weight: 700;
+    display: inline-block;
+    padding-bottom: 4px;
+    border-bottom: 2px solid {{ couleur_principale }};
+}
 
-        /* TABLE */
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:10px;
-            font-size:13px;
-        }
+/* =========================
+   TABLE PRO
+========================= */
 
-        th{
-            background:{{ couleur_principale }};
-            color:#fff;
-            padding:10px;
-            border:1px solid #aaa;
-            font-size:10px;
-            text-transform:uppercase;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
 
-        td{
-            padding:10px;
-            border:1px solid #ccc;
-        }
+th {
+    background: {{ couleur_principale }};
+    color: #fff;
+    padding: 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    border: 1px solid #999;
+}
 
-        tbody tr:nth-child(even){
-            background:#f9f9f9;
-        }
+td {
+    padding: 7px;
+    border: 1px solid #ddd;
+}
 
-        tbody tr:hover{
-            background:#ececec;
-        }
+tbody tr:nth-child(even) {
+    background: #f6f6f6;
+}
 
-        /* TOTAL */
-        .total{
-            text-align:right;
-            margin-top:20px;
-            font-weight:bold;
-            font-size:18px;
-            border-top:2px solid {{ couleur_principale }};
-            padding-top:10px;
-        }
+/* =========================
+   TOTAL BOX
+========================= */
 
-        /* FOOTER */
-        .footer{
-            margin-top:50px;
-            display:flex;
-            justify-content:space-between;
-            border-top:2px solid {{ couleur_principale }};
-            padding-top:15px;
-        }
+.total {
+    margin-top: 15px;
+    text-align: right;
+    font-size: 16px;
+    font-weight: bold;
+    border-top: 2px solid {{ couleur_principale }};
+    padding-top: 8px;
+}
 
-        .footer h3{
-            margin-bottom:5px;
-            font-size:14px;
-            color:#333;
-        }
+/* =========================
+   FOOTER FIXE
+========================= */
 
-        .footer p{
-            margin:2px 0;
-            font-size:12px;
-            color:#555;
-        }
+.footer {
+    position: absolute;
+    bottom: 18mm;
+    left: 18mm;
+    right: 18mm;
 
-        .directeur{
-            text-align:right;
-        }
+    display: flex;
+    justify-content: space-between;
 
-        .directeur h3{
-            text-align:center;
-        }
+    border-top: 2px solid {{ couleur_principale }};
+    padding-top: 10px;
 
-        .directeur p{
-            font-size:16px;
-            font-weight:700;
-            color:#222;
-        }
+    font-size: 11px;
+}
 
-        @media print {
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; }
-            thead { display: table-header-group; }
-        }
-    </style>
+.footer h3 {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+}
+
+.directeur {
+    text-align: right;
+}
+
+.directeur p {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+/* =========================
+   QR CODE BLOCK (OPTION)
+========================= */
+
+.qr {
+    position: absolute;
+    bottom: 18mm;
+    right: 18mm;
+    width: 70px;
+    height: 70px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #777;
+}
+
+/* =========================
+   PRINT OPTIMISATION
+========================= */
+
+@media print {
+    .page {
+        border: 3px double {{ couleur_principale }};
+        box-shadow: none;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+}
+</style>
 </head>
 
-{% if mode == "print" %}
-<body onload="setTimeout(() => window.print(), 300)">
-{% else %}
 <body>
-{% endif %}
 
 <div class="page">
 
@@ -212,7 +216,7 @@
     <div class="header">
         <div class="logo">
             {% if logo_magasin %}
-                <img src="{{ logo_magasin }}" style="height:60px;">
+                <img src="{{ logo_magasin }}">
             {% endif %}
         </div>
 
@@ -264,9 +268,8 @@
                 Total : {{ total_jour|floatformat:2|intcomma }} {{ magasin.devise }}
             </div>
         {% endif %}
-
     {% else %}
-        <p style="text-align:center;font-size:18px;">
+        <p style="text-align:center; font-size:16px;">
             {{ message_vide }}
         </p>
     {% endif %}
@@ -274,14 +277,19 @@
     <!-- FOOTER -->
     <div class="footer">
         <div>
-            <h3>Coordonnées :</h3>
+            <h3>Coordonnées</h3>
             <p>{{ telephone_magasin }}</p>
         </div>
 
         <div class="directeur">
-            <h3>Generateur :</h3>
+            <h3>Généré par</h3>
             <p>{{ nom_directeur }}</p>
         </div>
+    </div>
+
+    <!-- QR CODE (optionnel) -->
+    <div class="qr">
+        QR
     </div>
 
 </div>
