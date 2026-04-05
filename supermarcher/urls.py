@@ -62,7 +62,6 @@ urlpatterns = [
     path('achats/<int:pk>/supprimer/', views.achat_supprimer, name='achat_supprimer'),
     path('achats/<int:pk>/annuler/', views.achat_annuler, name='achat_annuler'),
     path('ventes/nouvelle/', views.vente_create, name='vente_create'),
-    path('ventes/pdf/', views.ventes_pdf, name='ventes_pdf'),
     path("produit/barcode/<str:code>/", views.produit_par_barcode, name="produit_par_barcode"),
     path("ventes/<int:pk>/ticket/", views.ticket_pdf, name="ticket_pdf"),
     path('produit/modifier/<int:produit_id>/', views.produit_modifier_ajax, name='produit_modifier_ajax'),
