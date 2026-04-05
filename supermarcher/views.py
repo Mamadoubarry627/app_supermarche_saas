@@ -1454,6 +1454,45 @@ def format_gnf(value):
     return "{:,.0f}".format(value).replace(",", " ")
 
 
+@login_required
+def ventes_pdf(request):
+    ventes = get_ventes_filtrees(request)
+    magasin = request.user.magasin
+
+    total_ventes = ventes.count()
+    total_ca = ventes.aggregate(total=Sum('montant_total'))['total'] or 0
+    total_tva = ventes.aggregate(total=Sum('montant_tva'))['total'] or 0
+    total_remise = ventes.aggregate(total=Sum('remise'))['total'] or 0
+    ventes_annulees = ventes.filter(statut='ANNULEE').count()
+
+    total_articles = sum(
+        ligne.quantite
+        for vente in ventes
+        for ligne in vente.lignes.all()
+    )
+
+    template = get_template("gerant/rapport_ventes.html")
+
+    html = template.render({
+        "ventes": ventes,
+        "magasin": magasin,
+        "date_generation": timezone.now(),
+        "total_ventes": total_ventes,
+        "total_ca": format_gnf(total_ca),
+        "total_tva": format_gnf(total_tva),
+        "total_remise": format_gnf(total_remise),
+        "ventes_annulees": ventes_annulees,
+        "total_articles": total_articles,
+        "format_gnf": format_gnf,
+    })
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename=rapport_ventes.pdf"
+
+    HTML(string=html).write_pdf(response)
+
+    return response
+
 from django.http import JsonResponse
 from .models import Produit
 from django.contrib.auth.decorators import login_required
