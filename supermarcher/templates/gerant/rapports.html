@@ -360,7 +360,7 @@ document.getElementById("printBtn").addEventListener("click", function(){
 
 const isElectron = navigator.userAgent.toLowerCase().includes("electron");
 if (isElectron) {
-    document.getElementById("downloadPDF").innerText = "Exporter PDF désactivé";
+    document.getElementById("downloadPDF").style.display = "none";
 }
 
 function showToast(message) {
