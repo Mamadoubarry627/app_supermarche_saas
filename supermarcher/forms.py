@@ -545,7 +545,7 @@ class AchatForm(forms.ModelForm):
             'numero_facture': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white'}),
             'statut': forms.Select(attrs={
                 'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white',
-                'disabled': True
+                'readonly': True
             }),
         }
 
