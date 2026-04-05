@@ -6,25 +6,9 @@
 <meta charset="UTF-8">
 
 <style>
-{% if mode == "pdf" %}
-@page {
-    size: A4;
-    margin: 2cm;
-
-    @bottom-center {
-        content: element(footer);
-    }
-
-    @bottom-right {
-        content: "Page " counter(page) " / " counter(pages);
-        font-size: 10px;
-        color: #666;
-    }
-}
-{% endif %}
 
 /* =========================
-   BASE
+   BASE PAGE A4
 ========================= */
 
 body {
@@ -33,43 +17,31 @@ body {
     color: #222;
     line-height: 1.5;
     background: #fdfdfd;
-}
-
-/* PRINT SAFE */
-@media print {
-    body {
-        margin: 0;
-        background: white !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    @page {
-        size: A4;
-        margin: 1cm;
-    }
-
-    .page {
-        box-shadow: none !important;
-        border: 3px double {{ couleur_principale }} !important;
-    }
+    margin: 0;
+    padding: 0;
 }
 
 /* =========================
-   PAGE CONTAINER
+   PAGE CONTAINER (IMPORTANT FIX FOOTER)
 ========================= */
 
 .page {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 29.7cm; /* A4 */
     border: 3px double {{ couleur_principale }};
     border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
 
-    position: relative;
+    padding: 30px;
     box-sizing: border-box;
 
-    min-height: 29.7cm;
-    padding-bottom: 120px; /* espace footer */
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+/* CONTENU PRINCIPAL */
+.content {
+    flex: 1; /* 🔥 pousse le footer en bas */
 }
 
 /* =========================
@@ -147,13 +119,10 @@ table {
 th {
     background: {{ couleur_principale }};
     color: #fff;
-
     padding: 10px;
     border: 1px solid #aaa;
-
     font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 td {
@@ -163,10 +132,6 @@ td {
 
 tbody tr:nth-child(even) {
     background: #f9f9f9;
-}
-
-tbody tr:hover {
-    background: #ececec;
 }
 
 /* =========================
@@ -185,11 +150,11 @@ tbody tr:hover {
 }
 
 /* =========================
-   FOOTER (IMPORTANT PDF)
+   FOOTER (FIX IMPORTANT)
 ========================= */
 
 .footer {
-    position: running(footer);
+    margin-top: auto; /* 🔥 clé principale */
 
     border-top: 2px solid {{ couleur_principale }};
     padding-top: 10px;
@@ -215,10 +180,6 @@ tbody tr:hover {
     text-align: right;
 }
 
-.directeur h3 {
-    text-align: center;
-}
-
 .directeur p {
     font-size: 16px;
     font-weight: 700;
@@ -226,12 +187,20 @@ tbody tr:hover {
 }
 
 /* =========================
-   PRINT RULES
+   PRINT MODE
 ========================= */
 
 @media print {
-    .no-print {
-        display: none !important;
+
+    body {
+        background: white !important;
+    }
+
+    .page {
+        box-shadow: none !important;
+        border: 3px double {{ couleur_principale }} !important;
+
+        page-break-after: always;
     }
 
     table {
@@ -245,27 +214,28 @@ tbody tr:hover {
     thead {
         display: table-header-group;
     }
-}
-</style>
-</style>
 
+    .no-print {
+        display: none !important;
+    }
+}
+
+</style>
 </head>
 
-{% if mode == "print" %}
-<body onload="window.print()">
-{% else %}
-<body>
-{% endif %}
+<body {% if mode == "print" %} onload="window.print()" {% endif %}>
 
 <div class="page">
-    <div class="content">
-        <!-- HEADER -->
 
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- HEADER -->
         <div class="header">
 
             <div class="logo">
                 {% if logo_magasin %}
-                <img src="{{ logo_magasin }}" style="height:60px;">
+                <img src="{{ logo_magasin }}">
                 {% endif %}
             </div>
 
@@ -280,49 +250,39 @@ tbody tr:hover {
 
         </div>
 
-
         <!-- TITRE -->
-
         <div class="titre">
             <h2>{{ type_rapport|capfirst|underscore_to_space }}</h2>
         </div>
 
-
         <!-- TABLE -->
-
         {% if data %}
 
         <table>
 
-        <thead>
-        <tr>
-        {% for col in data.0.keys %}
-        <th>{{ col|capfirst|underscore_to_space }}</th>
-        {% endfor %}
-        </tr>
-        </thead>
+            <thead>
+            <tr>
+                {% for col in data.0.keys %}
+                <th>{{ col|capfirst|underscore_to_space }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
 
-        <tbody>
-
-        {% for row in data %}
-        <tr>
-
-        {% for value in row.values %}
-        <td>
-
-        {% if value is numeric %}
-        {{ value|floatformat:2|intcomma }}
-        {% else %}
-        {{ value }}
-        {% endif %}
-
-        </td>
-        {% endfor %}
-
-        </tr>
-        {% endfor %}
-
-        </tbody>
+            <tbody>
+            {% for row in data %}
+            <tr>
+                {% for value in row.values %}
+                <td>
+                    {% if value is numeric %}
+                        {{ value|floatformat:2|intcomma }}
+                    {% else %}
+                        {{ value }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
 
         </table>
 
@@ -335,28 +295,29 @@ tbody tr:hover {
         {% else %}
 
         <p style="text-align:center;font-size:18px;">
-        {{ message_vide }}
+            {{ message_vide }}
         </p>
 
         {% endif %}
 
     </div>
 
-    <!-- FOOTER -->
-
+    <!-- FOOTER (TOUJOURS EN BAS) -->
     <div class="footer">
 
         <div>
-        <h3>Coordonnées :</h3>
-        <p>{{ telephone_magasin }}</p>
+            <h3>Coordonnées :</h3>
+            <p>{{ telephone_magasin }}</p>
         </div>
 
         <div class="directeur">
-        <h3>Generateur :</h3>
-        <p>{{ nom_directeur }}</p>
+            <h3>Générateur :</h3>
+            <p>{{ nom_directeur }}</p>
         </div>
 
     </div>
+
 </div>
+
 </body>
 </html>
