@@ -3291,7 +3291,7 @@ class PrintRapportView(View):
 
         context["mode"] = "print"   # 👈 IMPORTANT
 
-        return render(request, "gerant/dynamic_print.html", context)      
+        return render(request, "rapports/pdf_template.html", context)      
                    
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
