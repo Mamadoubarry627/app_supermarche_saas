@@ -1,10 +1,13 @@
+from multiprocessing import context
 from time import time
+from urllib import request
 from django.db.models import Count, DurationField, ExpressionWrapper
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
 from supermarcher.signals import log_action
+from supermarcher.utils import theme
 from .models import Categorie, Magasin, Utilisateur
 from .forms import AchatForm, FournisseurForm, ModifierMagasinForm, UtilisateurForm, ConnexionForm, VenteForm
 
@@ -2981,9 +2984,13 @@ def get_context_filtre(request, type_rapport):
             role="GERANT"
         ).first()
     theme = getattr(magasin, "theme", None)
-   
+    
+    if theme and theme.logo:
+        context["logo_magasin"] = request.build_absolute_uri(theme.logo.url)
+    else:
+        context["logo_magasin"] = ""
+        
     context.update({
-        "logo_magasin": theme.logo.url if theme and theme.logo else "",
         "base_url": request.build_absolute_uri("/"),
         "nom_directeur": f"{gerant.first_name} {gerant.last_name}" if gerant else "",
         "nom_magasin": magasin.nom if magasin else "",        
@@ -3275,7 +3282,7 @@ class ExportRapportPDFView(View):
         context["mode"] = "pdf"   # 👈 IMPORTANT
         # Rendu PDF
         html_string = render_to_string("rapports/pdf_template.html", context)
-        pdf = HTML(string=html_string).write_pdf()
+        pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
         response = HttpResponse(pdf, content_type="application/pdf")
         response["Content-Disposition"] = f'attachment; filename="{type_rapport}.pdf"'
@@ -3289,9 +3296,16 @@ class PrintRapportView(View):
 
         context = get_context_filtre(request, type_rapport)
 
-        context["mode"] = "print"   # 👈 IMPORTANT
+        # 🔥 AJOUT MANQUANT
+        context["couleur_principale"] = (
+            context["magasin"].theme.couleur_principale
+            if context.get("magasin") and hasattr(context["magasin"], "theme")
+            else "#3b82f6"
+        )
 
-        return render(request, "rapports/pdf_template.html", context)      
+        context["mode"] = "print"
+
+        return render(request, "rapports/pdf_template.html", context)     
                    
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
