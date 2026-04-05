@@ -152,8 +152,10 @@ Ventes
     </table>
 </div>
 </div>
-const isElectron = navigator.userAgent.toLowerCase().includes("electron");
-if (isElectron) {
-    document.getElementById("downloadPDF").style.display = "none";
-}
+<script>
+    const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+    if (isElectron) {
+        document.getElementById("downloadPDF").style.display = "none";
+    }
+</script>
 {% endblock %}
