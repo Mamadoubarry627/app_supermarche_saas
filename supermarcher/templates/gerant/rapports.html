@@ -313,12 +313,14 @@ periodeBtns.forEach(btn => {
       start = end = y.toISOString().split("T")[0];
     }
 
-    if(type === "week"){
+    if (type === "week") {
       const first = new Date(today);
-      first.setDate(today.getDate() - today.getDay() + 1);
 
-      start = first.toISOString().split("T")[0];
-      end = today.toISOString().split("T")[0];
+      const day = today.getDay() || 7; // dimanche = 7
+      first.setDate(today.getDate() - day + 1);
+
+      start = formatDateLocal(first);
+      end = formatDateLocal(today);
     }
 
     if(type === "month"){
