@@ -30,10 +30,9 @@
         margin: 0;
         background: white;
     }
-
     .page {
         box-shadow: none !important;
-        border: 2px solid #000;
+        border: 2px solid #000 !important;
     }
 }
 
@@ -154,7 +153,6 @@ tbody tr:hover{
 
 /* FOOTER */
 .footer{
-    margin-top:50px;
     display:flex;
     justify-content:space-between;
     border-top:2px solid {{ couleur_principale }};
@@ -208,6 +206,21 @@ tbody tr:hover{
         display: table-header-group;
     }
 }
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 29.7cm;
+}
+
+.content {
+    flex: 1;
+}
+
+.footer {
+    margin-top: auto;
+    padding-top: 15px;
+}
 </style>
 
 </head>
@@ -219,104 +232,105 @@ tbody tr:hover{
 {% endif %}
 
 <div class="page">
+    <div class="content">
+        <!-- HEADER -->
 
-<!-- HEADER -->
+        <div class="header">
 
-<div class="header">
+            <div class="logo">
+                {% if logo_magasin %}
+                <img src="{{ logo_magasin }}" style="height:60px;">
+                {% endif %}
+            </div>
 
-<div class="logo">
-{% if logo_magasin %}
-<img src="{{ logo_magasin }}" style="height:60px;">
-{% endif %}
-</div>
+            <div class="magasin">
+                <h1>{{ nom_magasin }}</h1>
+            </div>
 
-<div class="magasin">
-<h1>{{ nom_magasin }}</h1>
-</div>
+            <div class="date">
+                {{ date_generation|date:"d/m/Y" }}<br>
+                {{ date_generation|date:"H:i" }}
+            </div>
 
-<div class="date">
-{{ date_generation|date:"d/m/Y" }}<br>
-{{ date_generation|date:"H:i" }}
-</div>
-
-</div>
-
-
-<!-- TITRE -->
-
-<div class="titre">
-<h2>{{ type_rapport|capfirst|underscore_to_space }}</h2>
-</div>
+        </div>
 
 
-<!-- TABLE -->
+        <!-- TITRE -->
 
-{% if data %}
-
-<table>
-
-<thead>
-<tr>
-{% for col in data.0.keys %}
-<th>{{ col|capfirst|underscore_to_space }}</th>
-{% endfor %}
-</tr>
-</thead>
-
-<tbody>
-
-{% for row in data %}
-<tr>
-
-{% for value in row.values %}
-<td>
-
-{% if value is numeric %}
-{{ value|floatformat:2|intcomma }}
-{% else %}
-{{ value }}
-{% endif %}
-
-</td>
-{% endfor %}
-
-</tr>
-{% endfor %}
-
-</tbody>
-
-</table>
-
-{% if total_jour %}
-<div class="total">
-Total : {{ total_jour|floatformat:2|intcomma }} {{ magasin.devise }}
-</div>
-{% endif %}
-
-{% else %}
-
-<p style="text-align:center;font-size:18px;">
-{{ message_vide }}
-</p>
-
-{% endif %}
+        <div class="titre">
+            <h2>{{ type_rapport|capfirst|underscore_to_space }}</h2>
+        </div>
 
 
-<!-- FOOTER -->
+        <!-- TABLE -->
 
-<div class="footer">
+        {% if data %}
 
-<div>
-<h3>Coordonnées :</h3>
-<p>{{ telephone_magasin }}</p>
-</div>
+        <table>
 
-<div class="directeur">
-<h3>Generateur :</h3>
-<p>{{ nom_directeur }}</p>
-</div>
+        <thead>
+        <tr>
+        {% for col in data.0.keys %}
+        <th>{{ col|capfirst|underscore_to_space }}</th>
+        {% endfor %}
+        </tr>
+        </thead>
 
-</div>
+        <tbody>
+
+        {% for row in data %}
+        <tr>
+
+        {% for value in row.values %}
+        <td>
+
+        {% if value is numeric %}
+        {{ value|floatformat:2|intcomma }}
+        {% else %}
+        {{ value }}
+        {% endif %}
+
+        </td>
+        {% endfor %}
+
+        </tr>
+        {% endfor %}
+
+        </tbody>
+
+        </table>
+
+        {% if total_jour %}
+        <div class="total">
+            Total : {{ total_jour|floatformat:2|intcomma }} {{ magasin.devise }}
+        </div>
+        {% endif %}
+
+        {% else %}
+
+        <p style="text-align:center;font-size:18px;">
+        {{ message_vide }}
+        </p>
+
+        {% endif %}
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <div>
+        <h3>Coordonnées :</h3>
+        <p>{{ telephone_magasin }}</p>
+        </div>
+
+        <div class="directeur">
+        <h3>Generateur :</h3>
+        <p>{{ nom_directeur }}</p>
+        </div>
+
+    </div>
 </div>
 </body>
 </html>

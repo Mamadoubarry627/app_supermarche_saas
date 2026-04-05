@@ -320,8 +320,15 @@ periodeBtns.forEach(btn => {
 
 document.getElementById("downloadPDF").addEventListener("click", function(){
 
+    const type = document.getElementById("type_rapport").value;
+
+    if (!type) {
+        showToast("⚠️ Veuillez sélectionner un type de rapport");
+        return;
+    }
+
     const params = new URLSearchParams({
-        type_rapport: document.getElementById("type_rapport").value,
+        type_rapport: type,
         utilisateur: document.getElementById("utilisateur").value,
         date_debut: document.getElementById("date_debut").value,
         date_fin: document.getElementById("date_fin").value,
@@ -329,13 +336,19 @@ document.getElementById("downloadPDF").addEventListener("click", function(){
     });
 
     window.open(`/rapports/export/pdf/?${params.toString()}`, "_blank");
-
 });
 
 document.getElementById("printBtn").addEventListener("click", function(){
 
+    const type = document.getElementById("type_rapport").value;
+
+    if (!type) {
+        showToast("⚠️ Veuillez sélectionner un type de rapport");
+        return;
+    }
+
     const params = new URLSearchParams({
-        type_rapport: document.getElementById("type_rapport").value,
+        type_rapport: type,
         utilisateur: document.getElementById("utilisateur").value,
         date_debut: document.getElementById("date_debut").value,
         date_fin: document.getElementById("date_fin").value,
@@ -343,8 +356,33 @@ document.getElementById("printBtn").addEventListener("click", function(){
     });
 
     window.open(`/rapports/print/?${params.toString()}`, "_blank");
-
 });
+
+const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+if (isElectron) {
+    document.getElementById("downloadPDF").innerText = "Exporter PDF désactivé";
+}
+
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.innerText = message;
+
+  toast.style.position = "fixed";
+  toast.style.bottom = "20px";
+  toast.style.right = "20px";
+  toast.style.background = "#e11d48";
+  toast.style.color = "white";
+  toast.style.padding = "12px 18px";
+  toast.style.borderRadius = "8px";
+  toast.style.zIndex = "9999";
+  toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
 </script>
 
 {% endblock %}
