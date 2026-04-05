@@ -8,7 +8,7 @@
 <style>
 
 /* =========================
-   BASE PAGE A4
+   BASE
 ========================= */
 
 body {
@@ -22,14 +22,15 @@ body {
 }
 
 /* =========================
-   PAGE CONTAINER (IMPORTANT FIX FOOTER)
+   PAGE A4 FIX (IMPORTANT)
 ========================= */
 
 .page {
     display: flex;
     flex-direction: column;
 
-    min-height: 29.7cm; /* A4 */
+    min-height: 29.7cm;
+
     border: 3px double {{ couleur_principale }};
     border-radius: 12px;
 
@@ -39,9 +40,9 @@ body {
     box-shadow: 0 0 8px rgba(0,0,0,0.1);
 }
 
-/* CONTENU PRINCIPAL */
+/* CONTENT prend tout l’espace */
 .content {
-    flex: 1; /* 🔥 pousse le footer en bas */
+    flex: 1;
 }
 
 /* =========================
@@ -150,11 +151,11 @@ tbody tr:nth-child(even) {
 }
 
 /* =========================
-   FOOTER (FIX IMPORTANT)
+   FOOTER (FIX FINAL)
 ========================= */
 
 .footer {
-    margin-top: auto; /* 🔥 clé principale */
+    margin-top: auto;
 
     border-top: 2px solid {{ couleur_principale }};
     padding-top: 10px;
@@ -187,19 +188,25 @@ tbody tr:nth-child(even) {
 }
 
 /* =========================
-   PRINT MODE
+   PRINT FIX (COULEURS + PDF)
 ========================= */
 
 @media print {
 
     body {
+        margin: 0;
         background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 
     .page {
         box-shadow: none !important;
-        border: 3px double {{ couleur_principale }} !important;
-
         page-break-after: always;
     }
 
@@ -302,7 +309,7 @@ tbody tr:nth-child(even) {
 
     </div>
 
-    <!-- FOOTER (TOUJOURS EN BAS) -->
+    <!-- FOOTER -->
     <div class="footer">
 
         <div>
