@@ -185,6 +185,12 @@ tbody tr:nth-child(even) {
         display: table-header-group;
     }
 
+    th {
+        background-color: {{ couleur_principale }} !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
     tr {
         page-break-inside: avoid;
     }
