@@ -1892,14 +1892,21 @@ def ajouter_achat(request):
                 achat.save()
 
                 formset.instance = achat
-                lignes = formset.save()
 
                 total = 0
 
-                for ligne in lignes:
+                for form_ligne in formset:
+                    if not form_ligne.cleaned_data:
+                        continue
+
+                    if form_ligne.cleaned_data.get("DELETE"):
+                        continue
+
+                    ligne = form_ligne.save(commit=False)
+                    ligne.achat = achat
+
                     produit = ligne.produit
 
-                    # 🔥 sécurité stock
                     if ligne.quantite <= 0:
                         raise ValueError(f"Quantité invalide pour {produit.nom}")
 
@@ -1907,7 +1914,6 @@ def ajouter_achat(request):
                     produit.prix_achat = ligne.prix_unitaire
                     produit.save()
 
-                    # 🧾 mouvement stock
                     MouvementStock.objects.create(
                         magasin=magasin,
                         produit=produit,
@@ -1917,7 +1923,13 @@ def ajouter_achat(request):
                         cree_par=request.user
                     )
 
-                    total += ligne.total
+                    total += ligne.quantite * ligne.prix_unitaire
+
+                    ligne.save()
+
+                # 🔥 sécurité
+                if total == 0:
+                    raise ValueError("Veuillez ajouter au moins un produit.")
 
                 achat.montant_total = total
                 achat.statut = getattr(Achat.Statut, "TERMINE", "TERMINE")

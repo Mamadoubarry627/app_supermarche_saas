@@ -539,21 +539,11 @@ from .models import Achat, LigneAchat
 class AchatForm(forms.ModelForm):
     class Meta:
         model = Achat
-        fields = ['fournisseur', 'numero_facture', 'statut']
+        fields = ['fournisseur', 'numero_facture']
         widgets = {
             'fournisseur': forms.Select(attrs={'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white'}),
             'numero_facture': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white'}),
-            'statut': forms.Select(attrs={
-                'class': 'w-full px-4 py-2 border rounded-lg dark:bg-gray-800 dark:text-white',
-                'readonly': True
-            }),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # 🔥 forcer la valeur affichée
-        self.fields['statut'].initial = getattr(Achat.Statut, "TERMINE", "TERMINE")
 
 class LigneAchatForm(forms.ModelForm):
     class Meta:
