@@ -1930,7 +1930,7 @@ def ajouter_achat(request):
                 achat.save()
 
                 messages.success(request, "Achat enregistré avec succès.")
-                return redirect('ajouter_achat')
+                return redirect('achat_nouveau')
 
         # ⚠️ ERREUR LOGIQUE
         except ValueError as e:
