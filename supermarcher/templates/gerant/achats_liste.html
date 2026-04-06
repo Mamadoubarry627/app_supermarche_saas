@@ -72,7 +72,7 @@ Achats
             <tr class="hover:label transition">
                 <td class="px-4 py-3 font-medium label">{{ forloop.counter }}</td>
                 <td class="px-4 py-3 label">{{ achat.numero_facture }}</td>
-                <td class="px-4 py-3 label">{{ achat.fournisseur.nom|default:"-" }}</td>
+                <td class="px-4 py-3 label">{{ achat.fournisseur.prenom|default:"-" }} {{ achat.fournisseur.nom|default:"-" }}</td>
                 <td class="px-4 py-3 label">{{ achat.montant_total|intcomma }} {{ magasin.devise }}</td>
                 <td class="px-4 py-3">
                     <span class="px-2 py-1 rounded-full text-xs font-semibold
