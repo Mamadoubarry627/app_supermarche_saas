@@ -1295,10 +1295,10 @@ def safe_date(value):
 def safe_decimal(value):
     try:
         if pd.isna(value) or value == "":
-            return Decimal(0)
+            return Decimal("0")
         return Decimal(str(value))
     except:
-        return Decimal(0)
+        return Decimal("0")
 
 
 @login_required
@@ -1319,13 +1319,11 @@ def importer_produits(request):
     try:
         df = pd.read_excel(fichier)
 
-        # 🔥 OPTIMISATION 1 : preload SKU existants (évite requêtes DB en boucle)
         skus_existants = set(
             Produit.objects.filter(magasin=magasin)
             .values_list("sku", flat=True)
         )
 
-        # 🔥 OPTIMISATION 2 : preload catégories
         categories_map = {
             c.nom: c for c in Categorie.objects.filter(magasin=magasin)
         }
@@ -1377,13 +1375,9 @@ def importer_produits(request):
                 row_data["ligne"] = index + 2
                 lignes_erreur.append(row_data)
 
-        # 🔥 BULK INSERT SAFE
         with transaction.atomic():
             Produit.objects.bulk_create(produits_a_creer)
 
-        # =========================
-        # 📊 CAS ERREURS → FICHIER
-        # =========================
         if lignes_erreur:
             df_erreurs = pd.DataFrame(lignes_erreur)
 
@@ -1395,9 +1389,6 @@ def importer_produits(request):
 
             return response
 
-        # =========================
-        # ✅ SUCCESS TOTAL
-        # =========================
         return JsonResponse({
             "success": True,
             "status": "completed",
@@ -1413,7 +1404,8 @@ def importer_produits(request):
             "success": False,
             "error": str(e)
         }, status=500)
-
+        
+        
 from django.db.models import F
 # ===============================
 # DASHBOARD GERANT
