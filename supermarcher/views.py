@@ -1457,19 +1457,46 @@ def dashboard_gerant(request):
     # =========================
     # BENEFICE DU JOUR
     # =========================
-    benefice_jour = 0
+    benefice_jour = Decimal("0")
 
     lignes = LigneVente.objects.filter(
         vente__magasin=magasin,
-        vente__date_creation__date=today
-    )
+        vente__date_creation__date=today,
+        vente__statut=Vente.Statut.COMPLETEE
+    ).select_related("produit", "vente")
+
+
+    # Grouper les lignes par vente
+    ventes = {}
 
     for ligne in lignes:
-        benefice_jour += (
-            (ligne.prix_unitaire - ligne.produit.prix_achat)
-            * ligne.quantite
+        ventes.setdefault(ligne.vente_id, []).append(ligne)
+
+
+    for vente_id, lignes_vente in ventes.items():
+        vente = lignes_vente[0].vente
+
+        # Total brut (avant remise)
+        total_brut = sum(
+            ligne.prix_unitaire * ligne.quantite
+            for ligne in lignes_vente
         )
 
+        for ligne in lignes_vente:
+            ligne_total = ligne.prix_unitaire * ligne.quantite
+
+            # Part de remise pour cette ligne
+            part_remise = Decimal("0")
+            if total_brut > 0:
+                part_remise = (ligne_total / total_brut) * vente.remise
+
+            # Bénéfice de la ligne
+            benefice_ligne = (
+                (ligne_total - part_remise)
+                - (ligne.produit.prix_achat * ligne.quantite)
+            )
+
+            benefice_jour += benefice_ligne
     # =========================
     # TOP PRODUITS
     # =========================
@@ -1641,7 +1668,6 @@ def ventes_liste(request):
         'ventes': ventes,
         "magasin": magasin
     })
-
 
 from django.db.models import Sum
 from django.utils import timezone
@@ -2904,10 +2930,32 @@ class RapportAjaxView(View):
                 ventes_annulees = ventes.filter(statut="ANNULEE").count()
                 stats = ventes.aggregate(total=Sum("montant_total"), count=Count("id"))
                 panier_moyen = (stats["total"] or 0) / (stats["count"] or 1)
-                lignes_benefice = lignes.annotate(
-                    benefice=(F("prix_unitaire") - F("produit__prix_achat")) * F("quantite")
-                )
-                benefice_total = lignes_benefice.aggregate(total=Sum("benefice"))["total"] or 0
+
+                benefice_total = Decimal("0")
+
+                ventes_prefetch = ventes.prefetch_related("lignes__produit")
+
+                for vente in ventes_prefetch:
+                    lignes_vente = vente.lignes.all()
+
+                    total_brut = sum(
+                        ligne.prix_unitaire * ligne.quantite
+                        for ligne in lignes_vente
+                    )
+
+                    for ligne in lignes_vente:
+                        ligne_total = ligne.prix_unitaire * ligne.quantite
+
+                        part_remise = Decimal("0")
+                        if total_brut > 0:
+                            part_remise = (ligne_total / total_brut) * vente.remise
+
+                        benefice_ligne = (
+                            (ligne_total - part_remise)
+                            - (ligne.produit.prix_achat * ligne.quantite)
+                        )
+
+                        benefice_total += benefice_ligne
                 context.update({
                     "total_ca": total_ca,
                     "total_tva": total_tva,
@@ -3293,11 +3341,30 @@ def get_context_filtre(request, type_rapport):
         panier_moyen = (total_ventes / nb_ventes) if nb_ventes else 0
 
         # Bénéfice = total ventes - total achats
-        total_benefice = 0
-        for vente in ventes.prefetch_related("lignes"):
-            for ligne in vente.lignes.all():
-                total_benefice += (ligne.prix_unitaire - ligne.produit.prix_achat) * ligne.quantite
+        total_benefice = Decimal("0")
 
+        for vente in ventes.prefetch_related("lignes__produit"):
+            lignes_vente = vente.lignes.all()
+
+            total_brut = sum(
+                ligne.prix_unitaire * ligne.quantite
+                for ligne in lignes_vente
+            )
+
+            for ligne in lignes_vente:
+                ligne_total = ligne.prix_unitaire * ligne.quantite
+
+                part_remise = Decimal("0")
+                if total_brut > 0:
+                    part_remise = (ligne_total / total_brut) * vente.remise
+
+                benefice_ligne = (
+                    (ligne_total - part_remise)
+                    - (ligne.produit.prix_achat * ligne.quantite)
+                )
+
+                total_benefice += benefice_ligne
+        
         ventes_annulees = ventes.filter(statut="ANNULEE").count()
 
         context["data"] = [
