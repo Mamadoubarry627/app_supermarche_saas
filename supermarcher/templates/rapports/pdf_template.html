@@ -240,12 +240,8 @@ tbody tr:nth-child(even) {
                 {% for row in data %}
                     <tr>
                         {% for value in row.values %}
-                            <td>
-                                {% if value is numeric %}
+                            <td>      
                                     {{ value|floatformat:2|intcomma }}
-                                {% else %}
-                                    {{ value }}
-                                {% endif %}
                             </td>
                         {% endfor %}
                     </tr>
