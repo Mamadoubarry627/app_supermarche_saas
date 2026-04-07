@@ -1341,12 +1341,12 @@ def importer_produits(request):
                 f"{len(produits_a_creer)} produits importés avec succès ✅"
             )
 
-            return redirect("import_produits")
+            return redirect("produits_liste")
 
         except Exception as e:
             messages.error(request, f"Erreur fichier: {str(e)}")
 
-    return render(request, "produits/import_produits.html")
+    return render(request, "gerant/produits_liste.html")
 
 
 from django.db.models import F
