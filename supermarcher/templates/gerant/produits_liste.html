@@ -352,7 +352,7 @@ fileInput.addEventListener("change", function () {
     const formData = new FormData();
     formData.append("fichier", file);
 
-    fetch("{% url 'importer_produits' %}", {
+    fetch("{% url 'import_produits' %}", {
         method: "POST",
         headers: {
             "X-CSRFToken": "{{ csrf_token }}"
