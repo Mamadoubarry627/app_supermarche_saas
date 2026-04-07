@@ -34,20 +34,24 @@ Produits
             Modèle Excel
         </a>
 
-        <!-- Importer -->
-        <a href="{% url 'import_produits' %}" 
-           class="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
+        <!-- Bouton visible -->
+        <button type="button"
+                onclick="document.getElementById('fileInput').click()"
+                class="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
 
-            <!-- Icon Upload -->
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor" 
-                 class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 14l5-5m0 0l5 5m-5-5v12"/>
+            <!-- SVG Upload -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor"
+                class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 14l5-5m0 0l5 5m-5-5v12"/>
             </svg>
 
             Importer
-        </a>
+        </button>
+
+        <!-- Input caché -->
+        <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
 
         <!-- Nouveau produit -->
         <a href="{% url 'produit_nouveau' %}" 
@@ -335,6 +339,58 @@ modal.addEventListener('click', (e) => {
         modal.classList.add('hidden');
         modal.classList.remove('scale-100');
     }
+});
+
+</script>
+<script>
+document.getElementById("fileInput").addEventListener("change", function () {
+    let file = this.files[0];
+    if (!file) return;
+
+    let formData = new FormData();
+    formData.append("fichier", file);
+
+    fetch("{% url 'import_produits' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: formData
+    })
+    .then(async (response) => {
+
+        let contentType = response.headers.get("content-type");
+
+        // 🔥 CAS 1 : ERREUR EXCEL
+        if (contentType && contentType.includes("spreadsheet")) {
+            let blob = await response.blob();
+
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            a.download = "erreurs_import.xlsx";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            alert("Import terminé avec erreurs ❌ fichier téléchargé");
+
+            return;
+        }
+
+        // 🔥 CAS 2 : JSON succès
+        let data = await response.json();
+
+        if (data.success) {
+            alert(`Import réussi ✅ ${data.importes} produits`);
+        } else {
+            alert("Erreur: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Erreur serveur");
+    });
 });
 </script>
 {% endblock %}

@@ -1276,124 +1276,130 @@ def telecharger_modele_produit(request):
     return response
 
 import pandas as pd
+from decimal import Decimal
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from .models import Produit, Categorie
+
 
 def safe_date(value):
-    if pd.isna(value):
+    if pd.isna(value) or value == "":
         return None
     try:
         return pd.to_datetime(value).date()
     except:
         return None
-   
-from decimal import Decimal
+
 
 def safe_decimal(value):
     try:
-        return Decimal(value)
+        if pd.isna(value) or value == "":
+            return Decimal(0)
+        return Decimal(str(value))
     except:
         return Decimal(0)
-        
-import pandas as pd
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from .models import Produit, Categorie
+
 
 @login_required
 def importer_produits(request):
-    if request.method == "POST":
-        fichier = request.FILES.get("fichier")
+    if request.method != "POST":
+        return JsonResponse({"error": "Méthode non autorisée"}, status=405)
 
-        if not fichier:
-            messages.error(request, "Veuillez sélectionner un fichier")
-            return redirect("import_produits")
+    fichier = request.FILES.get("fichier")
 
-        try:
-            df = pd.read_excel(fichier)
+    if not fichier:
+        return JsonResponse({"error": "Aucun fichier envoyé"}, status=400)
 
-            magasin = getattr(request.user, "magasin", None)
+    magasin = getattr(request.user, "magasin", None)
 
-            if not magasin:
-                messages.error(request, "Aucun magasin associé à cet utilisateur")
-                return redirect("liste_produits")
+    if not magasin:
+        return JsonResponse({"error": "Aucun magasin associé"}, status=400)
 
-            erreurs = []
-            produits_a_creer = []
-            lignes_erreur = []
+    try:
+        df = pd.read_excel(fichier)
 
-            for index, row in df.iterrows():
-                row = row.fillna("")  # 🔥 IMPORTANT
+        produits_a_creer = []
+        lignes_erreur = []
 
-                try:
-                    if not row.get("nom"):
-                        raise ValueError("Nom obligatoire")
+        for index, row in df.iterrows():
+            row = row.fillna("")
 
-                    categorie = None
-                    if row.get("categorie"):
-                        categorie = Categorie.objects.filter(
-                            nom=row["categorie"]
-                        ).first()
+            try:
+                # validation
+                if not row.get("nom"):
+                    raise ValueError("Nom obligatoire")
 
-                    if row.get("sku") and Produit.objects.filter(
-                        magasin=magasin, sku=row.get("sku")
-                    ).exists():
-                        raise ValueError("SKU déjà existant")
+                # catégorie
+                categorie = None
+                if row.get("categorie"):
+                    categorie = Categorie.objects.filter(
+                        nom=row["categorie"],
+                        magasin=magasin
+                    ).first()
 
-                    produit = Produit(
-                        magasin=magasin,
-                        nom=row["nom"],
-                        categorie=categorie,
-                        code_barre=row.get("code_barre"),
-                        sku=row.get("sku"),
-                        description=row.get("description"),
-                        prix_achat=safe_decimal(row.get("prix_achat")),
-                        prix_vente=safe_decimal(row.get("prix_vente")),
-                        taux_tva=safe_decimal(row.get("taux_tva")),
-                        quantite_stock=row.get("quantite_stock") or 0,
-                        seuil_alerte=row.get("seuil_alerte") or 5,
-                        date_fabrication=safe_date(row.get("date_fabrication")),
-                        date_expiration=safe_date(row.get("date_expiration")),
-                    )
+                # SKU unique
+                if row.get("sku") and Produit.objects.filter(
+                    magasin=magasin,
+                    sku=row.get("sku")
+                ).exists():
+                    raise ValueError("SKU déjà existant")
 
-                    produits_a_creer.append(produit)
-
-                except Exception as e:
-                    erreur_msg = str(e)
-
-                    ligne_dict = row.to_dict()
-                    ligne_dict["erreur"] = erreur_msg
-                    lignes_erreur.append(ligne_dict)
-
-            Produit.objects.bulk_create(produits_a_creer, ignore_conflicts=True)
-
-            if lignes_erreur:
-                df_erreurs = pd.DataFrame(lignes_erreur)
-
-                response = HttpResponse(
-                    content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                produit = Produit(
+                    magasin=magasin,
+                    nom=row["nom"],
+                    categorie=categorie,
+                    code_barre=row.get("code_barre"),
+                    sku=row.get("sku"),
+                    description=row.get("description"),
+                    prix_achat=safe_decimal(row.get("prix_achat")),
+                    prix_vente=safe_decimal(row.get("prix_vente")),
+                    taux_tva=safe_decimal(row.get("taux_tva")),
+                    quantite_stock=row.get("quantite_stock") or 0,
+                    seuil_alerte=row.get("seuil_alerte") or 5,
+                    date_fabrication=safe_date(row.get("date_fabrication")),
+                    date_expiration=safe_date(row.get("date_expiration")),
                 )
-                response["Content-Disposition"] = 'attachment; filename="erreurs_import.xlsx"'
 
-                df_erreurs.to_excel(response, index=False)
+                produits_a_creer.append(produit)
 
-                return response
+            except Exception as e:
+                row_data = row.to_dict()
+                row_data["erreur"] = str(e)
+                row_data["ligne"] = index + 2
+                lignes_erreur.append(row_data)
 
-            messages.success(
-                request,
-                f"{len(produits_a_creer)} produits importés avec succès ✅"
+        # insertion
+        with transaction.atomic():
+            Produit.objects.bulk_create(produits_a_creer)
+
+        # CAS 1 : erreurs → fichier Excel
+        if lignes_erreur:
+            df_erreurs = pd.DataFrame(lignes_erreur)
+
+            response = HttpResponse(
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+            response["Content-Disposition"] = 'attachment; filename="erreurs_import.xlsx"'
+            df_erreurs.to_excel(response, index=False)
 
-            return redirect("produits_liste")
+            return response
 
-        except Exception as e:
-            import traceback
-            print(traceback.format_exc())  # 🔥 LOG
-            messages.error(request, f"Erreur fichier: {str(e)}")
+        # CAS 2 : succès total
+        return JsonResponse({
+            "success": True,
+            "importes": len(produits_a_creer),
+            "erreurs": len(lignes_erreur)
+        })
 
-    return render(request, "gerant/import_produits.html")
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
 
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
 
 from django.db.models import F
 # ===============================
