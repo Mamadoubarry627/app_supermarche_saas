@@ -1214,29 +1214,64 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Produit, Categorie, Magasin
 
+from openpyxl import Workbook
+from openpyxl.worksheet.datavalidation import DataValidation
+from django.http import HttpResponse
+
 @login_required
 def telecharger_modele_produit(request):
-    # Colonnes du fichier Excel
-    columns = [
-        "nom",
-        "categorie",
-        "code_barre",
-        "sku",
-        "description",
-        "prix_achat",
-        "prix_vente",
-        "taux_tva",
-        "quantite_stock",
-        "seuil_alerte",
-        "date_fabrication",
-        "date_expiration",
+    magasin = request.user.magasin
+
+    wb = Workbook()
+
+    # =========================
+    # SHEET PRODUITS
+    # =========================
+    ws = wb.active
+    ws.title = "Produits"
+
+    headers = [
+        "nom", "categorie", "code_barre", "sku", "description",
+        "prix_achat", "prix_vente", "taux_tva",
+        "quantite_stock", "seuil_alerte",
+        "date_fabrication", "date_expiration"
     ]
 
-    df = pd.DataFrame(columns=columns)
+    ws.append(headers)
 
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="modele_produits.xlsx"'
-    df.to_excel(response, index=False)
+    # =========================
+    # SHEET CATEGORIES
+    # =========================
+    ws_cat = wb.create_sheet("Categories")
+
+    categories = Categorie.objects.filter(magasin=magasin)
+
+    for cat in categories:
+        ws_cat.append([cat.nom])
+
+    # =========================
+    # DROPDOWN VALIDATION
+    # =========================
+    dv = DataValidation(
+        type="list",
+        formula1="=Categories!$A$1:$A$1000",
+        allow_blank=True
+    )
+
+    ws.add_data_validation(dv)
+
+    # colonne B = categorie
+    dv.add("B2:B1000")
+
+    # =========================
+    # RESPONSE
+    # =========================
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="modele_produits.xlsx"'
+
+    wb.save(response)
 
     return response
 
