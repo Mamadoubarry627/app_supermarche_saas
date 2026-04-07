@@ -11,13 +11,61 @@ Produits
 {% block content %}
 <div class="flex flex-col">
 {% if request.user.role == "GERANT" %}
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold label">Liste des produits</h1>
-        <a href="{% url 'produit_nouveau' %}" 
-            class="px-4 py-2 btn-main rounded-lg hover:btn-main transition">
-            + Nouveau Produit
+<div class="flex justify-between items-center mb-6">
+
+    <!-- Titre -->
+    <h1 class="text-2xl font-bold label">Liste des produits</h1>
+
+    <!-- Boutons -->
+    <div class="flex gap-3">
+
+        <!-- Télécharger modèle -->
+        <a href="{% url 'modele_produits' %}" 
+           class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+
+            <!-- Icon Download -->
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" 
+                 class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"/>
+            </svg>
+
+            Modèle Excel
         </a>
+
+        <!-- Importer -->
+        <a href="{% url 'import_produits' %}" 
+           class="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
+
+            <!-- Icon Upload -->
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" 
+                 class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 14l5-5m0 0l5 5m-5-5v12"/>
+            </svg>
+
+            Importer
+        </a>
+
+        <!-- Nouveau produit -->
+        <a href="{% url 'produit_nouveau' %}" 
+           class="flex items-center gap-2 px-4 py-2 btn-main rounded-lg hover:btn-main transition">
+
+            <!-- Icon Plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" 
+                 class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 4v16m8-8H4"/>
+            </svg>
+
+            Nouveau Produit
+        </a>
+
     </div>
+</div>
 {% endif %}
 <form method="GET" class="card rounded-2xl shadow p-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
 
