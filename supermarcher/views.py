@@ -1,6 +1,6 @@
 from multiprocessing import context
 from time import time
-from urllib import request
+from urllib import request, response
 from django.db.models import Count, DurationField, ExpressionWrapper
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -1240,7 +1240,24 @@ def telecharger_modele_produit(request):
 
     return response
 
+import pandas as pd
 
+def safe_date(value):
+    if pd.isna(value):
+        return None
+    try:
+        return pd.to_datetime(value).date()
+    except:
+        return None
+   
+from decimal import Decimal
+
+def safe_decimal(value):
+    try:
+        return Decimal(value)
+    except:
+        return Decimal(0)
+        
 import pandas as pd
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -1261,26 +1278,29 @@ def importer_produits(request):
         try:
             df = pd.read_excel(fichier)
 
-            magasin = request.user.magasin
+            magasin = getattr(request.user, "magasin", None)
+
+            if not magasin:
+                messages.error(request, "Aucun magasin associé à cet utilisateur")
+                return redirect("liste_produits")
 
             erreurs = []
             produits_a_creer = []
             lignes_erreur = []
 
             for index, row in df.iterrows():
+                row = row.fillna("")  # 🔥 IMPORTANT
+
                 try:
-                    # 🔒 VALIDATIONS
                     if not row.get("nom"):
                         raise ValueError("Nom obligatoire")
 
-                    # Catégorie
                     categorie = None
                     if row.get("categorie"):
                         categorie = Categorie.objects.filter(
                             nom=row["categorie"]
                         ).first()
 
-                    # Vérifier SKU unique
                     if row.get("sku") and Produit.objects.filter(
                         magasin=magasin, sku=row.get("sku")
                     ).exists():
@@ -1293,13 +1313,13 @@ def importer_produits(request):
                         code_barre=row.get("code_barre"),
                         sku=row.get("sku"),
                         description=row.get("description"),
-                        prix_achat=row.get("prix_achat") or 0,
-                        prix_vente=row.get("prix_vente") or 0,
-                        taux_tva=row.get("taux_tva") or 0,
+                        prix_achat=safe_decimal(row.get("prix_achat")),
+                        prix_vente=safe_decimal(row.get("prix_vente")),
+                        taux_tva=safe_decimal(row.get("taux_tva")),
                         quantite_stock=row.get("quantite_stock") or 0,
                         seuil_alerte=row.get("seuil_alerte") or 5,
-                        date_fabrication=row.get("date_fabrication"),
-                        date_expiration=row.get("date_expiration"),
+                        date_fabrication=safe_date(row.get("date_fabrication")),
+                        date_expiration=safe_date(row.get("date_expiration")),
                     )
 
                     produits_a_creer.append(produit)
@@ -1307,18 +1327,12 @@ def importer_produits(request):
                 except Exception as e:
                     erreur_msg = str(e)
 
-                    erreurs.append(f"Ligne {index+2}: {erreur_msg}")
-
-                    # Sauvegarder ligne + erreur
                     ligne_dict = row.to_dict()
                     ligne_dict["erreur"] = erreur_msg
                     lignes_erreur.append(ligne_dict)
 
-            # ✅ IMPORT PARTIEL
-            with transaction.atomic():
-                Produit.objects.bulk_create(produits_a_creer, ignore_conflicts=True)
+            Produit.objects.bulk_create(produits_a_creer, ignore_conflicts=True)
 
-            # 🔥 SI ERREURS → GENERER FICHIER EXCEL
             if lignes_erreur:
                 df_erreurs = pd.DataFrame(lignes_erreur)
 
@@ -1329,12 +1343,7 @@ def importer_produits(request):
 
                 df_erreurs.to_excel(response, index=False)
 
-                messages.warning(
-                    request,
-                    f"{len(produits_a_creer)} produits importés, {len(lignes_erreur)} erreurs"
-                )
-
-                return response  # ⬅ téléchargement auto
+                return response
 
             messages.success(
                 request,
@@ -1344,9 +1353,11 @@ def importer_produits(request):
             return redirect("produits_liste")
 
         except Exception as e:
+            import traceback
+            print(traceback.format_exc())  # 🔥 LOG
             messages.error(request, f"Erreur fichier: {str(e)}")
 
-    return render(request, "gerant/produits_liste.html")
+    return render(request, "gerant/import_produits.html")
 
 
 from django.db.models import F
