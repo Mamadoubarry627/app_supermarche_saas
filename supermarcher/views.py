@@ -1278,8 +1278,8 @@ def telecharger_modele_produit(request):
 import pandas as pd
 from decimal import Decimal
 from django.http import JsonResponse, HttpResponse
-from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.contrib.auth.decorators import login_required
 from .models import Produit, Categorie
 
 
@@ -1304,20 +1304,31 @@ def safe_decimal(value):
 @login_required
 def importer_produits(request):
     if request.method != "POST":
-        return JsonResponse({"error": "Méthode non autorisée"}, status=405)
+        return JsonResponse({"success": False, "error": "Méthode non autorisée"}, status=405)
 
     fichier = request.FILES.get("fichier")
 
     if not fichier:
-        return JsonResponse({"error": "Aucun fichier envoyé"}, status=400)
+        return JsonResponse({"success": False, "error": "Aucun fichier envoyé"}, status=400)
 
     magasin = getattr(request.user, "magasin", None)
 
     if not magasin:
-        return JsonResponse({"error": "Aucun magasin associé"}, status=400)
+        return JsonResponse({"success": False, "error": "Aucun magasin associé"}, status=400)
 
     try:
         df = pd.read_excel(fichier)
+
+        # 🔥 OPTIMISATION 1 : preload SKU existants (évite requêtes DB en boucle)
+        skus_existants = set(
+            Produit.objects.filter(magasin=magasin)
+            .values_list("sku", flat=True)
+        )
+
+        # 🔥 OPTIMISATION 2 : preload catégories
+        categories_map = {
+            c.nom: c for c in Categorie.objects.filter(magasin=magasin)
+        }
 
         produits_a_creer = []
         lignes_erreur = []
@@ -1326,31 +1337,25 @@ def importer_produits(request):
             row = row.fillna("")
 
             try:
-                # validation
                 if not row.get("nom"):
                     raise ValueError("Nom obligatoire")
 
-                # catégorie
-                categorie = None
-                if row.get("categorie"):
-                    categorie = Categorie.objects.filter(
-                        nom=row["categorie"],
-                        magasin=magasin
-                    ).first()
+                sku = row.get("sku")
 
-                # SKU unique
-                if row.get("sku") and Produit.objects.filter(
-                    magasin=magasin,
-                    sku=row.get("sku")
-                ).exists():
+                if sku and sku in skus_existants:
                     raise ValueError("SKU déjà existant")
+
+                categorie = None
+                cat_name = row.get("categorie")
+                if cat_name and cat_name in categories_map:
+                    categorie = categories_map[cat_name]
 
                 produit = Produit(
                     magasin=magasin,
                     nom=row["nom"],
                     categorie=categorie,
                     code_barre=row.get("code_barre"),
-                    sku=row.get("sku"),
+                    sku=sku,
                     description=row.get("description"),
                     prix_achat=safe_decimal(row.get("prix_achat")),
                     prix_vente=safe_decimal(row.get("prix_vente")),
@@ -1363,17 +1368,22 @@ def importer_produits(request):
 
                 produits_a_creer.append(produit)
 
+                if sku:
+                    skus_existants.add(sku)
+
             except Exception as e:
                 row_data = row.to_dict()
                 row_data["erreur"] = str(e)
                 row_data["ligne"] = index + 2
                 lignes_erreur.append(row_data)
 
-        # insertion
+        # 🔥 BULK INSERT SAFE
         with transaction.atomic():
             Produit.objects.bulk_create(produits_a_creer)
 
-        # CAS 1 : erreurs → fichier Excel
+        # =========================
+        # 📊 CAS ERREURS → FICHIER
+        # =========================
         if lignes_erreur:
             df_erreurs = pd.DataFrame(lignes_erreur)
 
@@ -1385,11 +1395,14 @@ def importer_produits(request):
 
             return response
 
-        # CAS 2 : succès total
+        # =========================
+        # ✅ SUCCESS TOTAL
+        # =========================
         return JsonResponse({
             "success": True,
+            "status": "completed",
             "importes": len(produits_a_creer),
-            "erreurs": len(lignes_erreur)
+            "erreurs": 0
         })
 
     except Exception as e:

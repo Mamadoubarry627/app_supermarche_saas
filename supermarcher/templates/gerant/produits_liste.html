@@ -341,56 +341,48 @@ modal.addEventListener('click', (e) => {
     }
 });
 
-</script>
-<script>
-document.getElementById("fileInput").addEventListener("change", function () {
-    let file = this.files[0];
-    if (!file) return;
+fetch("{% url 'import_produits' %}", {
+    method: "POST",
+    headers: {
+        "X-CSRFToken": "{{ csrf_token }}"
+    },
+    body: formData
+})
+.then(async (response) => {
+    const data = await response.json();
 
-    let formData = new FormData();
-    formData.append("fichier", file);
+    // 🔥 SUCCESS TOTAL
+    if (data.status === "success") {
+        showToast(
+            `Import réussi ✅ ${data.importes} produits`,
+            "success"
+        );
+        return;
+    }
 
-    fetch("{% url 'import_produits' %}", {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: formData
-    })
-    .then(async (response) => {
+    // ⚠️ PARTIEL (avec erreurs)
+    if (data.status === "partial") {
+        showToast(
+            `Import partiel ⚠️ ${data.importes} OK / ${data.erreurs} erreurs`,
+            "warning"
+        );
 
-        let contentType = response.headers.get("content-type");
-
-        // 🔥 CAS 1 : ERREUR EXCEL
-        if (contentType && contentType.includes("spreadsheet")) {
-            let blob = await response.blob();
-
-            let url = window.URL.createObjectURL(blob);
-            let a = document.createElement("a");
-            a.href = url;
-            a.download = "erreurs_import.xlsx";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-
-            alert("Import terminé avec erreurs ❌ fichier téléchargé");
-
-            return;
+        // download fichier erreurs
+        if (data.file_url) {
+            window.location.href = data.file_url;
         }
 
-        // 🔥 CAS 2 : JSON succès
-        let data = await response.json();
+        return;
+    }
 
-        if (data.success) {
-            alert(`Import réussi ✅ ${data.importes} produits`);
-        } else {
-            alert("Erreur: " + data.error);
-        }
-    })
-    .catch(error => {
-        console.error(error);
-        alert("Erreur serveur");
-    });
+    // ❌ ERREUR
+    showToast(
+        data.message || "Erreur import",
+        "error"
+    );
+})
+.catch(() => {
+    showToast("Erreur serveur", "error");
 });
 </script>
 {% endblock %}

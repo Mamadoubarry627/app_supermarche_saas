@@ -311,10 +311,9 @@ document.addEventListener("click", function (e) {
     setTimeout(() => {
         row.remove();
         calculerTotalGlobal();
-        showToast("Ligne supprimée", "success");
+        showToast("Ligne supprimée", "error");
     }, 150);
 });
-
 
 document.getElementById("search-produit").addEventListener("input", function () {
     let search = this.value.toLowerCase();
