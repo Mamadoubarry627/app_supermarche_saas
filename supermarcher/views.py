@@ -1457,6 +1457,8 @@ def dashboard_gerant(request):
     # =========================
     # BENEFICE DU JOUR
     # =========================
+    from decimal import Decimal, ROUND_HALF_UP
+
     benefice_jour = Decimal("0")
 
     lignes = LigneVente.objects.filter(
@@ -1465,38 +1467,41 @@ def dashboard_gerant(request):
         vente__statut=Vente.Statut.COMPLETEE
     ).select_related("produit", "vente")
 
-
     # Grouper les lignes par vente
     ventes = {}
 
     for ligne in lignes:
         ventes.setdefault(ligne.vente_id, []).append(ligne)
 
-
     for vente_id, lignes_vente in ventes.items():
         vente = lignes_vente[0].vente
 
         # Total brut (avant remise)
         total_brut = sum(
-            ligne.prix_unitaire * ligne.quantite
+            (ligne.prix_unitaire * ligne.quantite)
             for ligne in lignes_vente
         )
 
         for ligne in lignes_vente:
             ligne_total = ligne.prix_unitaire * ligne.quantite
 
-            # Part de remise pour cette ligne
+            # ✅ Répartition remise avec arrondi
             part_remise = Decimal("0")
             if total_brut > 0:
-                part_remise = (ligne_total / total_brut) * vente.remise
+                part_remise = (
+                    (ligne_total / total_brut) * vente.remise
+                ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
-            # Bénéfice de la ligne
+            # ✅ Bénéfice ligne avec arrondi
             benefice_ligne = (
                 (ligne_total - part_remise)
                 - (ligne.produit.prix_achat * ligne.quantite)
-            )
+            ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
             benefice_jour += benefice_ligne
+
+    # ✅ Arrondi final
+    benefice_jour = benefice_jour.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     # =========================
     # TOP PRODUITS
     # =========================
@@ -2931,6 +2936,7 @@ class RapportAjaxView(View):
                 stats = ventes.aggregate(total=Sum("montant_total"), count=Count("id"))
                 panier_moyen = (stats["total"] or 0) / (stats["count"] or 1)
 
+                from decimal import Decimal, ROUND_HALF_UP
                 benefice_total = Decimal("0")
 
                 ventes_prefetch = ventes.prefetch_related("lignes__produit")
@@ -2939,23 +2945,30 @@ class RapportAjaxView(View):
                     lignes_vente = vente.lignes.all()
 
                     total_brut = sum(
-                        ligne.prix_unitaire * ligne.quantite
+                        (ligne.prix_unitaire * ligne.quantite)
                         for ligne in lignes_vente
                     )
 
                     for ligne in lignes_vente:
                         ligne_total = ligne.prix_unitaire * ligne.quantite
 
+                        # ✅ Répartition remise ARRONDIE
                         part_remise = Decimal("0")
                         if total_brut > 0:
-                            part_remise = (ligne_total / total_brut) * vente.remise
+                            part_remise = (
+                                (ligne_total / total_brut) * vente.remise
+                            ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
+                        # ✅ Bénéfice ARRONDI
                         benefice_ligne = (
                             (ligne_total - part_remise)
                             - (ligne.produit.prix_achat * ligne.quantite)
-                        )
+                        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
                         benefice_total += benefice_ligne
+
+                # ✅ IMPORTANT : arrondir le total final
+                benefice_total = benefice_total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
                 context.update({
                     "total_ca": total_ca,
                     "total_tva": total_tva,
@@ -3341,29 +3354,38 @@ def get_context_filtre(request, type_rapport):
         panier_moyen = (total_ventes / nb_ventes) if nb_ventes else 0
 
         # Bénéfice = total ventes - total achats
+        from decimal import Decimal, ROUND_HALF_UP
+
         total_benefice = Decimal("0")
 
         for vente in ventes.prefetch_related("lignes__produit"):
             lignes_vente = vente.lignes.all()
 
             total_brut = sum(
-                ligne.prix_unitaire * ligne.quantite
+                (ligne.prix_unitaire * ligne.quantite)
                 for ligne in lignes_vente
             )
 
             for ligne in lignes_vente:
                 ligne_total = ligne.prix_unitaire * ligne.quantite
 
+                # ✅ Répartition remise avec arrondi
                 part_remise = Decimal("0")
                 if total_brut > 0:
-                    part_remise = (ligne_total / total_brut) * vente.remise
+                    part_remise = (
+                        (ligne_total / total_brut) * vente.remise
+                    ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
+                # ✅ Bénéfice ligne avec arrondi
                 benefice_ligne = (
                     (ligne_total - part_remise)
                     - (ligne.produit.prix_achat * ligne.quantite)
-                )
+                ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
                 total_benefice += benefice_ligne
+
+        # ✅ Arrondi final obligatoire
+        total_benefice = total_benefice.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         
         ventes_annulees = ventes.filter(statut="ANNULEE").count()
 
