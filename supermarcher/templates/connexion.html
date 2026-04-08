@@ -302,6 +302,16 @@ form.addEventListener("submit", function (e) {
         e.preventDefault();
     }
 });
+
+username.addEventListener("input", () => {
+    username.classList.remove("border-red-500");
+    usernameError.classList.add("hidden");
+});
+
+password.addEventListener("input", () => {
+    password.classList.remove("border-red-500");
+    passwordError.classList.add("hidden");
+});
 </script>
 </body>
 </html>
