@@ -264,31 +264,31 @@ document.getElementById("filtre-form").addEventListener("change", function() {
   rapportContainer.innerHTML = "";
 
   fetch(`/rapports/ajax/?${params.toString()}`)
-  .then(async response => {
-    loader.classList.add("hidden");
+    .then(async response => {
 
-    if (!response.ok) {
-      // Si Django retourne une erreur HTTP (500, 404, etc.)
-      const text = await response.text();
-      throw new Error(`Erreur serveur ${response.status}: ${text}`);
-    }
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Erreur serveur ${response.status}: ${text}`);
+      }
 
-    return response.json();
-  })
-  .then(data => {
-    if(data.html) {
-      rapportContainer.innerHTML = data.html;
-    } else if(data.error) {
-      rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur: ${data.error}</p>`;
-    } else {
-      rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur inconnue</p>`;
-    }
-  })
-  .catch(err => {
-    // Affiche l'erreur complète
-    rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur lors du chargement du rapport:<br>${err.message}</p>`;
-    console.error(err);
-  });
+      return response.json();
+    })
+    .then(data => {
+      if (data.html) {
+        rapportContainer.innerHTML = data.html;
+      } else if (data.error) {
+        rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur: ${data.error}</p>`;
+      } else {
+        rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur inconnue</p>`;
+      }
+    })
+    .catch(err => {
+      rapportContainer.innerHTML = `<p class="text-red-500 text-center py-6">Erreur lors du chargement du rapport:<br>${err.message}</p>`;
+      console.error(err);
+    })
+    .finally(() => {
+      loader.classList.add("hidden"); // ✅ ICI seulement
+    });
 });
 
 const periodeBtns = document.querySelectorAll(".periode-btn");
