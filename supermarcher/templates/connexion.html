@@ -72,8 +72,10 @@
             <div class="relative">
                 <span class="material-icons absolute left-3 top-3 text-green-400">person</span>
                 <input type="text" name="username" id="username"
-                       class="w-full pl-10 pr-4 py-3 bg-green-50 border border-green-200 rounded-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
-                       placeholder="Nom d'utilisateur">
+                    class="input-field w-full pl-10 pr-4 py-3 bg-green-50 border border-green-200 rounded-full"
+                    placeholder="Nom d'utilisateur">
+                
+                <p id="usernameError" class="text-red-500 text-xs mt-1 hidden">Champ obligatoire</p>
             </div>
 
             <!-- PASSWORD -->
@@ -81,14 +83,15 @@
                 <span class="material-icons absolute left-3 top-3 text-green-400">lock</span>
 
                 <input type="password" name="password" id="password"
-                    class="w-full pl-10 pr-10 py-3 bg-green-50 border border-green-200 rounded-full focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                    class="input-field w-full pl-10 pr-10 py-3 bg-green-50 border border-green-200 rounded-full"
                     placeholder="Mot de passe">
 
-                <!-- bouton œil -->
                 <span id="togglePassword"
                     class="material-icons absolute right-3 top-3 text-green-500 cursor-pointer">
                     visibility
                 </span>
+
+                <p id="passwordError" class="text-red-500 text-xs mt-1 hidden">Champ obligatoire</p>
             </div>
 
             <!-- BUTTON -->
@@ -257,6 +260,47 @@ window.addEventListener("offline", () => {
 window.addEventListener("online", () => {
     showToast("Connexion rétablie", "success");
     location.reload();
+});
+</script>
+
+<script>
+const form = document.querySelector("form");
+
+const username = document.getElementById("username");
+const password = document.getElementById("password");
+
+const usernameError = document.getElementById("usernameError");
+const passwordError = document.getElementById("passwordError");
+
+form.addEventListener("submit", function (e) {
+
+    let valid = true;
+
+    // reset
+    username.classList.remove("border-red-500");
+    password.classList.remove("border-red-500");
+
+    usernameError.classList.add("hidden");
+    passwordError.classList.add("hidden");
+
+    // USERNAME VIDE
+    if (username.value.trim() === "") {
+        valid = false;
+        username.classList.add("border-red-500");
+        usernameError.classList.remove("hidden");
+    }
+
+    // PASSWORD VIDE
+    if (password.value.trim() === "") {
+        valid = false;
+        password.classList.add("border-red-500");
+        passwordError.classList.remove("hidden");
+    }
+
+    // BLOQUER ENVOI
+    if (!valid) {
+        e.preventDefault();
+    }
 });
 </script>
 </body>
