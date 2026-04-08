@@ -224,47 +224,6 @@ togglePassword.addEventListener("click", function () {
 </script>
 <script>
 const form = document.querySelector("form");
-const btn = document.getElementById("loginBtn");
-const loader = document.getElementById("loader");
-const btnText = document.getElementById("btnText");
-
-const isElectron = navigator.userAgent.toLowerCase().includes("electron");
-
-form.addEventListener("submit", function () {
-
-    if (!isElectron) return;
-
-    // afficher loader
-    loader.classList.remove("hidden");
-    btnText.textContent = "Connexion...";
-
-    // ⚠️ petit délai pour laisser le submit partir
-    setTimeout(() => {
-        btn.disabled = true;
-    }, 50);
-});
-
-window.addEventListener("offline", () => {
-    showToast("Connexion perdue", "error");
-});
-
-window.addEventListener("online", () => {
-    showToast("Connexion rétablie", "success");
-    location.reload();
-});
-
-window.addEventListener("offline", () => {
-    showToast("Connexion perdue", "error");
-});
-
-window.addEventListener("online", () => {
-    showToast("Connexion rétablie", "success");
-    location.reload();
-});
-</script>
-
-<script>
-const form = document.querySelector("form");
 
 const username = document.getElementById("username");
 const password = document.getElementById("password");
@@ -272,37 +231,62 @@ const password = document.getElementById("password");
 const usernameError = document.getElementById("usernameError");
 const passwordError = document.getElementById("passwordError");
 
+const btn = document.getElementById("loginBtn");
+const loader = document.getElementById("loader");
+const btnText = document.getElementById("btnText");
+
+const isElectron = navigator.userAgent.toLowerCase().includes("electron");
+
+/* =======================
+   SUBMIT FORM VALIDATION
+======================= */
 form.addEventListener("submit", function (e) {
 
     let valid = true;
 
-    // reset
+    // reset erreurs
     username.classList.remove("border-red-500");
     password.classList.remove("border-red-500");
 
     usernameError.classList.add("hidden");
     passwordError.classList.add("hidden");
 
-    // USERNAME VIDE
+    // validation username
     if (username.value.trim() === "") {
         valid = false;
         username.classList.add("border-red-500");
         usernameError.classList.remove("hidden");
     }
 
-    // PASSWORD VIDE
+    // validation password
     if (password.value.trim() === "") {
         valid = false;
         password.classList.add("border-red-500");
         passwordError.classList.remove("hidden");
     }
 
-    // BLOQUER ENVOI
+    // bloquer submit si invalide
     if (!valid) {
         e.preventDefault();
+        return;
+    }
+
+    /* =======================
+       LOADER (Electron only)
+    ======================= */
+    if (isElectron) {
+        loader.classList.remove("hidden");
+        btnText.textContent = "Connexion...";
+
+        setTimeout(() => {
+            btn.disabled = true;
+        }, 50);
     }
 });
 
+/* =======================
+   LIVE INPUT CLEAN ERROR
+======================= */
 username.addEventListener("input", () => {
     username.classList.remove("border-red-500");
     usernameError.classList.add("hidden");
@@ -311,6 +295,22 @@ username.addEventListener("input", () => {
 password.addEventListener("input", () => {
     password.classList.remove("border-red-500");
     passwordError.classList.add("hidden");
+});
+
+/* =======================
+   OFFLINE / ONLINE EVENTS
+======================= */
+window.addEventListener("offline", () => {
+    if (typeof showToast === "function") {
+        showToast("Connexion perdue", "error");
+    }
+});
+
+window.addEventListener("online", () => {
+    if (typeof showToast === "function") {
+        showToast("Connexion rétablie", "success");
+    }
+    location.reload();
 });
 </script>
 </body>
