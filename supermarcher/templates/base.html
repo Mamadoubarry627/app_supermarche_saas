@@ -20,14 +20,16 @@ tailwind.config = { darkMode: 'class' }
 
 <style>
 
+<style>
+
 :root {
 
-  --primary: {{ theme_color }};
-  --primary-light: {{ theme_light }};
-  --primary-hover: {{ theme_colors.primary_hover }};
-  --text-color: {{ theme_colors.text }};
+  --primary: {{ theme_color|default:"#1324db" }};
+  --primary-light: {{ theme_light|default:"rgba(19,36,219,0.05)" }};
+  --primary-hover: {{ theme_colors.primary_hover|default:"#0f1ea8" }};
+  --text-color: {{ theme_colors.text|default:"#0f172a" }};
 
-  --main-bg: {{ theme_light }};
+  --main-bg: {{ theme_light|default:"rgba(19,36,219,0.05)" }};
   --body-bg: rgba(0,0,0,0.02);
 
   --card-bg: white;
@@ -297,32 +299,41 @@ document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("darkModeToggle");
   const icon = document.getElementById("darkModeIcon");
 
-  // État initial depuis Django
-  let darkMode = {{ theme_dark|yesno:"true,false" }};
-  if(darkMode){
+  // =========================
+  // SAFE INIT (IMPORTANT)
+  // =========================
+  const darkMode = "{{ theme_dark|default:False }}" === "True" || "{{ theme_dark }}" === "true";
+
+  if (darkMode) {
     html.classList.add("dark");
-    icon.innerText = "light_mode";
+    if (icon) icon.innerText = "light_mode";
   } else {
-    icon.innerText = "dark_mode";
+    if (icon) icon.innerText = "dark_mode";
   }
 
-  // Toggle et sauvegarde en DB
-  toggle.addEventListener("click", () => {
-    fetch("{% url 'toggle_dark_mode' %}", {
-      method: "POST",
-      headers: { "X-CSRFToken": "{{ csrf_token }}" }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if(data.dark){
-        html.classList.add("dark");
-        icon.innerText = "light_mode";
-      } else {
-        html.classList.remove("dark");
-        icon.innerText = "dark_mode";
-      }
+  // =========================
+  // TOGGLE DARK MODE
+  // =========================
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      fetch("{% url 'toggle_dark_mode' %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.dark) {
+          html.classList.add("dark");
+          if (icon) icon.innerText = "light_mode";
+        } else {
+          html.classList.remove("dark");
+          if (icon) icon.innerText = "dark_mode";
+        }
+      });
     });
-  });
+  }
 });
 
 
