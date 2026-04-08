@@ -13,12 +13,12 @@
         <tbody class="divide-y divide-gray-200">
             {% for client in frequence_achat %}
             <tr>
-                <td class="px-4 py-3">{{ client.client_nom }}</td>
-                <td class="px-4 py-3">{{ client.nb_achats|intcomma }}</td>
+                <td class="px-4 py-3 label">{{ client.client_nom }}</td>
+                <td class="px-4 py-3 label">{{ client.nb_achats|intcomma }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="2" class="text-center py-6 text-gray-500">
+                <td colspan="2" class="text-center py-6 label">
                     Aucun client trouvé
                 </td>
             </tr>

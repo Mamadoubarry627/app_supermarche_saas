@@ -15,13 +15,13 @@
         <tbody class="divide-y divide-gray-200">
             {% for item in delai_livraison_fournisseur %}
             <tr>
-                <td class="px-4 py-3">{{ item.fournisseur__nom }} {{ item.fournisseur__prenom }}</td>
-                <td class="px-4 py-3">{{ item.delai_moyen }}</td>
+                <td class="px-4 py-3 label">{{ item.fournisseur__nom }} {{ item.fournisseur__prenom }}</td>
+                <td class="px-4 py-3 label">{{ item.delai_moyen }}</td>
             </tr>
 
             {% empty %}
             <tr>
-                <td colspan="2" class="text-center py-6 text-gray-500">
+                <td colspan="2" class="text-center py-6 label">
                     Aucun résultat
                 </td>
             </tr>

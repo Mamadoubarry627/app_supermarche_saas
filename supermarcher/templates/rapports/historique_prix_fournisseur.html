@@ -16,22 +16,22 @@
         <tbody class="divide-y divide-gray-200">
             {% for item in historique_prix_fournisseur %}
             <tr>
-                <td class="px-4 py-3">
+                <td class="px-4 py-3 label">
                     {{ item.fournisseur__prenom }} {{ item.fournisseur__nom }}
                 </td>
 
-                <td class="px-4 py-3">
+                <td class="px-4 py-3 label">
                     {{ item.numero_facture }}
                 </td>
 
-                <td class="px-4 py-3">
+                <td class="px-4 py-3 label">
                     {{ item.montant_total|floatformat:2|intcomma }} {{ magasin.devise }}
                 </td>
             </tr>
 
             {% empty %}
             <tr>
-                <td colspan="3" class="text-center py-6 text-gray-500">
+                <td colspan="3" class="text-center py-6 label">
                     Aucun historique trouvé
                 </td>
             </tr>

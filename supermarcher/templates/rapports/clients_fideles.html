@@ -13,8 +13,8 @@
         <tbody class="divide-y divide-gray-200">
             {% for client in clients_fideles %}
             <tr>
-                <td class="px-4 py-3">{{ client.client_nom }}</td>
-                <td class="px-4 py-3">{{ client.nb_achats|intcomma }}</td>
+                <td class="px-4 py-3 label">{{ client.client_nom }}</td>
+                <td class="px-4 py-3 label">{{ client.nb_achats|intcomma }}</td>
             </tr>
             {% empty %}
             <tr>
