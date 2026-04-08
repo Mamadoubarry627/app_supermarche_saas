@@ -33,26 +33,51 @@
         {% endif %}
 
         {% for field in form %}
-            <div class="space-y-2">
-                <label class="block text-sm font-semibold label label:text-gray-200">
-                    {{ field.label }}
-                </label>
 
-                <div class="relative label">
-                    {{ field|add_class:"w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 transition" }}
-                </div>
+<div class="space-y-2">
 
-                {% if field.help_text %}
-                    <p class="text-xs text-gray-500 dark:text-gray-400 italic">{{ field.help_text }}</p>
-                {% endif %}
+    <!-- LABEL EN FRANÇAIS -->
+    <label class="block text-sm font-semibold text-gray-700">
+        {% if field.name == "username" %}Nom d'utilisateur
+        {% elif field.name == "first_name" %}Prénom
+        {% elif field.name == "last_name" %}Nom
+        {% elif field.name == "email" %}Email
+        {% elif field.name == "telephone" %}Téléphone
+        {% elif field.name == "password" %}Mot de passe
+        {% elif field.name == "password_confirm" %}Confirmer le mot de passe
+        {% else %}
+            {{ field.label }}
+        {% endif %}
+    </label>
 
-                {% if field.errors %}
-                    <p class="text-sm text-red-600 dark:text-red-400 font-medium">
-                        {{ field.errors|striptags }}
-                    </p>
-                {% endif %}
-            </div>
-        {% endfor %}
+    <!-- CHAMPS -->
+    <div class="relative">
+
+        {{ field|add_class:"w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-400 transition pr-10" }}
+
+        <!-- ŒIL UNIQUEMENT PASSWORD -->
+        {% if field.name == "password" %}
+        <span id="togglePassword"
+              class="material-icons absolute right-3 top-3 cursor-pointer text-gray-500">
+            visibility
+        </span>
+        {% endif %}
+
+    </div>
+
+    <!-- MESSAGE ERREUR DJANGO -->
+    {% if field.errors %}
+        <p class="text-red-600 text-sm">{{ field.errors|striptags }}</p>
+    {% endif %}
+
+    <!-- MESSAGE PASSWORD LIVE -->
+    {% if field.name == "password" %}
+        <p id="passwordStrength" class="text-xs font-medium"></p>
+    {% endif %}
+
+</div>
+
+{% endfor %}
 
         <div class="pt-4">
             <button type="submit"
@@ -62,4 +87,68 @@
         </div>
     </form>
 </div>
+
+<script>
+const passwordInput = document.querySelector('input[name="password"]');
+const togglePassword = document.getElementById("togglePassword");
+const strengthText = document.getElementById("passwordStrength");
+
+/* ======================
+   ŒIL SHOW / HIDE
+====================== */
+if (togglePassword && passwordInput) {
+    togglePassword.addEventListener("click", function () {
+        const isHidden = passwordInput.type === "password";
+        passwordInput.type = isHidden ? "text" : "password";
+        this.textContent = isHidden ? "visibility_off" : "visibility";
+    });
+}
+
+/* ======================
+   VALIDATION PASSWORD
+====================== */
+function checkPassword(value) {
+
+    return {
+        min: value.length >= 8,
+        upper: /[A-Z]/.test(value),
+        lower: /[a-z]/.test(value),
+        number: /[0-9]/.test(value),
+        symbol: /[^A-Za-z0-9]/.test(value),
+    };
+}
+
+if (passwordInput) {
+
+    passwordInput.addEventListener("input", function () {
+
+        const v = this.value;
+        const r = checkPassword(v);
+
+        const valid = r.min && r.upper && r.lower && r.number && r.symbol;
+
+        if (v === "") {
+            this.classList.remove("border-red-500", "border-green-500");
+            strengthText.textContent = "";
+            return;
+        }
+
+        if (valid) {
+            this.classList.add("border-green-500");
+            this.classList.remove("border-red-500");
+
+            strengthText.textContent = "Mot de passe valide ✔";
+            strengthText.className = "text-green-600 text-xs font-medium";
+        } else {
+            this.classList.add("border-red-500");
+            this.classList.remove("border-green-500");
+
+            strengthText.textContent =
+                "Invalide : 8+ caractères, majuscule, minuscule, chiffre, symbole";
+
+            strengthText.className = "text-red-600 text-xs font-medium";
+        }
+    });
+}
+</script>
 {% endblock %}
