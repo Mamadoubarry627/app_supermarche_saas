@@ -1439,7 +1439,7 @@ from .models import Produit, Vente, LigneVente
 
 
 @login_required
-def dashboard(request):
+def dashboard_gerant(request):
 
     user = request.user
     magasin = user.magasin
@@ -1617,7 +1617,7 @@ def dashboard(request):
         "role": user.role,
     }
 
-    return render(request, "dashboard/dashboard.html", context)
+    return render(request, "dashboard/dashboard_gerant.html", context)
 
 from django.db.models import Q
 from django.utils import timezone
