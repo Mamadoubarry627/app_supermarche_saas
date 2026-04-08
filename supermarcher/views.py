@@ -1405,6 +1405,23 @@ def importer_produits(request):
             "error": str(e)
         }, status=500)
         
+
+def get_ventes_queryset(user, magasin):
+    qs = Vente.objects.filter(magasin=magasin)
+
+    if user.role == "CAISSIER":
+        qs = qs.filter(cree_par=user)
+
+    return qs
+
+
+def get_lignes_queryset(user, magasin):
+    qs = LigneVente.objects.filter(vente__magasin=magasin)
+
+    if user.role == "CAISSIER":
+        qs = qs.filter(vente__cree_par=user)
+
+    return qs
         
 from django.db.models import F
 # ===============================
@@ -1422,30 +1439,33 @@ from .models import Produit, Vente, LigneVente
 
 
 @login_required
-def dashboard_gerant(request):
+def dashboard(request):
 
-    magasin = request.user.magasin
+    user = request.user
+    magasin = user.magasin
     today = now().date()
 
     # =========================
-    # STATISTIQUES GENERALES
+    # BASE QUERIES SECURISEES
     # =========================
-    produits_count = Produit.objects.filter(magasin=magasin).count()
+    ventes_queryset = get_ventes_queryset(user, magasin)
+    lignes_queryset = get_lignes_queryset(user, magasin)
+    produits_queryset = Produit.objects.filter(magasin=magasin)
 
-    ventes_count = Vente.objects.filter(
-        magasin=magasin
-    ).count()
+    # =========================
+    # STATS GENERALES
+    # =========================
+    produits_count = produits_queryset.count()
+    ventes_count = ventes_queryset.count()
 
-    alertes_stock = Produit.objects.filter(
-        magasin=magasin,
+    alertes_stock = produits_queryset.filter(
         quantite_stock__lte=F("seuil_alerte")
     ).count()
 
     # =========================
-    # CHIFFRE DU JOUR
+    # VENTES DU JOUR
     # =========================
-    ventes_jour = Vente.objects.filter(
-        magasin=magasin,
+    ventes_jour = ventes_queryset.filter(
         date_creation__date=today,
         statut=Vente.Statut.COMPLETEE
     )
@@ -1461,38 +1481,35 @@ def dashboard_gerant(request):
 
     benefice_jour = Decimal("0")
 
-    lignes = LigneVente.objects.filter(
-        vente__magasin=magasin,
+    lignes = lignes_queryset.filter(
         vente__date_creation__date=today,
         vente__statut=Vente.Statut.COMPLETEE
     ).select_related("produit", "vente")
 
-    # Grouper les lignes par vente
-    ventes = {}
+    ventes_group = {}
 
     for ligne in lignes:
-        ventes.setdefault(ligne.vente_id, []).append(ligne)
+        ventes_group.setdefault(ligne.vente_id, []).append(ligne)
 
-    for vente_id, lignes_vente in ventes.items():
+    for _, lignes_vente in ventes_group.items():
+
         vente = lignes_vente[0].vente
 
-        # Total brut (avant remise)
         total_brut = sum(
-            (ligne.prix_unitaire * ligne.quantite)
-            for ligne in lignes_vente
+            (l.prix_unitaire * l.quantite)
+            for l in lignes_vente
         )
 
         for ligne in lignes_vente:
+
             ligne_total = ligne.prix_unitaire * ligne.quantite
 
-            # ✅ Répartition remise avec arrondi
             part_remise = Decimal("0")
             if total_brut > 0:
                 part_remise = (
                     (ligne_total / total_brut) * vente.remise
                 ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
-            # ✅ Bénéfice ligne avec arrondi
             benefice_ligne = (
                 (ligne_total - part_remise)
                 - (ligne.produit.prix_achat * ligne.quantite)
@@ -1500,14 +1517,16 @@ def dashboard_gerant(request):
 
             benefice_jour += benefice_ligne
 
-    # ✅ Arrondi final
-    benefice_jour = benefice_jour.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    benefice_jour = benefice_jour.quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP
+    )
+
     # =========================
     # TOP PRODUITS
     # =========================
     top_produits = (
-        LigneVente.objects
-        .filter(vente__magasin=magasin)
+        lignes_queryset
         .values("produit__nom")
         .annotate(total_vendu=Sum("quantite"))
         .order_by("-total_vendu")[:5]
@@ -1517,68 +1536,53 @@ def dashboard_gerant(request):
     # DERNIERES VENTES
     # =========================
     ventes_recentes = (
-        Vente.objects
-        .filter(magasin=magasin)
+        ventes_queryset
         .order_by("-date_creation")[:5]
     )
 
     # =========================
-    # TOP CAISSIERS
+    # TOP CAISSIERS (VISIBLE UNIQUEMENT GERANT)
     # =========================
-    top_caissiers = (
-        Vente.objects
-        .filter(
-            magasin=magasin,
-            statut=Vente.Statut.COMPLETEE,
-            date_creation__date=today
+    top_caissiers = []
+
+    if user.role != "CAISSIER":
+        top_caissiers = (
+            Vente.objects.filter(
+                magasin=magasin,
+                statut=Vente.Statut.COMPLETEE,
+                date_creation__date=today
+            )
+            .values("cree_par__first_name", "cree_par__last_name")
+            .annotate(total_ventes=Count("id"))
+            .order_by("-total_ventes")[:5]
         )
-        .values("cree_par__first_name", "cree_par__last_name")
-        .annotate(total_ventes=Count("id"))
-        .order_by("-total_ventes")[:5]
-    )
 
     # =========================
-    # PRODUITS BIENTOT EXPIRES
+    # PRODUITS EXPIRATION
     # =========================
     date_limite = date.today() + timedelta(days=120)
 
-    produits_expiration = (
-        Produit.objects
-        .filter(
-            magasin=magasin,
-            date_expiration__lte=date_limite,
-            date_expiration__gte=date.today()
-        )
-        .order_by("date_expiration")[:5]
-    )
+    produits_expiration = produits_queryset.filter(
+        date_expiration__lte=date_limite,
+        date_expiration__gte=date.today()
+    ).order_by("date_expiration")[:5]
 
-    produits_expires = Produit.objects.filter(
-        magasin=magasin,
+    produits_expires = produits_queryset.filter(
         date_expiration__lt=date.today()
     )[:5]
-    
-    # =========================
-    # PRODUITS STOCK FAIBLE
-    # =========================
-    produits_stock_faible = (
-        Produit.objects
-        .filter(
-            magasin=magasin,
-            quantite_stock__lte=F("seuil_alerte")
-        )[:5]
-    )
+
+    produits_stock_faible = produits_queryset.filter(
+        quantite_stock__lte=F("seuil_alerte")
+    )[:5]
 
     # =========================
-    # GRAPHIQUE 6 MOIS
+    # CHART 6 MOIS
     # =========================
     six_mois = now() - timedelta(days=180)
 
     ventes_par_mois = (
-        Vente.objects
-        .filter(
-            magasin=magasin,
-            date_creation__gte=six_mois
-        )
+        ventes_queryset
+        .filter(date_creation__gte=six_mois)
         .annotate(mois=TruncMonth("date_creation"))
         .values("mois")
         .annotate(total=Sum("montant_total"))
@@ -1592,6 +1596,9 @@ def dashboard_gerant(request):
         chart_labels.append(item["mois"].strftime("%b %Y"))
         chart_data.append(float(item["total"] or 0))
 
+    # =========================
+    # CONTEXT
+    # =========================
     context = {
         "magasin": magasin,
         "produits_count": produits_count,
@@ -1603,13 +1610,14 @@ def dashboard_gerant(request):
         "ventes_recentes": ventes_recentes,
         "top_caissiers": top_caissiers,
         "produits_expiration": produits_expiration,
-        "produits_expires":produits_expires,
+        "produits_expires": produits_expires,
         "produits_stock_faible": produits_stock_faible,
         "chart_labels": json.dumps(chart_labels),
         "chart_data": json.dumps(chart_data),
+        "role": user.role,
     }
 
-    return render(request, "gerant/dashboard_gerant.html", context)
+    return render(request, "dashboard/dashboard.html", context)
 
 from django.db.models import Q
 from django.utils import timezone
