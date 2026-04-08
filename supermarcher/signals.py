@@ -38,15 +38,3 @@ def log_action(action, modele, utilisateur=None, objet_id=None, description="", 
         login_status=login_status
     )
     
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from .models import Magasin, ThemeMagasin
-
-@receiver(post_save, sender=Magasin)
-def create_theme(sender, instance, created, **kwargs):
-    if created:
-        ThemeMagasin.objects.create(
-            magasin=instance,
-            couleur_principale="#1324db",
-            mode_sombre=False
-        )
