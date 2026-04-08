@@ -1617,7 +1617,7 @@ def dashboard_gerant(request):
         "role": user.role,
     }
 
-    return render(request, "dashboard/dashboard_gerant.html", context)
+    return render(request, "gerant/dashboard_gerant.html", context)
 
 from django.db.models import Q
 from django.utils import timezone
