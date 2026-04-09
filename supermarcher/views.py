@@ -1786,7 +1786,7 @@ def ticket_pdf(request, pk):
     doc = SimpleDocTemplate(response, pagesize=A4)
     elements = []
 
-    elements.append(Paragraph(f"Supermarché - Guinée", ParagraphStyle(name='Normal')))
+    elements.append(Paragraph(f"Stock - Guinée", ParagraphStyle(name='Normal')))
     elements.append(Spacer(1, 12))
     elements.append(Paragraph(f"Facture: {vente.numero_facture}", ParagraphStyle(name='Normal')))
     elements.append(Spacer(1, 12))

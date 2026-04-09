@@ -78,10 +78,10 @@ Produits
     <!-- Recherche -->
     <input type="text" name="search" placeholder="Rechercher produit..."
            value="{{ request.GET.search }}"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- Catégorie -->
-    <select name="categorie" class="px-4 py-2 border rounded-lg label">
+    <select name="categorie" class="px-4 py-2 border rounded-lg text-gray-700">
         <option value="">Toutes catégories</option>
         {% for cat in categories %}
         <option value="{{ cat.id }}" {% if request.GET.categorie == cat.id|stringformat:"s" %}selected{% endif %}>
@@ -94,29 +94,29 @@ Produits
     <input type="number" step="0.01" name="prix_min"
            value="{{ request.GET.prix_min }}"
            placeholder="Prix min"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- Prix max -->
     <input type="number" step="0.01" name="prix_max"
            value="{{ request.GET.prix_max }}"
            placeholder="Prix max"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- Stock min -->
     <input type="number" name="stock_min"
            value="{{ request.GET.stock_min }}"
            placeholder="Stock min"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- Actif -->
-    <select name="actif" class="px-4 py-2 border rounded-lg label">
+    <select name="actif" class="px-4 py-2 border rounded-lg text-gray-700">
         <option value="">Tous statuts</option>
         <option value="1" {% if request.GET.actif == "1" %}selected{% endif %}>Actif</option>
         <option value="0" {% if request.GET.actif == "0" %}selected{% endif %}>Inactif</option>
     </select>
 
     <!-- Alerte -->
-    <select name="alerte" class="px-4 py-2 border rounded-lg label">
+    <select name="alerte" class="px-4 py-2 border rounded-lg text-gray-700">
         <option value="">Tous</option>
         <option value="1" {% if request.GET.alerte == "1" %}selected{% endif %}>
             Stock faible
@@ -169,7 +169,7 @@ Produits
                 <td class="px-4 py-3 label">
                     <input type="number" step="0.01" min="0"
                         value="{{ produit.prix_vente }}"
-                        class="w-20 border border-gray-300 rounded px-2 py-1 label"
+                        class="w-20 border border-gray-300 rounded px-2 py-1 text-gray-700"
                         data-produit-id="{{ produit.id }}"
                         data-field="prix_vente"
                         {% if request.user.role != 'GERANT' %} disabled {% endif %}> {{ magasin.devise }}
@@ -178,7 +178,7 @@ Produits
                 <td class="px-4 py-3 label flex items-center">
                     <input type="number" min="0"
                         value="{{ produit.quantite_stock }}"
-                        class="w-16 border border-gray-300 rounded px-2 py-1 label"
+                        class="w-16 border border-gray-300 rounded px-2 py-1 text-gray-700"
                         data-produit-id="{{ produit.id }}"
                         data-field="quantite_stock"
                         {% if request.user.role != 'GERANT' %} disabled {% endif %}>

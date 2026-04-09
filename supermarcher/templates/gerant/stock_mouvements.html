@@ -20,14 +20,14 @@ Mouvements du stock
                 <label class="text-sm font-medium label">Recherche</label>
                 <input type="text" name="search" value="{{ filters.search }}" 
                        placeholder="Produit, référence, utilisateur..."
-                       class="px-4 py-2 border rounded-lg label">
+                       class="px-4 py-2 border rounded-lg text-gray-700">
             </div>
 
             <!-- Type -->
             <div class="flex flex-col">
                 <label class="text-sm font-medium label">Type</label>
                 <select name="type"
-                        class="px-4 py-2 border rounded-lg label">
+                        class="px-4 py-2 border rounded-lg text-gray-700">
                     <option value="">Tous</option>
                     <option value="ENTREE" {% if filters.type == 'ENTREE' %}selected{% endif %}>Entrée</option>
                     <option value="SORTIE" {% if filters.type == 'SORTIE' %}selected{% endif %}>Sortie</option>
@@ -36,55 +36,55 @@ Mouvements du stock
             </div>
 
             <div class="flex flex-col">
-<label class="text-sm font-medium label">
-Période
-</label>
+            <label class="text-sm font-medium label">
+            Période
+            </label>
 
-<select name="periode"
-class="px-4 py-2 border rounded-lg label">
+            <select name="periode"
+            class="px-4 py-2 border rounded-lg text-gray-700">
 
-<option value="">Toutes</option>
+            <option value="">Toutes</option>
 
-<option value="today"
-{% if filters.periode == "today" %}selected{% endif %}>
-Aujourd'hui
-</option>
+            <option value="today"
+            {% if filters.periode == "today" %}selected{% endif %}>
+            Aujourd'hui
+            </option>
 
-<option value="yesterday"
-{% if filters.periode == "yesterday" %}selected{% endif %}>
-Hier
-</option>
+            <option value="yesterday"
+            {% if filters.periode == "yesterday" %}selected{% endif %}>
+            Hier
+            </option>
 
-<option value="7days"
-{% if filters.periode == "7days" %}selected{% endif %}>
-7 derniers jours
-</option>
+            <option value="7days"
+            {% if filters.periode == "7days" %}selected{% endif %}>
+            7 derniers jours
+            </option>
 
-<option value="30days"
-{% if filters.periode == "30days" %}selected{% endif %}>
-30 derniers jours
-</option>
+            <option value="30days"
+            {% if filters.periode == "30days" %}selected{% endif %}>
+            30 derniers jours
+            </option>
 
-<option value="custom"
-{% if filters.periode == "custom" %}selected{% endif %}>
-Personnalisé
-</option>
+            <option value="custom"
+            {% if filters.periode == "custom" %}selected{% endif %}>
+            Personnalisé
+            </option>
 
-</select>
-</div>
+            </select>
+            </div>
 
             <!-- Date début -->
             <div class="flex flex-col">
                 <label class="text-sm font-medium label">Date début</label>
                 <input type="date" name="date_debut" value="{{ filters.date_debut }}"
-                       class="px-4 py-2 border rounded-lg label">
+                       class="px-4 py-2 border rounded-lg text-gray-700">
             </div>
 
             <!-- Date fin -->
             <div class="flex flex-col">
                 <label class="text-sm font-medium label">Date fin</label>
                 <input type="date" name="date_fin" value="{{ filters.date_fin }}"
-                       class="px-4 py-2 border rounded-lg label">
+                       class="px-4 py-2 border rounded-lg text-gray-700">
             </div>
 
             <!-- Bouton Filtrer -->

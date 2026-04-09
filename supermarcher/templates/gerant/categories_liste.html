@@ -25,7 +25,7 @@
             <label class="text-sm font-medium label">Recherche</label>
             <input type="text" name="search" value="{{ filters.search }}" 
                    placeholder="Nom de la catégorie, description..."
-                   class="px-4 py-2 border rounded-lg label">
+                   class="px-4 py-2 border rounded-lg text-gray-700">
         </div>
 
         <!-- Produits min -->
@@ -33,7 +33,7 @@
             <label class="text-sm font-medium label">Produits min</label>
             <input type="number" name="min_produits" value="{{ filters.min_produits }}"
                    placeholder="0"
-                   class="px-4 py-2 border rounded-lg label">
+                   class="px-4 py-2 border rounded-lg text-gray-700">
         </div>
 
         <!-- Produits max -->
@@ -41,14 +41,14 @@
             <label class="text-sm font-medium label">Produits max</label>
             <input type="number" name="max_produits" value="{{ filters.max_produits }}"
                    placeholder="100"
-                   class="px-4 py-2 border rounded-lg label">
+                   class="px-4 py-2 border rounded-lg text-gray-700">
         </div>
 
         <!-- Statut -->
         <div class="flex flex-col">
             <label class="text-sm font-medium label">Statut</label>
             <select name="statut"
-                    class="px-4 py-2 border rounded-lg label">
+                    class="px-4 py-2 border rounded-lg text-gray-700">
                 <option value="" {% if filters.statut == "" %}selected{% endif %}>Tous</option>
                 <option value="avec" {% if filters.statut == "avec" %}selected{% endif %}>Avec produits</option>
                 <option value="vide" {% if filters.statut == "vide" %}selected{% endif %}>Vide</option>
@@ -59,7 +59,7 @@
         <div class="flex flex-col">
             <label class="text-sm font-medium label">Trier par</label>
             <select name="tri"
-                    class="px-4 py-2 border rounded-lg label">
+                    class="px-4 py-2 border rounded-lg text-gray-700">
                 <option value="nom" {% if filters.tri == "nom" %}selected{% endif %}>Nom ↑</option>
                 <option value="-nom" {% if filters.tri == "-nom" %}selected{% endif %}>Nom ↓</option>
                 <option value="nb_produits" {% if filters.tri == "nb_produits" %}selected{% endif %}>Produits ↑</option>

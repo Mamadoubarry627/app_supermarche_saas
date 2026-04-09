@@ -50,20 +50,20 @@ Ventes
     <!-- 🔎 Recherche -->
     <input type="text" name="search" placeholder="Rechercher (facture, client, montant)"
            value="{{ request.GET.search }}"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- 📅 Date début -->
     <input type="date" name="date_debut"
            value="{{ request.GET.date_debut }}"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- 📅 Date fin -->
     <input type="date" name="date_fin"
            value="{{ request.GET.date_fin }}"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- 📌 Filtre rapide -->
-    <select name="filtre" class="px-4 py-2 border rounded-lg label">
+    <select name="filtre" class="px-4 py-2 border rounded-lg text-gray-700">
         <option value="">Filtre rapide</option>
         <option value="today">Aujourd’hui</option>
         <option value="month">Ce mois</option>
@@ -73,15 +73,15 @@ Ventes
     <!-- 💰 Montant min -->
     <input type="number" name="montant_min" placeholder="Montant min"
            value="{{ request.GET.montant_min }}"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- 💰 Montant max -->
     <input type="number" name="montant_max" placeholder="Montant max"
            value="{{ request.GET.montant_max }}"
-           class="px-4 py-2 border rounded-lg label">
+           class="px-4 py-2 border rounded-lg text-gray-700">
 
     <!-- 📦 Statut -->
-    <select name="statut" class="px-4 py-2 border rounded-lg label">
+    <select name="statut" class="px-4 py-2 border rounded-lg text-gray-700">
         <option value="">Tous statuts</option>
         <option value="COMPLETEE">Complétée</option>
         <option value="ANNULEE">Annulée</option>
