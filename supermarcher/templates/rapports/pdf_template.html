@@ -240,15 +240,17 @@ tbody tr:nth-child(even) {
                 {% for row in data %}
                     <tr>
                         {% for col, value in row.items %}
-                            <td style="text-align:{% if col == 'Prix unitaire' or col == 'Quantite totale' or col == 'Total ventes' %}right{% else %}left{% endif %};">
 
-                                {% if col == "Prix unitaire" or col == "Quantite totale" or col == "Total ventes" %}
-                                    {{ value|floatformat:2|intcomma }}
-                                {% else %}
-                                    {{ value }}
-                                {% endif %}
+                                <td style="text-align:{% if col == 'Prix unitaire' or col == 'Quantite totale' or col == 'Total ventes' %}right{% else %}left{% endif %};">
 
-                            </td>
+                                    {% if col == "Prix unitaire" or col == "Quantite totale" or col == "Total ventes" %}
+                                        {{ value|floatformat:2|intcomma }}
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+
+                                </td>
+
                         {% endfor %}
                     </tr>
                 {% endfor %}
