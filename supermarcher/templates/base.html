@@ -172,9 +172,17 @@ header{
     color: #15803d;
 }
 
+.periode-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+/* ÉTAT ACTIF ADAPTATIF */
 .periode-btn.active {
-  outline: 2px solid white;
-  transform: scale(1.03);
+  background: var(--primary) !important;
+  color: white !important;
+  border: 2px solid var(--primary-hover);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 60%, transparent);
+  transform: scale(1.05);
 }
 </style>
 </head>
