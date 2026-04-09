@@ -241,10 +241,10 @@ tbody tr:nth-child(even) {
                     <tr>
                         {% for col, value in row.items %}
                             <td>
-                                {% if col in "prix total montant quantite" %}
-                                    {{ value|floatformat:2|intcomma }}
+                                {% if col|is_numeric_field %}
+                                    {{ value|default:0|floatformat:2|intcomma }}
                                 {% else %}
-                                    {{ value }}
+                                    {{ value|default:"-" }}
                                 {% endif %}
                             </td>
                         {% endfor %}
