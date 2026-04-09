@@ -4,13 +4,12 @@ register = template.Library()
 
 @register.filter
 def underscore_to_space(value):
-    return value.replace("_", " ")
-
-from django import template
-
-register = template.Library()
+    if value is None:
+        return ""
+    return str(value).replace("_", " ")
 
 
+@register.filter
 def is_numeric_field(field):
     numeric_fields = [
         "prix",
