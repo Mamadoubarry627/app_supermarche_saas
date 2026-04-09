@@ -239,9 +239,13 @@ tbody tr:nth-child(even) {
             <tbody>
                 {% for row in data %}
                     <tr>
-                        {% for value in row.values %}
-                            <td>      
+                        {% for col, value in row.items %}
+                            <td>
+                                {% if col in "prix total montant quantite" %}
                                     {{ value|floatformat:2|intcomma }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
                             </td>
                         {% endfor %}
                     </tr>
