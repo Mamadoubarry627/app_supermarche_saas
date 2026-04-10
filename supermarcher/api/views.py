@@ -104,7 +104,7 @@ class MeAPIView(APIView):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "role": getattr(user, "role", ""),
-            "magasin": getattr(user, "magasin", None),
+            "magasin": user.magasin.nom if user.magasin else None,  # ✅ FIX
         })
     
 class ThemeMagasinView(APIView):
