@@ -81,7 +81,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['last_name'] = self.user.last_name
         data['role'] = self.user.role
         # 🔥 AJOUT MAGASIN
-        data['magasin'] = self.user.magasin.nom if self.user.magasin else None
+        data['magasin'] = self.user.magasin.id if self.user.magasin else None
 
         return data
 
