@@ -106,6 +106,7 @@ class MeAPIView(APIView):
             "last_name": user.last_name,
             "role": getattr(user, "role", ""),
             "magasin": user.magasin.nom if user.magasin else None,  # ✅ FIX
+            "magasin_id": user.magasin.id if user.magasin else None,  # ✅ AJOUT
         })
     
 class ThemeMagasinView(APIView):
