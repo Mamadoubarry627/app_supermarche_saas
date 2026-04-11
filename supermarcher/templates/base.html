@@ -48,8 +48,15 @@ main{
 
 /* SIDEBAR */
 .sidebar{
-  background: var(--primary);
-  transition: background .3s;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--primary) 85%, white 15%),
+    color-mix(in srgb, var(--primary) 85%, black 15%)
+  );
+  border-right: 1px solid rgba(255,255,255,0.15);
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  transition: background .3s, border .3s;
 }
 
 /* HEADER */
