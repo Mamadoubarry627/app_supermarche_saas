@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from supermarcher.models import Produit, ThemeMagasin
+from rest_framework.exceptions import AuthenticationFailed
 
 class ScanAPIView(APIView):
     """
@@ -74,15 +75,29 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        data['id'] = self.user.id   # ✅ C’EST ÇA QUI MANQUE
-        # 🔥 Ajouter dans la réponse JSON
-        data['username'] = self.user.username
-        data['first_name'] = self.user.first_name
-        data['last_name'] = self.user.last_name
-        data['role'] = self.user.role
-        # 🔥 AJOUT MAGASIN
-        data['magasin_id'] = self.user.magasin.id if self.user.magasin else None
-        data['magasin_nom'] = self.user.magasin.nom if self.user.magasin else None
+
+        user = self.user
+
+        # 🚫 1. COMPTE DÉSACTIVÉ
+        if not user.is_active:
+            raise AuthenticationFailed("account_disabled")
+
+        # 🚫 2. PAS DE MAGASIN
+        if not user.magasin:
+            raise AuthenticationFailed("no_store")
+
+        # 🚫 3. MAGASIN DÉSACTIVÉ (UTILISE TON CHAMP actif)
+        if not user.magasin.actif:
+            raise AuthenticationFailed("store_disabled")
+
+        # ✅ OK → retourner les infos
+        data['id'] = user.id
+        data['username'] = user.username
+        data['first_name'] = user.first_name
+        data['last_name'] = user.last_name
+        data['role'] = user.role
+        data['magasin_id'] = user.magasin.id
+        data['magasin_nom'] = user.magasin.nom
 
         return data
 
