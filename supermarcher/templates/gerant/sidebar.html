@@ -1,188 +1,146 @@
-<aside class="sidebar w-64 shadow-xl hidden md:flex flex-col text-white h-screen border-r border-white/20">
+<aside class="sidebar w-60 shadow-xl hidden md:flex flex-col text-white h-screen border-r border-white/20">
 
 <!-- Logo / Nom magasin -->
-<div class="p-6 border-b border-white/20">
+<div class="p-5 border-b border-white/20">
 
-<div class="flex flex-col gap-3">
+    <div class="flex items-center gap-3">
 
-<div class="flex items-center gap-3">
+        {% if request.user.magasin and request.user.magasin.theme and request.user.magasin.theme.logo %}
+        <img 
+            src="{{ theme.logo.url }}" 
+            class="h-10 w-10 object-cover rounded-full border-2 border-white shadow-sm">
+        {% else %}
+        <div class="h-10 w-10 flex items-center justify-center rounded-full bg-white/20 text-sm font-bold">
+            SM
+        </div>
+        {% endif %}
 
-{% if request.user.magasin and request.user.magasin.theme and request.user.magasin.theme.logo %}
-<img 
-src="{{ theme.logo.url }}" 
-class="h-12 w-12 object-cover rounded-full border-2 border-white shadow-sm">
-{% else %}
-<div class="h-12 w-12 flex items-center justify-center rounded-full bg-white/20 text-sm font-bold border border-white/30">
-SM
-</div>
-{% endif %}
+        <div class="text-lg font-bold leading-none">
+            {% if request.user.magasin %}
+                {{ request.user.magasin.nom }}
+            {% else %}
+                SuperMarket
+            {% endif %}
+        </div>
 
-<div class="text-xl font-bold leading-tight break-words">
-{% if request.user.magasin %}
-{{ request.user.magasin.nom }}
-{% else %}
-SuperMarket
-{% endif %}
-</div>
-
-</div>
-
-</div>
+    </div>
 
 </div>
 
 <!-- NAV -->
-<nav class="flex-1 overflow-y-auto p-4 space-y-2">
+<nav class="flex-1 overflow-y-auto p-3 space-y-1">
 
-<!-- Dashboard -->
+<!-- DASHBOARD -->
 <a href="{% url 'dashboard_gerant' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if request.path == '/dashboard/' %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">dashboard</span>
-<span>Dashboard</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if request.path == '/dashboard/' %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">dashboard</span>
+<span class="text-sm whitespace-nowrap">Dashboard</span>
 </a>
 
-<!-- Ventes -->
+<!-- VENTES -->
 <a href="{% url 'vente_create' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
 {% if request.user.role == 'GERANT' and '/ventes/' in request.path %}
-bg-white/20 border-white/30
+bg-white/20
 {% elif request.user.role == 'CAISSIER' and request.resolver_match.url_name == 'vente_create' %}
-bg-white/20 border-white/30
+bg-white/20
 {% else %}
-hover:bg-white/20 hover:border-white/20
+hover:bg-white/20
 {% endif %}">
-<span class="material-icons">attach_money</span>
-<span>Nouvelle Vente</span>
+<span class="material-icons text-sm">attach_money</span>
+<span class="text-sm whitespace-nowrap">Nouvelle Vente</span>
 </a>
 
+<!-- HISTORIQUE -->
 {% if request.user.role == 'CAISSIER' %}
 <a href="{% url 'ventes_liste' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if request.resolver_match.url_name == 'ventes_liste' %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">history</span>
-<span>Historiques Ventes</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if request.resolver_match.url_name == 'ventes_liste' %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">history</span>
+<span class="text-sm whitespace-nowrap">Historique Ventes</span>
 </a>
 {% endif %}
 
+<!-- ACHATS -->
 {% if request.user.role == "GERANT" %}
 <a href="{% url 'achat_nouveau' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/achats/' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">shopping_cart</span>
-<span>Nouvelle Achat</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/achats/' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">shopping_cart</span>
+<span class="text-sm whitespace-nowrap">Nouvel Achat</span>
 </a>
 {% endif %}
 
-<!-- Produits -->
+<!-- PRODUITS -->
 <a href="{% url 'produits_liste' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/produit' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">inventory_2</span>
-<span>Produits</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/produit' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">inventory_2</span>
+<span class="text-sm whitespace-nowrap">Produits</span>
 </a>
 
+<!-- CATEGORIES -->
 {% if request.user.role == "GERANT" %}
-
 <a href="{% url 'categories_liste' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/categories/' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">category</span>
-<span>Catégories</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/categories/' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">category</span>
+<span class="text-sm whitespace-nowrap">Catégories</span>
 </a>
 
+<!-- STOCK -->
 <a href="{% url 'stock_mouvements' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/stock/' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">inventory</span>
-<span>Mouvements stock</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/stock/' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">inventory</span>
+<span class="text-sm whitespace-nowrap">Stock</span>
 </a>
 
+<!-- FOURNISSEURS -->
 <a href="{% url 'fournisseurs_liste' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/fournisseurs/' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">store</span>
-<span>Fournisseurs</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/fournisseurs/' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">store</span>
+<span class="text-sm whitespace-nowrap">Fournisseurs</span>
 </a>
-
 {% endif %}
 
+<!-- RAPPORTS -->
 <a href="{% url 'rapports' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/rapports/' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">bar_chart</span>
-<span>Rapports</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/rapports/' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">bar_chart</span>
+<span class="text-sm whitespace-nowrap">Rapports</span>
 </a>
 
+<!-- UTILISATEURS -->
 {% if request.user.role == "GERANT" %}
-
 <a href="{% url 'gerant_liste' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/gerant/' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">people</span>
-<span>Utilisateurs</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/gerant/' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">people</span>
+<span class="text-sm whitespace-nowrap">Utilisateurs</span>
 </a>
 
+<!-- PARAMETRES -->
 <a href="{% url 'parametres' %}"
-class="flex flex-col items-start px-4 py-2 rounded-lg transition border border-transparent
-{% if '/parametres/' in request.path %}
-bg-white/20 border-white/30
-{% else %}
-hover:bg-white/20 hover:border-white/20
-{% endif %}">
-<span class="material-icons">settings</span>
-<span>Paramètres</span>
+class="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 transition
+{% if '/parametres/' in request.path %} bg-white/20 {% else %} hover:bg-white/20 {% endif %}">
+<span class="material-icons text-sm">settings</span>
+<span class="text-sm whitespace-nowrap">Paramètres</span>
 </a>
-
 {% endif %}
 
 </nav>
 
-<!-- FOOTER -->
+<!-- DECONNEXION -->
 <div class="p-4 border-t border-white/20">
 
 <a href="{% url 'deconnexion' %}"
-class="flex flex-col items-start text-sm hover:opacity-70 border border-white/10 rounded-lg p-2">
-
-<span class="material-icons">logout</span>
+class="flex items-center gap-2 text-sm hover:opacity-70">
+<span class="material-icons text-sm">logout</span>
 <span>Déconnexion</span>
-
 </a>
 
 </div>
