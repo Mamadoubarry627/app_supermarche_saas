@@ -10,6 +10,16 @@ Dashboard - {{ magasin.nom }}
 {% block content %}
 
 <!-- ===================== -->
+<!-- HEADER -->
+<!-- ===================== -->
+<div class="mb-6">
+    <h2 class="text-2xl font-bold label">Dashboard</h2>
+    <p class="text-sm text-gray-400">
+        Vue globale des performances et accès rapide aux fonctionnalités
+    </p>
+</div>
+
+<!-- ===================== -->
 <!-- ACTIONS RAPIDES HEADER -->
 <!-- ===================== -->
 <div class="mb-4">
@@ -29,11 +39,11 @@ Dashboard - {{ magasin.nom }}
 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
 
     <a href="{% url 'vente_create' %}"
-       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center">
+       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center border hover:border-green-400">
 
         <div class="flex justify-center">
             <svg class="w-10 h-10 text-green-600 group-hover:scale-110 transition"
-                 fill="currentColor" viewBox="0 0 24 24">
+                 viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 6h18v2H3V6zm2 4h14l-1 12H6L5 10zm3-8h6v2H8V2z"/>
             </svg>
         </div>
@@ -42,12 +52,13 @@ Dashboard - {{ magasin.nom }}
     </a>
 
     {% if request.user.role == "GERANT" %}
+
     <a href="{% url 'achat_nouveau' %}"
-       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center">
+       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center border hover:border-blue-400">
 
         <div class="flex justify-center">
             <svg class="w-10 h-10 text-blue-600 group-hover:scale-110 transition"
-                 fill="currentColor" viewBox="0 0 24 24">
+                 viewBox="0 0 24 24" fill="currentColor">
                 <path d="M7 4h10l1 2h4v2H2V6h4l1-2zm1 6h8l-1 10H9L8 10z"/>
             </svg>
         </div>
@@ -56,25 +67,26 @@ Dashboard - {{ magasin.nom }}
     </a>
 
     <a href="{% url 'produit_nouveau' %}"
-       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center">
+       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center border hover:border-purple-400">
 
         <div class="flex justify-center">
             <svg class="w-10 h-10 text-purple-600 group-hover:scale-110 transition"
-                 fill="currentColor" viewBox="0 0 24 24">
+                 viewBox="0 0 24 24" fill="currentColor">
                 <path d="M4 4h16v16H4V4zm2 2v12h12V6H6zm5 2h2v8h-2V8zm-3 3h8v2H8v-2z"/>
             </svg>
         </div>
 
         <p class="mt-3 font-semibold label">Ajouter Produit</p>
     </a>
+
     {% endif %}
 
     <a href="{% url 'rapport_journalier' %}"
-       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center">
+       class="group bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center border hover:border-gray-400">
 
         <div class="flex justify-center">
             <svg class="w-10 h-10 text-gray-700 group-hover:scale-110 transition"
-                 fill="currentColor" viewBox="0 0 24 24">
+                 viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 3h18v18H3V3zm2 16h14V5H5v14zm2-2h2v-6H7v6zm4 0h2v-9h-2v9zm4 0h2v-3h-2v3z"/>
             </svg>
         </div>
@@ -99,9 +111,8 @@ Dashboard - {{ magasin.nom }}
 <!-- ===================== -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
 
-    <!-- CHIFFRE -->
-    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition">
-        <div class="flex items-center justify-between">
+    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-green-500">
+        <div class="flex justify-between items-center">
             <div>
                 <p class="text-sm text-gray-400">Chiffre du jour</p>
                 <h2 class="text-2xl font-bold text-green-600 mt-2">
@@ -109,15 +120,14 @@ Dashboard - {{ magasin.nom }}
                 </h2>
             </div>
 
-            <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z"/>
+            <svg class="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3 7h7l-5 4 2 7-7-4-7 4 2-7-5-4h7z"/>
             </svg>
         </div>
     </div>
 
-    <!-- BENEFICE -->
-    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition">
-        <div class="flex items-center justify-between">
+    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-blue-500">
+        <div class="flex justify-between items-center">
             <div>
                 <p class="text-sm text-gray-400">Bénéfice du jour</p>
                 <h2 class="text-2xl font-bold text-blue-600 mt-2">
@@ -125,15 +135,14 @@ Dashboard - {{ magasin.nom }}
                 </h2>
             </div>
 
-            <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M3 3h18v2H3V3zm2 4h14v14H5V7zm3 3v8h2v-8H8zm4 0v8h2v-8h-2zm4 0v8h2v-8h-2z"/>
+            <svg class="w-8 h-8 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 3h18v2H3V3zm2 4h14v14H5V7z"/>
             </svg>
         </div>
     </div>
 
-    <!-- PRODUITS -->
-    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition">
-        <div class="flex items-center justify-between">
+    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-purple-500">
+        <div class="flex justify-between items-center">
             <div>
                 <p class="text-sm text-gray-400">Produits</p>
                 <h2 class="text-2xl font-bold mt-2 label">
@@ -141,17 +150,14 @@ Dashboard - {{ magasin.nom }}
                 </h2>
             </div>
 
-            <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 8V7l-3-2-3 2v1l3 2 3-2zM3 8v1l3 2 3-2V7L6 5 3 7z"/>
+            <svg class="w-8 h-8 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4 4h16v4H4V4zm0 6h16v10H4V10z"/>
             </svg>
         </div>
     </div>
 
-    <!-- STOCK ALERT -->
-    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition
-        {% if alertes_stock > 0 %}border border-red-300{% endif %}">
-
-        <div class="flex items-center justify-between">
+    <div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-red-500">
+        <div class="flex justify-between items-center">
             <div>
                 <p class="text-sm text-gray-400">Alertes Stock</p>
                 <h2 class="text-2xl font-bold text-red-600 mt-2">
@@ -159,8 +165,8 @@ Dashboard - {{ magasin.nom }}
                 </h2>
             </div>
 
-            <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l10 18H2L12 2zm0 6v4m0 4h.01"/>
+            <svg class="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l10 18H2L12 2z"/>
             </svg>
         </div>
     </div>
@@ -168,54 +174,52 @@ Dashboard - {{ magasin.nom }}
 </div>
 
 <!-- ===================== -->
-<!-- RACCOURCIS SYSTEME -->
+<!-- ADMIN -->
 <!-- ===================== -->
 <div class="mb-4">
     <h2 class="text-xl font-bold label">Administration</h2>
-    <p class="text-sm text-gray-400">
-        Gestion avancée du système et des données
-    </p>
+    <p class="text-sm text-gray-400">Gestion avancée du système</p>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
 
 {% if request.user.role == "GERANT" %}
 
 <a href="{% url 'stock_mouvements' %}"
-   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center transition">
+   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center border hover:border-indigo-400 transition">
 
-    <svg class="w-10 h-10 mx-auto text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M4 4h16v16H4V4zm2 2v12h12V6H6z"/>
+    <svg class="w-10 h-10 mx-auto text-indigo-600" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4 4h16v16H4V4z"/>
     </svg>
 
-    <p class="mt-3 font-semibold label">Gestion Stock</p>
+    <p class="mt-3 font-semibold label">Stock</p>
 </a>
 
 <a href="{% url 'fournisseurs_liste' %}"
-   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center transition">
+   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center border hover:border-orange-400 transition">
 
-    <svg class="w-10 h-10 mx-auto text-orange-600" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M4 4h16v4H4V4zm0 6h16v10H4V10z"/>
+    <svg class="w-10 h-10 mx-auto text-orange-600" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M4 4h16v4H4V4z"/>
     </svg>
 
     <p class="mt-3 font-semibold label">Fournisseurs</p>
 </a>
 
 <a href="{% url 'gerant_liste' %}"
-   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center transition">
+   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center border hover:border-pink-400 transition">
 
-    <svg class="w-10 h-10 mx-auto text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5z"/>
+    <svg class="w-10 h-10 mx-auto text-pink-600" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12a5 5 0 100-10 5 5 0 000 10z"/>
     </svg>
 
     <p class="mt-3 font-semibold label">Employés</p>
 </a>
 
 <a href="{% url 'rapports' %}"
-   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center transition">
+   class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center border hover:border-gray-400 transition">
 
-    <svg class="w-10 h-10 mx-auto text-gray-700" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M3 3h18v18H3V3zm4 14h2v-6H7v6zm4 0h2v-9h-2v9zm4 0h2v-3h-2v3z"/>
+    <svg class="w-10 h-10 mx-auto text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 3h18v18H3V3z"/>
     </svg>
 
     <p class="mt-3 font-semibold label">Rapports</p>
@@ -232,259 +236,72 @@ Dashboard - {{ magasin.nom }}
 
 <!-- TOP PRODUITS -->
 <div class="card p-6 shadow">
-
-<h3 class="font-semibold mb-4 flex items-center gap-2 label">
-<span class="material-icons text-green-600">trending_up</span>
-Top 5 Produits
-</h3>
+<h3 class="font-semibold mb-4 label">Top Produits</h3>
 
 {% for produit in top_produits %}
-
-<div class="flex justify-between items-center border-b py-2">
-
-<span class="font-medium label">
-{{ produit.produit__nom }}
-</span>
-
-<span class="font-bold text-green-600">
-{{ produit.total_vendu }}
-</span>
-
+<div class="flex justify-between border-b py-2">
+<span class="label">{{ produit.produit__nom }}</span>
+<span class="font-bold text-green-600">{{ produit.total_vendu }}</span>
 </div>
-
-{% empty %}
-
-<p class="label">
-Aucune vente
-</p>
-
 {% endfor %}
-
 </div>
 
-
-<!-- DERNIERES VENTES -->
+<!-- VENTES -->
 <div class="card p-6 shadow">
-
-<h3 class="font-semibold mb-4 flex items-center gap-2 label">
-<span class="material-icons text-blue-600">receipt_long</span>
-Dernières Ventes
-</h3>
+<h3 class="font-semibold mb-4 label">Dernières Ventes</h3>
 
 {% for vente in ventes_recentes %}
-
-<div class="flex justify-between items-center border-b py-2">
-
-<span class="font-medium label">
-{{ vente.numero_facture }}
-</span>
-
+<div class="flex justify-between border-b py-2">
+<span class="label">{{ vente.numero_facture }}</span>
 <span class="text-green-600 font-bold">
 {{ vente.montant_total|intcomma }} {{ magasin.devise }}
 </span>
-
 </div>
-
-{% empty %}
-
-<p class="label">
-Aucune vente
-</p>
-
 {% endfor %}
-
 </div>
 
-
-<!-- PRODUITS EXPIRES -->
+<!-- EXPIRÉS -->
 <div class="card p-6 shadow border border-red-200">
-
-<h3 class="font-semibold mb-4 text-red-700 flex items-center gap-2">
-<span class="material-icons text-red-600">warning</span>
-Produits expirés
-</h3>
+<h3 class="font-semibold mb-4 text-red-700">Produits expirés</h3>
 
 {% for produit in produits_expires %}
-
-<div class="flex justify-between items-center border-b py-2">
-
-<span class="font-medium">
-{{ produit.nom }}
-</span>
-
-<span class="text-xs font-bold px-2 py-1 rounded bg-red-600 text-white">
-Expiré
-</span>
-
-</div>
-
-{% empty %}
-
-<p class="label">
-Aucun produit expiré
-</p>
-
-{% endfor %}
-
-</div>
-
-</div>
-
-
-<!-- ===================== -->
-<!-- NOUVEAUX WIDGETS -->
-<!-- ===================== -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-
-<!-- TOP CAISSIERS -->
-<div class="card p-6 shadow">
-
-<h3 class="font-semibold mb-4 label">
-Top Caissiers (Aujourd'hui)
-</h3>
-
-{% for caissier in top_caissiers %}
-
 <div class="flex justify-between border-b py-2">
-
-<span class="label">
-{{ caissier.cree_par__first_name }}
-{{ caissier.cree_par__last_name }}
-</span>
-
-<span class="font-bold text-green-600">
-{{ caissier.total_ventes }} ventes
-</span>
-
-</div>
-
-{% empty %}
-
-<p class="label">Aucune donnée</p>
-
-{% endfor %}
-
-</div>
-
-
-<!-- PRODUITS EXPIRATION -->
-<div class="card p-6 shadow">
-
-<h3 class="font-semibold mb-4 text-red-600">
-Produits bientôt expirés
-</h3>
-
-{% for produit in produits_expiration %}
-
-<div class="flex justify-between border-b py-2">
-
 <span>{{ produit.nom }}</span>
-
-<span class="text-red-600 font-bold">
-{{ produit.date_expiration }}
-</span>
-
+<span class="text-red-600 font-bold">Expiré</span>
 </div>
-
-{% empty %}
-
-<p class="label">
-Aucun produit proche expiration
-</p>
-
 {% endfor %}
-
-</div>
-
-
-<!-- STOCK FAIBLE -->
-<div class="card p-6 shadow">
-
-<h3 class="font-semibold mb-4 text-red-600">
-Stock Critique
-</h3>
-
-{% for produit in produits_stock_faible %}
-
-<div class="flex justify-between border-b py-2">
-
-<span>{{ produit.nom }}</span>
-
-<span class="text-red-600 font-bold">
-{{ produit.quantite_stock }}
-</span>
-
-</div>
-
-{% empty %}
-
-<p class="label">
-Stock OK
-</p>
-
-{% endfor %}
-
 </div>
 
 </div>
-
 
 <!-- ===================== -->
 <!-- GRAPHIQUE -->
 <!-- ===================== -->
-<div class="card p-6 shadow">
-
-<h3 class="font-semibold mb-4 label">
-Chiffre d'affaires 6 derniers mois
-</h3>
-
+<div class="bg-white label:bg-gray-800 p-6 rounded-2xl shadow">
+<h3 class="font-semibold mb-4 label">Chiffre d'affaires 6 mois</h3>
 <canvas id="ventesChart"></canvas>
-
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-
 new Chart(document.getElementById('ventesChart'), {
-
-type: 'line',
-
-data: {
-
-labels: {{ chart_labels|safe }},
-
-datasets: [
-
-{
-
-data: {{ chart_data|safe }},
-
-borderColor: '#16a34a',
-
-backgroundColor: 'rgba(22,163,74,0.1)',
-
-fill: true,
-
-tension: 0.4
-
-}
-
-]
-
-},
-
-options: {
-
-plugins: { legend: { display: false } },
-
-responsive: true
-
-}
-
+    type: 'line',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+            data: {{ chart_data|safe }},
+            borderColor: '#16a34a',
+            backgroundColor: 'rgba(22,163,74,0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        responsive: true
+    }
 });
-
 </script>
 
 {% endblock %}
