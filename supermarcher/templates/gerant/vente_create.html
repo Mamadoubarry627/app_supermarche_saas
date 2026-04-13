@@ -20,8 +20,8 @@
         </div>
     {% endif %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 card rounded-2xl shadow-lg p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div class="lg:col-span-2 card rounded-2xl shadow-lg p-6 flex flex-col">
             <h2 class="text-2xl font-bold mb-4 label">
                 Produits
             </h2>
@@ -33,10 +33,8 @@
                 class="w-full mb-4 p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
             >
 
-            <div
-                class="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[65vh] overflow-y-auto"
-                id="produits-container"
-            >
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1" id="produits-container">
+
                 {% for produit in produits_disponibles %}
                     <div
                         onclick="
@@ -67,9 +65,18 @@
         </div>
 
         <div class="card rounded-2xl shadow-lg p-6 flex flex-col">
-            <h2 class="text-2xl font-bold mb-4 label">
-                🧾 Panier
-            </h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold label flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="inline-block">
+                        <path fill="currentColor" d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2zm2 4v2h6V7H9zm0 4v2h6v-2H9z"/>
+                    </svg>
+                    Panier
+                </h2>
+
+                <!-- 🔥 Mini preview panier -->
+                <div id="panierPreview" class="text-xs text-gray-600 label:text-gray-300 flex gap-2 flex-wrap max-w-[50%] justify-end">
+                </div>
+            </div>
 
             <form method="post" class="flex flex-col h-full" id="venteForm">
                 {% csrf_token %}
@@ -165,7 +172,10 @@
         <div id="printModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div class="bg-white label:bg-gray-800 p-8 rounded-2xl shadow-2xl w-96 text-center">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 label:text-white">
-                    🧾 Vente enregistrée !
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="inline-block">
+                        <path fill="currentColor" d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2zm2 4v2h6V7H9zm0 4v2h6v-2H9z"/>
+                    </svg>
+                    Vente enregistrée !
                 </h2>
                 <p class="text-gray-600 label:text-gray-300 mb-6">
                     Voulez-vous imprimer le reçu maintenant ?
@@ -362,6 +372,10 @@
                 index++;
             });
 
+            renderPanierPreview();
+            
+            adjustProduitsHeight();
+
             const remise = parseFloat(document.getElementById("remiseInput").value) || 0;
             const total = sousTotal + montantTVA - remise;
 
@@ -432,6 +446,7 @@
                 const nom = div.querySelector("p.font-semibold").innerText.toLowerCase();
                 div.classList.toggle("hidden", !nom.includes(filter));
             });
+            adjustProduitsHeight();
         });
 
         const barcodeInput = document.getElementById("barcodeInput");
@@ -610,4 +625,48 @@ function connectWebSocket() {
     console.warn("⚠️ Utilisateur non authentifié, WebSocket non ouvert");
 </script>
 {% endif %}
+<script>
+function renderPanierPreview() {
+    const preview = document.getElementById("panierPreview");
+    preview.innerHTML = "";
+
+    Object.values(panier).forEach(item => {
+        const span = document.createElement("span");
+        span.className = "bg-blue-100 label:bg-gray-700 px-2 py-1 rounded-lg";
+        span.innerText = item.nom;
+        preview.appendChild(span);
+    });
+}
+
+// ✅ ICI EXACTEMENT
+window.addEventListener("load", adjustProduitsHeight);
+window.addEventListener("resize", adjustProduitsHeight);
+
+function adjustProduitsHeight() {
+    const container = document.getElementById("produits-container");
+    if (!container) return; // sécurité
+
+    // reset
+    container.classList.remove("scrollable");
+    container.style.maxHeight = "none";
+
+    const rect = container.getBoundingClientRect();
+    const availableHeight = window.innerHeight - rect.top - 40;
+
+    if (container.scrollHeight > availableHeight) {
+        container.style.maxHeight = availableHeight + "px";
+        container.classList.add("scrollable");
+    }
+}
+</script>
+<style>
+#produits-container {
+    overflow: visible;
+}
+
+/* Scroll uniquement si nécessaire */
+#produits-container.scrollable {
+    overflow-y: auto;
+}
+</style>
 {% endblock %}
