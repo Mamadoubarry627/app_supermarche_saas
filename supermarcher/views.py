@@ -2549,10 +2549,14 @@ from .models import (
 # =======================================
 # DASHBOARD GLOBAL (Page complète)
 # =======================================
-class DashboardGlobalView(View):
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class DashboardGlobalView(LoginRequiredMixin, View):
     template_name = "gerant/rapports.html"
 
     def get(self, request):
+        user = request.user
+        role = getattr(user, 'role', None)
         magasin_id = request.GET.get('magasin')
         utilisateur_id = request.GET.get('utilisateur')
         date_debut = request.GET.get('date_debut')
@@ -2561,7 +2565,7 @@ class DashboardGlobalView(View):
 
         user_magasin = getattr(request.user, 'magasin', None)
 
-        if request.user.role == 'SUPERADMIN' and magasin_id:
+        if role == 'SUPERADMIN' and magasin_id:
             magasin = Magasin.objects.filter(id=magasin_id).first()
         else:
             magasin = user_magasin
@@ -2581,14 +2585,14 @@ class DashboardGlobalView(View):
             mouvements = mouvements.filter(magasin=magasin)
 
         # Filtrage par rôle
-        if request.user.role == 'CAISSIER':
+        if role == 'CAISSIER':
             ventes = ventes.filter(cree_par=request.user)
             achats = achats.filter(cree_par=request.user)
             mouvements = mouvements.filter(cree_par=request.user)
 
         # Filtrage par formulaire pour gérants/SUPERADMIN
         utilisateur_id = request.GET.get('utilisateur')
-        if utilisateur_id and request.user.role != 'CAISSIER':
+        if utilisateur_id and role != 'CAISSIER':
             ventes = ventes.filter(cree_par_id=utilisateur_id)
             achats = achats.filter(cree_par_id=utilisateur_id)
             mouvements = mouvements.filter(cree_par_id=utilisateur_id)
@@ -2617,7 +2621,7 @@ class DashboardGlobalView(View):
             mouvements = mouvements.filter(date_creation__lte=fin)
         
         
-        if request.user.role == 'SUPERADMIN':
+        if role == 'SUPERADMIN':
             magasins_list = Magasin.objects.all()
         else:
             magasins_list = Magasin.objects.filter(id=user_magasin.id) if user_magasin else Magasin.objects.none()

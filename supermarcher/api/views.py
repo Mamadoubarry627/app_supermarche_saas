@@ -124,9 +124,36 @@ class MeAPIView(APIView):
             "magasin_id": user.magasin.id if user.magasin else None,  # ✅ AJOUT
         })
     
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_datetime
+
 class ThemeMagasinView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, magasin_id):
-        theme = ThemeMagasin.objects.get(magasin_id=magasin_id)
-        serializer = ThemeMagasinSerializer(theme)
-        return Response(serializer.data)
+        theme = get_object_or_404(ThemeMagasin, magasin_id=magasin_id)
+
+        client_last = request.GET.get("last_updated")
+
+        # 🔥 Si le client a déjà une version
+        if client_last:
+            client_date = parse_datetime(client_last)
+
+            if client_date and theme.last_updated <= client_date:
+                return Response({
+                    "changed": False
+                })
+
+        # ✅ Sinon renvoyer données
+        return Response({
+            "changed": True,
+            "data": {
+                "couleur_principale": theme.couleur_principale,
+                "mode_sombre": theme.mode_sombre,
+                "logo": theme.logo.url if theme.logo else None,
+                "last_updated": theme.last_updated.isoformat()
+            }
+        })
