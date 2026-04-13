@@ -65,17 +65,14 @@
         </div>
 
         <div class="card rounded-2xl shadow-lg p-6 flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold label flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="inline-block">
-                        <path fill="currentColor" d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2zm2 4v2h6V7H9zm0 4v2h6v-2H9z"/>
-                    </svg>
-                    Panier
-                </h2>
+            <div id="panierPreview" class="flex items-center gap-2 text-gray-700 label:text-gray-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2zm2 4v2h6V7H9zm0 4v2h6v-2H9z"/>
+                </svg>
 
-                <!-- 🔥 Mini preview panier -->
-                <div id="panierPreview" class="text-xs text-gray-600 label:text-gray-300 flex gap-2 flex-wrap max-w-[50%] justify-end">
-                </div>
+                <span id="panierCount" class="font-bold text-sm bg-blue-500 text-white px-2 py-1 rounded-full">
+                    0
+                </span>
             </div>
 
             <form method="post" class="flex flex-col h-full" id="venteForm">
@@ -627,15 +624,12 @@ function connectWebSocket() {
 {% endif %}
 <script>
 function renderPanierPreview() {
-    const preview = document.getElementById("panierPreview");
-    preview.innerHTML = "";
+    const count = Object.keys(panier).length;
+    const counter = document.getElementById("panierCount");
 
-    Object.values(panier).forEach(item => {
-        const span = document.createElement("span");
-        span.className = "bg-blue-100 label:bg-gray-700 px-2 py-1 rounded-lg";
-        span.innerText = item.nom;
-        preview.appendChild(span);
-    });
+    if (counter) {
+        counter.innerText = count;
+    }
 }
 
 // ✅ ICI EXACTEMENT
