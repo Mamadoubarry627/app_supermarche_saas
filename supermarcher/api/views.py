@@ -137,26 +137,12 @@ class ThemeMagasinView(APIView):
     def get(self, request, magasin_id):
         theme = get_object_or_404(ThemeMagasin, magasin_id=magasin_id)
 
-        client_last = request.GET.get("last_updated")
-
-        # 🔥 si client a déjà une version
-        if client_last:
-            client_date = parse_datetime(client_last)
-
-            if client_date:
-                # normalisation timezone (IMPORTANT)
-                if timezone.is_naive(client_date):
-                    client_date = timezone.make_aware(client_date)
-
-                if theme.last_updated <= client_date:
-                    return Response({"changed": False})
-
         return Response({
             "changed": True,
             "data": {
                 "couleur_principale": theme.couleur_principale,
                 "mode_sombre": theme.mode_sombre,
                 "logo": theme.logo.url if theme.logo else None,
-                "last_updated": theme.last_updated.isoformat()
+                "last_updated": timezone.now().isoformat()  # ✅ FIX
             }
         })
