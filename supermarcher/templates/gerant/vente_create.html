@@ -75,23 +75,34 @@
 
                 <div id="panierPreview" class="relative flex items-center gap-2 cursor-pointer select-none">
     
-                    <!-- Icône panier -->
-                    <div class="relative">
-                        <svg id="cartIcon" xmlns="http://www.w3.org/2000/svg"
-                            width="26" height="26" viewBox="0 0 24 24"
-                            class="text-gray-700 label:text-gray-200 transition-transform duration-200">
-                            <path fill="currentColor"
-                                d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2zm2 4v2h6V7H9zm0 4v2h6v-2H9z"/>
-                        </svg>
+    <!-- Icône panier -->
+    <div class="relative">
+        <svg id="cartIcon" xmlns="http://www.w3.org/2000/svg"
+            width="26" height="26" viewBox="0 0 24 24"
+            class="text-gray-700 label:text-gray-200 transition-transform duration-200">
 
-                        <!-- Badge compteur -->
-                        <span id="panierCount"
-                            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold
-                                w-5 h-5 flex items-center justify-center rounded-full
-                                shadow-md transition-all duration-300">
-                            0
-                        </span>
-                    </div>
+            <!-- Panier réaliste -->
+            <path fill="currentColor"
+                d="M7 6h-2l-1 2v2h2l2 9a2 2 0 0 0 2 1h6a2 2 0 0 0 2-1l2-9h2v-2l-1-2h-2"/>
+            
+            <!-- poignée -->
+            <path fill="currentColor"
+                d="M9 6a3 3 0 0 1 6 0h-2a1 1 0 0 0-2 0H9z"/>
+            
+            <!-- lignes du panier -->
+            <path fill="currentColor"
+                d="M9 12h6v1H9zm0 3h6v1H9z"/>
+        </svg>
+
+        <!-- Badge compteur -->
+        <span id="panierCount"
+            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold
+                w-5 h-5 flex items-center justify-center rounded-full
+                shadow-md transition-all duration-300">
+            0
+        </span>
+    </div>
+</div>
 
                 </div>
             </div>
