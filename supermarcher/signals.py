@@ -45,6 +45,8 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .models import ThemeMagasin
 
+from django.utils import timezone
+
 @receiver(post_save, sender=ThemeMagasin)
 def send_theme_update(sender, instance, **kwargs):
     channel_layer = get_channel_layer()
@@ -53,7 +55,7 @@ def send_theme_update(sender, instance, **kwargs):
         "couleur_principale": instance.couleur_principale,
         "mode_sombre": instance.mode_sombre,
         "logo": instance.logo.url if instance.logo else None,
-        "last_updated": instance.last_updated.isoformat()
+        "last_updated": timezone.now().isoformat()  # ✅ FIX ICI
     }
 
     async_to_sync(channel_layer.group_send)(
