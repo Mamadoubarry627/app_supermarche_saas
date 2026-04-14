@@ -13,12 +13,11 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 
 # market/asgi.py
 import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "market.settings")
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 from accounts.middleware import JWTAuthMiddleware
 from supermarcher.api import routing
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "market.settings")
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
