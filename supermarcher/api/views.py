@@ -129,6 +129,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_datetime
+from django.utils import timezone
 
 class ThemeMagasinView(APIView):
     permission_classes = [IsAuthenticated]
@@ -138,16 +139,18 @@ class ThemeMagasinView(APIView):
 
         client_last = request.GET.get("last_updated")
 
-        # 🔥 Si le client a déjà une version
+        # 🔥 si client a déjà une version
         if client_last:
             client_date = parse_datetime(client_last)
 
-            if client_date and theme.last_updated <= client_date:
-                return Response({
-                    "changed": False
-                })
+            if client_date:
+                # normalisation timezone (IMPORTANT)
+                if timezone.is_naive(client_date):
+                    client_date = timezone.make_aware(client_date)
 
-        # ✅ Sinon renvoyer données
+                if theme.last_updated <= client_date:
+                    return Response({"changed": False})
+
         return Response({
             "changed": True,
             "data": {

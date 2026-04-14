@@ -38,3 +38,28 @@ def log_action(action, modele, utilisateur=None, objet_id=None, description="", 
         login_status=login_status
     )
     
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from .models import ThemeMagasin
+
+@receiver(post_save, sender=ThemeMagasin)
+def send_theme_update(sender, instance, **kwargs):
+    channel_layer = get_channel_layer()
+
+    data = {
+        "couleur_principale": instance.couleur_principale,
+        "mode_sombre": instance.mode_sombre,
+        "logo": instance.logo.url if instance.logo else None,
+        "last_updated": instance.last_updated.isoformat()
+    }
+
+    async_to_sync(channel_layer.group_send)(
+        f"theme_{instance.magasin.id}",
+        {
+            "type": "theme_update",
+            "data": data
+        }
+    )
