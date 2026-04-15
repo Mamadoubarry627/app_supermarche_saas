@@ -64,46 +64,49 @@
             </div>
         </div>
 
-        <div class="card rounded-2xl shadow-lg p-6 flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold label flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" class="inline-block">
-                        <path fill="currentColor" d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2zm2 4v2h6V7H9zm0 4v2h6v-2H9z"/>
-                    </svg>
-                    Panier
-                </h2>
+<div class="card rounded-2xl shadow-lg p-6 flex flex-col">
+    <div class="flex justify-between items-center mb-4">
 
-                <div id="panierPreview" class="relative flex items-center gap-2 cursor-pointer select-none">
-    
-                    <!-- Icône panier -->
-                    <div class="relative">
-                        <svg id="cartIcon" xmlns="http://www.w3.org/2000/svg"
-                            width="26" height="26" viewBox="0 0 24 24"
-                            class="text-gray-700 label:text-gray-200 transition-transform duration-200">
+        <!-- GAUCHE : icône + texte -->
+        <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor"
+                    d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2z"/>
+            </svg>
 
-                            <!-- Panier réaliste -->
-                            <path fill="currentColor"
-                                d="M7 6h-2l-1 2v2h2l2 9a2 2 0 0 0 2 1h6a2 2 0 0 0 2-1l2-9h2v-2l-1-2h-2"/>
-                            
-                            <!-- poignée -->
-                            <path fill="currentColor"
-                                d="M9 6a3 3 0 0 1 6 0h-2a1 1 0 0 0-2 0H9z"/>
-                            
-                            <!-- lignes du panier -->
-                            <path fill="currentColor"
-                                d="M9 12h6v1H9zm0 3h6v1H9z"/>
-                        </svg>
+            <h2 class="text-2xl font-bold label">
+                Panier
+            </h2>
+        </div>
 
-                        <!-- Badge compteur -->
-                        <span id="panierCount"
-                            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold
-                                w-5 h-5 flex items-center justify-center rounded-full
-                                shadow-md transition-all duration-300">
-                            0
-                        </span>
+        <!-- DROITE : panier + badge -->
+        <div id="panierPreview" class="relative flex items-center cursor-pointer select-none">
 
-                </div>
+            <div class="relative">
+                <svg id="cartIcon" xmlns="http://www.w3.org/2000/svg"
+                    width="26" height="26" viewBox="0 0 24 24"
+                    class="text-gray-700 label:text-gray-200 transition-transform duration-200">
+
+                    <path fill="currentColor"
+                        d="M7 6h13l-1.5 7.5a2 2 0 0 1-2 1.5H10a2 2 0 0 1-2-1.5L6 4H3V2h4l1 4z"/>
+
+                    <circle cx="10" cy="20" r="1.5" fill="currentColor"/>
+                    <circle cx="17" cy="20" r="1.5" fill="currentColor"/>
+                </svg>
+
+                <!-- badge -->
+                <span id="panierCount"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold
+                        w-5 h-5 flex items-center justify-center rounded-full
+                        shadow-md transition-all duration-300">
+                    0
+                </span>
             </div>
+        </div>
+
+    </div>
+</div>
 
             <form method="post" class="flex flex-col h-full" id="venteForm">
                 {% csrf_token %}
