@@ -20,8 +20,8 @@
         </div>
     {% endif %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch min-h-[80vh]">
-        <div class="lg:col-span-2 card rounded-2xl shadow-lg p-6 flex flex-col h-full">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[80vh] items-stretch">
+        <div class="lg:col-span-2 card rounded-2xl shadow-lg p-6 flex flex-col self-stretch">
             <h2 class="text-2xl font-bold mb-4 label">
                 Produits
             </h2>
@@ -33,7 +33,7 @@
                 class="w-full mb-4 p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
             >
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1" id="produits-container">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 items-start content-start" id="produits-container">
 
                 {% for produit in produits_disponibles %}
                     <div
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-<div class="card rounded-2xl shadow-lg p-6 flex flex-col h-full">
+<div class="card rounded-2xl shadow-lg p-6 flex flex-col self-stretch">
     <div class="flex justify-between items-center mb-4">
 
         <!-- GAUCHE : icône + texte -->
