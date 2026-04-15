@@ -20,8 +20,8 @@
         </div>
     {% endif %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        <div class="lg:col-span-2 card rounded-2xl shadow-lg p-6 flex flex-col">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch min-h-[80vh]">
+        <div class="lg:col-span-2 card rounded-2xl shadow-lg p-6 flex flex-col h-full">
             <h2 class="text-2xl font-bold mb-4 label">
                 Produits
             </h2>
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-<div class="card rounded-2xl shadow-lg p-6 flex flex-col">
+<div class="card rounded-2xl shadow-lg p-6 flex flex-col h-full">
     <div class="flex justify-between items-center mb-4">
 
         <!-- GAUCHE : icône + texte -->
@@ -692,8 +692,8 @@ function animateCartAdd() {
 }
 
 // ✅ ICI EXACTEMENT
-window.addEventListener("load", adjustProduitsHeight);
-window.addEventListener("resize", adjustProduitsHeight);
+//window.addEventListener("load", adjustProduitsHeight);
+//window.addEventListener("resize", adjustProduitsHeight);
 
 function adjustProduitsHeight() {
     const container = document.getElementById("produits-container");
