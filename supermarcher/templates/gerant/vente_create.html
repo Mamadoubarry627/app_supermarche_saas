@@ -663,7 +663,9 @@ function connectWebSocket() {
 {% endif %}
 <script>
 function renderPanierPreview() {
-    const count = Object.keys(panier).length;
+    const count = Object.values(panier).reduce((total, item) => {
+    return total + (item.quantite || 0);
+        }, 0);
     const badge = document.getElementById("panierCount");
     const icon = document.getElementById("cartIcon");
 
