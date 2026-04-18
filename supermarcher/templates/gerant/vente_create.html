@@ -111,21 +111,21 @@
                     </div>
                 {% endif %}
 
-                <div class="mt-4 mb-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
-                    p-4 rounded-2xl shadow-lg flex justify-between items-center">
+                <div class="mt-2 mb-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
+            p-4 rounded-2xl shadow-lg flex justify-between items-center">
 
-                <div class="flex flex-col">
-                    <span class="text-sm opacity-80">Total à payer</span>
-                    <span class="text-xl font-bold tracking-wide">TOTAL</span>
-                </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm opacity-80">Total à payer</span>
+                        <span class="text-xl font-bold tracking-wide">TOTAL</span>
+                    </div>
 
-                <div class="text-right min-w-0">
-                    <span id="total" class="text-2xl font-extrabold whitespace-nowrap">
-                        0 {{ magasin.devise }}
-                    </span>
+                    <div class="text-right min-w-0">
+                        <span id="total" class="text-2xl font-extrabold whitespace-nowrap">
+                            0 {{ magasin.devise }}
+                        </span>
+                    </div>
+
                 </div>
-                </div>
-            </div>
 
                 <div id="panier" class="space-y-3 flex-1 overflow-y-auto mb-4 pr-1"></div>
                 <input type="hidden" name="panier_data" id="panier_data">
