@@ -64,10 +64,11 @@
             </div>
         </div>
 
-<div class="card rounded-2xl shadow-lg p-6 flex flex-col self-stretch">
-    <div class="flex justify-between items-center mb-4">
+<div class="card rounded-2xl shadow-lg p-0 flex flex-col self-stretch overflow-hidden">
 
-        <!-- GAUCHE : icône + texte -->
+    <!-- HEADER -->
+    <div class="flex justify-between items-center p-4 border-b">
+
         <div class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24" width="24" height="24">
@@ -75,14 +76,13 @@
                     d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2z"/>
             </svg>
 
-            <h2 class="text-2xl font-bold label">
+            <h2 class="text-xl font-bold label">
                 Panier
             </h2>
         </div>
 
-        <!-- DROITE : panier + badge -->
+        <!-- ICON + BADGE -->
         <div id="panierPreview" class="relative flex items-center cursor-pointer select-none">
-
             <div class="relative">
                 <svg id="cartIcon" xmlns="http://www.w3.org/2000/svg"
                     width="26" height="26" viewBox="0 0 24 24"
@@ -95,99 +95,108 @@
                     <circle cx="17" cy="20" r="1.5" fill="currentColor"/>
                 </svg>
 
-                <!-- badge -->
                 <span id="panierCount"
                     class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold
-                        w-5 h-5 flex items-center justify-center rounded-full
-                        shadow-md transition-all duration-300">
+                        w-5 h-5 flex items-center justify-center rounded-full shadow-md">
                     0
                 </span>
             </div>
         </div>
-
     </div>
 
-            <form method="post" class="flex flex-col h-full" id="venteForm">
-                {% csrf_token %}
+    <form method="post" class="flex flex-col h-full" id="venteForm">
+        {% csrf_token %}
 
-                {% if error %}
-                    <div class="mb-4 p-3 rounded bg-red-100 text-red-700 font-semibold">
-                        ⚠️ {{ error }}
-                    </div>
-                {% endif %}
+        {% if error %}
+            <div class="m-4 p-3 rounded bg-red-100 text-red-700 font-semibold">
+                ⚠️ {{ error }}
+            </div>
+        {% endif %}
 
-                <div class="mb-4">
-                    <label class="text-sm label">
-                        Nom du client (optionnel)
-                    </label>
-                    <input
-                        type="text"
-                        name="client_nom"
-                        value="{{ form.client_nom.value|default:'' }}"
-                        class="text-gray-700 w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
-                        placeholder="Ex: Prénom Nom"
-                    >
+        <!-- 🔥 TOTAL STICKY -->
+        <div class="sticky top-0 bg-white label:bg-gray-900 z-10 p-4 border-b shadow-sm">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-xs label">Articles</p>
+                    <p id="totalItems" class="text-lg font-bold label">0</p>
                 </div>
 
-                <div id="panier" class="space-y-3 flex-1 overflow-y-auto mb-4 pr-1"></div>
-                <input type="hidden" name="panier_data" id="panier_data">
-
-                <div class="mb-4">
-                    <label class="text-sm font-semibold label">
-                        Remise
-                    </label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value="0"
-                        id="remiseInput"
-                        oninput="renderPanier()"
-                        class="text-gray-700 w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
-                    >
+                <div class="text-right">
+                    <p class="text-xs label">Total</p>
+                    <p id="totalSticky" class="text-2xl font-bold text-green-600">
+                        0 {{ magasin.devise }}
+                    </p>
                 </div>
-
-                <div class="border-t pt-4 mt-auto space-y-3">
-                    <div class="flex justify-between">
-                        <span class="font-medium label">Sous-total</span>
-                        <span id="sousTotal" class="label">0 {{ magasin.devise }}</span>
-                    </div>
-
-                    <div class="flex justify-between font-bold text-lg label">
-                        <span>Total</span>
-                        <span id="total" class="label">0 {{ magasin.devise }}</span>
-                    </div>
-
-                    <input type="hidden" name="sous_total" id="hiddenSousTotal">
-                    <input type="hidden" name="montant_total" id="hiddenTotal">
-                    <input type="hidden" name="remise" id="hiddenRemise">
-
-                    <div class="mt-4">
-                        <label class="text-sm font-semibold label">
-                            Mode de paiement
-                        </label>
-                        <select
-                            name="mode_paiement"
-                            class="text-gray-700 w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
-                        >
-                            <option value="ESPECES">Espèces</option>
-                            <option value="ORANGE_MONEY">Orange Money</option>
-                            <option value="WAVE">Wave</option>
-                        </select>
-                    </div>
-
-                    <button
-                        type="submit"
-                        id="validerBtn"
-                        class="w-full mt-6 btn-main hover:btn-main p-3 rounded-2xl text-lg font-semibold transition duration-200"
-                    >
-                        ✅ Valider la Vente
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
 
+        <!-- 🛒 PANIER -->
+        <div id="panier"
+            class="flex-1 overflow-y-auto p-4 space-y-3">
+        </div>
+
+        <input type="hidden" name="panier_data" id="panier_data">
+
+        <!-- 🔽 BAS FIXE -->
+        <div class="border-t p-4 space-y-3 bg-white label:bg-gray-900">
+
+            <!-- CLIENT -->
+            <input
+                type="text"
+                name="client_nom"
+                value="{{ form.client_nom.value|default:'' }}"
+                placeholder="Client (optionnel)"
+                class="text-gray-700 w-full p-2 rounded-lg border border-gray-300 label:border-gray-700 text-sm"
+            >
+
+            <!-- REMISE -->
+            <input
+                type="number"
+                step="0.01"
+                min="0"
+                value="0"
+                id="remiseInput"
+                oninput="renderPanier()"
+                placeholder="Remise"
+                class="text-gray-700 w-full p-2 rounded-lg border border-gray-300 label:border-gray-700 text-sm"
+            >
+
+            <!-- TOTALS -->
+            <div class="flex justify-between text-sm">
+                <span class="label">Sous-total</span>
+                <span id="sousTotal" class="label">0 {{ magasin.devise }}</span>
+            </div>
+
+            <div class="flex justify-between font-bold text-lg label">
+                <span>Total</span>
+                <span id="total" class="label">0 {{ magasin.devise }}</span>
+            </div>
+
+            <input type="hidden" name="sous_total" id="hiddenSousTotal">
+            <input type="hidden" name="montant_total" id="hiddenTotal">
+            <input type="hidden" name="remise" id="hiddenRemise">
+
+            <!-- PAIEMENT -->
+            <select
+                name="mode_paiement"
+                class="text-gray-700 w-full p-2 rounded-lg border border-gray-300 label:border-gray-700 text-sm"
+            >
+                <option value="ESPECES">Espèces</option>
+                <option value="ORANGE_MONEY">Orange Money</option>
+                <option value="WAVE">Wave</option>
+            </select>
+
+            <!-- BOUTON -->
+            <button
+                type="submit"
+                id="validerBtn"
+                class="w-full mt-2 btn-main p-3 rounded-xl text-lg font-semibold transition duration-200"
+            >
+                ✅ Valider la Vente
+            </button>
+        </div>
+    </form>
+</div>
     <div id="notifications" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
     <input
@@ -405,6 +414,12 @@
             animateCartAdd();
             
             adjustProduitsHeight();
+
+            document.getElementById("totalSticky").innerText =
+                `${total.toLocaleString()} {{ magasin.devise }}`;
+
+            document.getElementById("totalItems").innerText =
+                Object.keys(panier).length;
 
             const remise = parseFloat(document.getElementById("remiseInput").value) || 0;
             const total = sousTotal + montantTVA - remise;
@@ -711,6 +726,25 @@ function adjustProduitsHeight() {
         container.classList.add("scrollable");
     }
 }
+
+document.addEventListener("keydown", function(e) {
+    const active = document.activeElement;
+    const isTyping =
+        active.tagName === "INPUT" ||
+        active.tagName === "TEXTAREA" ||
+        active.tagName === "SELECT";
+
+    if (e.key === "Enter" && !isTyping) {
+        e.preventDefault();
+
+        const btn = document.getElementById("validerBtn");
+
+        if (!btn.disabled) {
+            btn.click();
+        }
+    }
+});
+
 </script>
 <style>
 #produits-container {
