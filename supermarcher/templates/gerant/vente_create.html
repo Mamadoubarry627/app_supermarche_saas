@@ -69,11 +69,6 @@
 
         <!-- GAUCHE : icône + texte -->
         <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24" width="24" height="24">
-                <path fill="currentColor"
-                    d="M7 3h10a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V5a2 2 0 0 1 2-2z"/>
-            </svg>
 
             <h2 class="text-2xl font-bold label">
                 Panier
@@ -124,20 +119,6 @@
                 <div id="panier" class="space-y-3 flex-1 overflow-y-auto mb-4 pr-1"></div>
                 <input type="hidden" name="panier_data" id="panier_data">
 
-
-                <div class="mb-4">
-                    <label class="text-sm label">
-                        Nom du client (optionnel)
-                    </label>
-                    <input
-                        type="text"
-                        name="client_nom"
-                        value="{{ form.client_nom.value|default:'' }}"
-                        class="text-gray-700 w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
-                        placeholder="Ex: Prénom Nom"
-                    >
-                </div>
-
                 <div class="mb-4">
                     <label class="text-sm font-semibold label">
                         Remise
@@ -176,6 +157,19 @@
                             <option value="WAVE">Wave</option>
                         </select>
                     </div>
+
+                    <div class="mb-4">
+                    <label class="text-sm label">
+                        Nom du client (optionnel)
+                    </label>
+                    <input
+                        type="text"
+                        name="client_nom"
+                        value="{{ form.client_nom.value|default:'' }}"
+                        class="text-gray-700 w-full p-3 rounded-xl border border-gray-300 label:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300 label:focus:ring-blue-600"
+                        placeholder="Ex: Prénom Nom"
+                    >
+                </div>
 
                     <button
                         type="submit"
