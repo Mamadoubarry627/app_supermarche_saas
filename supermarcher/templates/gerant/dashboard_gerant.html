@@ -264,15 +264,14 @@
     </svg>
     Produits expirés
 </h3>
-
+</div>
 {% for produit in produits_expires %}
-<div class="flex justify-between border-b py-2">
+<div class="card p-6 shadow border border-red-200">
 <span class="label">{{ produit.nom }}</span>
 <span class="text-red-600 font-bold">Expiré</span>
-</div>
 {% endfor %}
-
-<div class="mt-4">
+</div>
+<div class="card p-6 shadow border border-yellow-200">
     <h3 class="flex items-center gap-2 font-semibold text-yellow-600 mb-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -291,7 +290,7 @@
     {% endfor %}
 </div>
 
-<div class="mt-4">
+<div class="card p-6 shadow border border-orange-200">
     <h3 class="flex items-center gap-2 font-semibold text-orange-600 mb-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -308,7 +307,6 @@
     {% empty %}
         <p class="label text-sm">OK</p>
     {% endfor %}
-</div>
 </div>
 
 </div>
