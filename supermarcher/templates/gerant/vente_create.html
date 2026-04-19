@@ -607,68 +607,66 @@ function connectWebSocket() {
         reconnectInterval = 2000;
     };
 
-    // 📥 Message reçu (WEBSOCKET SCAN)
     panierSocket.onmessage = function (e) {
-        console.log("📥 RAW WS:", e.data);
+  console.log("📥 RAW WS:", e.data);
 
-        try {
-            const data = JSON.parse(e.data);
-            console.log("📦 JSON PARSÉ:", data);
+  try {
+    final data = jsonDecode(e.data);
 
-            if (data.type !== "scan" || !data.id) {
-                console.warn("⚠️ Message ignoré:", data);
-                return;
-            }
+    if (data["type"] != "scan") return;
 
-            const key = data.id.toString();
+    final id = data["id"].toString();
 
-            // ❌ PRODUIT BLOQUÉ CÔTÉ BACKEND
-            if (data.success === false) {
-                showToast(`❌ ${data.message}`, "error");
-                return;
-            }
+    // ❌ PRODUIT INACTIF
+    if (data["actif"] == false) {
+      showToast("❌ Produit inactif", "error");
+      return;
+    }
 
-            // =========================
-            // AJOUT / UPDATE PANIER
-            // =========================
-            if (panier[key]) {
+    // ❌ PRODUIT EXPIRÉ (FRONT CHECK)
+    if (data["date_expiration"] != null) {
+      final exp = DateTime.parse(data["date_expiration"]);
+      final now = DateTime.now();
 
-                // ❌ STOCK MAX ATTEINT
-                if (panier[key].quantite >= panier[key].stock) {
-                    showToast(`❌ Stock insuffisant pour ${data.nom}`, "error");
-                    return;
-                }
+      if (exp.isBefore(now)) {
+        showToast("❌ Produit expiré", "error");
+        return;
+      }
+    }
 
-                panier[key].quantite += 1;
+    // ❌ STOCK VIDE
+    if ((data["stock"] ?? 0) <= 0) {
+      showToast("❌ ${data["nom"]} en rupture", "error");
+      return;
+    }
 
-            } else {
+    // 🛒 AJOUT PANIER
+    if (panier.containsKey(id)) {
+      if (panier[id]["quantite"] < panier[id]["stock"]) {
+        panier[id]["quantite"] += 1;
+      } else {
+        showToast("❌ Stock insuffisant pour ${data["nom"]}", "error");
+        return;
+      }
+    } else {
+      panier[id] = {
+        "id": data["id"],
+        "nom": data["nom"],
+        "prix": data["prix"],
+        "taux_tva": data["taux_tva"],
+        "quantite": 1,
+        "stock": data["stock"],
+      };
+    }
 
-                // ❌ STOCK VIDE
-                if (parseInt(data.stock) <= 0) {
-                    showToast(`❌ ${data.nom} en rupture de stock`, "error");
-                    return;
-                }
+    renderPanier();
+    showToast("📦 ${data["nom"]} ajouté depuis téléphone", "success");
 
-                panier[key] = {
-                    id: Number(data.id),
-                    nom: data.nom,
-                    prix: Number(data.prix),
-                    taux_tva: Number(data.taux_tva),
-                    quantite: 1,
-                    stock: Number(data.stock)
-                };
-            }
+  } catch (err) {
+    console.error("❌ JSON ERROR:", err);
+  }
+};
 
-            renderPanier();
-
-            showToast(`📦 ${data.nom} ajouté`, "success");
-
-        } catch (err) {
-            console.error("❌ JSON ERROR:", err);
-            showToast("❌ Erreur de lecture du scan", "error");
-        }
-    };
-    
     // 🔴 Fermeture
     panierSocket.onclose = function (event) {
         console.warn("🔴 WebSocket fermé");

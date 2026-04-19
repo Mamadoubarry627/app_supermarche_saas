@@ -3,91 +3,45 @@ from rest_framework.response import Response
 from rest_framework import permissions
 from supermarcher.models import Produit, ThemeMagasin
 from rest_framework.exceptions import AuthenticationFailed
-from datetime import date
 
 class ScanAPIView(APIView):
     """
     Endpoint pour scanner un produit via son code-barres.
     Retourne un status 'found' ou 'not_found' pour Flutter.
     """
-    
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         code = request.data.get("code_barre", "").strip()
-
         if not code:
-            return Response({
-                "type": "scan",
-                "success": False,
-                "reason": "missing_code",
-                "message": "Code-barres manquant"
-            }, status=400)
+            return Response({"status": "error", "detail": "Code-barres manquant"}, status=400)
 
         user = request.user
 
+        # Suppose que l'utilisateur a un magasin associé
         try:
             magasin = user.magasin
         except AttributeError:
+            return Response({"status": "error", "detail": "Utilisateur non associé à un magasin"}, status=400)
+
+        # Recherche le produit dans ce magasin
+        produit = Produit.objects.filter(magasin=magasin, code_barre=code).first()
+
+        if produit:
             return Response({
-                "type": "scan",
-                "success": False,
-                "reason": "no_store",
-                "message": "Utilisateur sans magasin"
-            }, status=400)
-
-        produit = Produit.objects.filter(
-            magasin=magasin,
-            code_barre=code
-        ).first()
-
-        # ❌ introuvable
-        if not produit:
+                "status": "found",
+                "id": produit.id,                 # ✅ AJOUT CRITIQUE
+                "nom": produit.nom,
+                "prix": str(produit.prix_vente),
+                "quantite": produit.quantite_stock,
+                "taux_tva": str(produit.taux_tva),  # (optionnel mais utile)
+                "code_barre": produit.code_barre,   # (optionnel mais clean)
+            })
+        else:
             return Response({
-                "type": "scan",
-                "success": False,
-                "reason": "not_found",
-                "message": f"Produit introuvable ({code})"
-            }, status=404)
-
-        # ❌ inactif
-        if not produit.actif:
-            return Response({
-                "type": "scan",
-                "success": False,
-                "reason": "inactive",
-                "message": "Produit inactif ❌"
-            }, status=400)
-
-        # ❌ expiré
-        if produit.date_expiration and produit.date_expiration < date.today():
-            return Response({
-                "type": "scan",
-                "success": False,
-                "reason": "expired",
-                "message": "Produit expiré ❌"
-            }, status=400)
-
-        # ❌ stock vide
-        if produit.quantite_stock <= 0:
-            return Response({
-                "type": "scan",
-                "success": False,
-                "reason": "out_of_stock",
-                "message": "Stock épuisé ❌"
-            }, status=400)
-
-        # ✅ OK
-        return Response({
-            "type": "scan",
-            "success": True,
-            "id": produit.id,
-            "nom": produit.nom,
-            "prix": float(produit.prix_vente),
-            "stock": produit.quantite_stock,
-            "taux_tva": float(produit.taux_tva),
-            "code_barre": produit.code_barre
-        })
+                "status": "not_found",
+                "detail": f"Produit introuvable pour le code-barres {code}"
+            })
 
 class ProduitListAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
