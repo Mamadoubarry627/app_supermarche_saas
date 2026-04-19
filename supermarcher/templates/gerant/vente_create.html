@@ -447,27 +447,41 @@
             }
         }
 
-        async function traiterCodeBarre(code) {
+       async function traiterCodeBarre(code) {
             if (!code) return;
 
             try {
                 const response = await fetch(`/produit/barcode/${encodeURIComponent(code)}/`);
                 const data = await response.json();
 
-                if (data.success) {
-                    ajouterProduit(
-                        data.id,
-                        data.nom,
-                        data.prix,
-                        data.taux_tva,
-                        data.stock
-                    );
-                    showToast(`📦 Produit scanné : ${data.nom}`, "success");
-                } else {
-                    showToast(`❌ Code-barres introuvable : ${code}`, "error");
+                // ❌ ERREUR BACKEND (produit refusé)
+                if (!data.success) {
+
+                    let message = data.message;
+
+                    // fallback si backend ne renvoie rien propre
+                    if (!message) {
+                        message = `❌ Produit introuvable (${code})`;
+                    }
+
+                    showToast(message, "error");
+                    return;
                 }
+
+                // ⚠️ AJOUT OK
+                ajouterProduit(
+                    data.id,
+                    data.nom,
+                    data.prix,
+                    data.taux_tva,
+                    data.stock
+                );
+
+                showToast(`📦 ${data.nom} ajouté au panier`, "success");
+
             } catch (error) {
-                showToast("❌ Erreur lors du scan du produit", "error");
+                console.error("SCAN ERROR:", error);
+                showToast("❌ Erreur lors de la lecture du code-barres", "error");
             }
         }
 
@@ -593,7 +607,7 @@ function connectWebSocket() {
         reconnectInterval = 2000;
     };
 
-    // 📥 Message reçu
+    // 📥 Message reçu (WEBSOCKET SCAN)
     panierSocket.onmessage = function (e) {
         console.log("📥 RAW WS:", e.data);
 
@@ -601,44 +615,60 @@ function connectWebSocket() {
             const data = JSON.parse(e.data);
             console.log("📦 JSON PARSÉ:", data);
 
-            if (data.type === "scan" && "id" in data) {
-                const key = data.id.toString();
+            if (data.type !== "scan" || !data.id) {
+                console.warn("⚠️ Message ignoré:", data);
+                return;
+            }
 
-                if (panier[key]) {
-                    if (panier[key].quantite < panier[key].stock) {
-                        panier[key].quantite += 1;
-                    } else {
-                        showToast(`❌ Stock insuffisant pour ${data.nom}`, "error");
-                        return;
-                    }
-                } else {
-                    if (parseInt(data.stock) > 0) {
-                        panier[key] = {
-                            id: Number(data.id),
-                            nom: data.nom,
-                            prix: Number(data.prix),
-                            taux_tva: Number(data.taux_tva),
-                            quantite: 1,
-                            stock: Number(data.stock)
-                        };
-                    } else {
-                        showToast(`❌ ${data.nom} en rupture`, "error");
-                        return;
-                    }
+            const key = data.id.toString();
+
+            // ❌ PRODUIT BLOQUÉ CÔTÉ BACKEND
+            if (data.success === false) {
+                showToast(`❌ ${data.message}`, "error");
+                return;
+            }
+
+            // =========================
+            // AJOUT / UPDATE PANIER
+            // =========================
+            if (panier[key]) {
+
+                // ❌ STOCK MAX ATTEINT
+                if (panier[key].quantite >= panier[key].stock) {
+                    showToast(`❌ Stock insuffisant pour ${data.nom}`, "error");
+                    return;
                 }
 
-                renderPanier();
-                showToast(`📦 ${data.nom} ajouté depuis téléphone`, "success");
+                panier[key].quantite += 1;
 
             } else {
-                console.warn("⚠️ Message ignoré:", data);
+
+                // ❌ STOCK VIDE
+                if (parseInt(data.stock) <= 0) {
+                    showToast(`❌ ${data.nom} en rupture de stock`, "error");
+                    return;
+                }
+
+                panier[key] = {
+                    id: Number(data.id),
+                    nom: data.nom,
+                    prix: Number(data.prix),
+                    taux_tva: Number(data.taux_tva),
+                    quantite: 1,
+                    stock: Number(data.stock)
+                };
             }
+
+            renderPanier();
+
+            showToast(`📦 ${data.nom} ajouté`, "success");
 
         } catch (err) {
             console.error("❌ JSON ERROR:", err);
+            showToast("❌ Erreur de lecture du scan", "error");
         }
     };
-
+    
     // 🔴 Fermeture
     panierSocket.onclose = function (event) {
         console.warn("🔴 WebSocket fermé");

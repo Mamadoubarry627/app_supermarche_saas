@@ -1803,8 +1803,26 @@ def produit_par_barcode(request, code):
         produit = Produit.objects.get(
             code_barre__iexact=code,
             magasin=magasin,
-            actif=True
         )
+        
+        # 🚫 BLOQUAGE CENTRAL
+        if not produit.actif:
+            return JsonResponse({
+                "success": False,
+                "message": "Produit inactif"
+            }, status=403)
+        
+        if produit.date_expiration and produit.date_expiration < date.today():
+            return JsonResponse({
+                "success": False,
+                "message": "Produit expiré ❌"
+            }, status=400)
+            
+        if produit.quantite_stock <= 0:
+            return JsonResponse({
+                "success": False,
+                "message": "Stock épuisé ❌"
+            }, status=400)
 
         return JsonResponse({
             "success": True,
