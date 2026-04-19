@@ -3,10 +3,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from channels.db import database_sync_to_async
 
-from supermarcher.models import Produit
-
-from supermarcher.models import Produit
-
 class PanierConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = self.scope.get('user')
