@@ -1032,6 +1032,53 @@ def produits_liste(request):
         produits = produits.order_by("nom")
 
     categories = Categorie.objects.filter(magasin=magasin)
+    
+    expiration = request.GET.get("expiration")
+    today = timezone.now().date()
+
+    if expiration == "expire":
+        produits = produits.filter(date_expiration__lt=today)
+
+    elif expiration == "1":
+        produits = produits.filter(
+            date_expiration__gte=today,
+            date_expiration__lte=today + timedelta(days=30)
+        )
+
+    elif expiration == "2":
+        produits = produits.filter(
+            date_expiration__gt=today + timedelta(days=30),
+            date_expiration__lte=today + timedelta(days=60)
+        )
+
+    elif expiration == "3":
+        produits = produits.filter(
+            date_expiration__gt=today + timedelta(days=60),
+            date_expiration__lte=today + timedelta(days=90)
+        )
+
+    elif expiration == "ok":
+        produits = produits.filter(
+            Q(date_expiration__isnull=True) |
+            Q(date_expiration__gt=today + timedelta(days=90))
+        )
+    
+    today = timezone.now().date()
+
+    for produit in produits:
+        produit.etat_expiration = "normal"
+
+        if produit.date_expiration:
+            jours = (produit.date_expiration - today).days
+
+            if jours < 0:
+                produit.etat_expiration = "expire"
+            elif jours <= 30:
+                produit.etat_expiration = "1_mois"
+            elif jours <= 60:
+                produit.etat_expiration = "2_mois"
+            elif jours <= 90:
+                produit.etat_expiration = "3_mois"
 
     context = {
         "produits": produits,

@@ -123,6 +123,30 @@ Produits
         </option>
     </select>
 
+    <select name="expiration" class="px-4 py-2 border rounded-lg text-gray-700">
+        <option value="">Tous</option>
+
+        <option value="expire" {% if request.GET.expiration == "expire" %}selected{% endif %}>
+            Expirés
+        </option>
+
+        <option value="1" {% if request.GET.expiration == "1" %}selected{% endif %}>
+            ≤ 1 mois
+        </option>
+
+        <option value="2" {% if request.GET.expiration == "2" %}selected{% endif %}>
+            1 - 2 mois
+        </option>
+
+        <option value="3" {% if request.GET.expiration == "3" %}selected{% endif %}>
+            2 - 3 mois
+        </option>
+
+        <option value="ok" {% if request.GET.expiration == "ok" %}selected{% endif %}>
+            OK (> 3 mois)
+        </option>
+    </select>
+
     <!-- Tri -->
     <select name="tri" class="px-4 py-2 border rounded-lg label">
         <option value="nom">Nom A-Z</option>
@@ -156,6 +180,7 @@ Produits
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Catégorie</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Prix Vente</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Stock</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">État</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actif</th>
                 <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Actions</th>
             </tr>
@@ -186,6 +211,23 @@ Produits
                         <span class="px-2 py-1 ml-2 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">
                             ⚠️ Faible
                         </span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3">
+                    {% if produit.etat_expiration == "expire" %}
+                        <span class="w-3 h-3 bg-red-500 rounded-full inline-block" title="Expiré"></span>
+
+                    {% elif produit.etat_expiration == "1_mois" %}
+                        <span class="w-3 h-3 bg-yellow-400 rounded-full inline-block" title="Expire bientôt (1 mois)"></span>
+
+                    {% elif produit.etat_expiration == "2_mois" %}
+                        <span class="w-3 h-3 bg-orange-400 rounded-full inline-block" title="Expire dans 2 mois"></span>
+
+                    {% elif produit.etat_expiration == "3_mois" %}
+                        <span class="w-3 h-3 bg-blue-400 rounded-full inline-block" title="Expire dans 3 mois"></span>
+
+                    {% else %}
+                        <span class="w-3 h-3 bg-green-500 rounded-full inline-block" title="OK"></span>
                     {% endif %}
                 </td>
                 <td class="px-4 py-3">
