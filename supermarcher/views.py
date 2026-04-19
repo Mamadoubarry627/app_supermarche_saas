@@ -1516,6 +1516,17 @@ def dashboard_gerant(request):
     chiffre_jour = ventes_jour.aggregate(
         total=Sum("montant_total")
     )["total"] or 0
+    
+    from datetime import timedelta, date
+
+    # Produits à écouler (<= 3 mois)
+    date_3_mois = date.today() + timedelta(days=90)
+
+    produits_a_ecouler = produits_queryset.filter(
+        date_expiration__isnull=False,
+        date_expiration__lte=date_3_mois,
+        date_expiration__gte=date.today()
+    ).order_by("date_expiration")[:5]
 
     # =========================
     # BENEFICE DU JOUR
@@ -1655,6 +1666,7 @@ def dashboard_gerant(request):
         "produits_expiration": produits_expiration,
         "produits_expires": produits_expires,
         "produits_stock_faible": produits_stock_faible,
+        "produits_a_ecouler": produits_a_ecouler,
         "chart_labels": json.dumps(chart_labels),
         "chart_data": json.dumps(chart_data),
         "role": user.role,

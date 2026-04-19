@@ -80,7 +80,7 @@
        class="group label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl transition text-center border hover:border-gray-400 card">
 
         <div class="flex justify-center">
-            <svg class="w-10 h-10 text-gray-700 group-hover:scale-110 transition"
+            <svg class="w-10 h-10 label group-hover:scale-110 transition"
                  viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 3h18v18H3V3zm2 16h14V5H5v14zm2-2h2v-6H7v6zm4 0h2v-9h-2v9zm4 0h2v-3h-2v3z"/>
             </svg>
@@ -213,7 +213,7 @@
 <a href="{% url 'rapports' %}"
    class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-xl text-center border hover:border-gray-400 transition card">
 
-    <svg class="w-10 h-10 mx-auto text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+    <svg class="w-10 h-10 mx-auto label" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3 3h18v18H3V3z"/>
     </svg>
 
@@ -257,14 +257,58 @@
 
 <!-- EXPIRÉS -->
 <div class="card p-6 shadow border border-red-200">
-<h3 class="font-semibold mb-4 text-red-700">Produits expirés</h3>
+<h3 class="flex items-center gap-2 font-semibold mb-4 text-red-700">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.8-2.8l-6.93-12a2 2 0 00-3.46 0l-6.93 12A2 2 0 005.07 19z" />
+    </svg>
+    Produits expirés
+</h3>
 
 {% for produit in produits_expires %}
 <div class="flex justify-between border-b py-2">
-<span>{{ produit.nom }}</span>
+<span class="label">{{ produit.nom }}</span>
 <span class="text-red-600 font-bold">Expiré</span>
 </div>
 {% endfor %}
+
+<div class="mt-4">
+    <h3 class="flex items-center gap-2 font-semibold text-yellow-600 mb-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    À écouler bientôt
+</h3>
+
+    {% for p in produits_a_ecouler %}
+        <div class="flex justify-between text-sm p-2 rounded mb-1">
+            <span class="label">{{ p.nom }}</span>
+            <span class="text-yellow-600 font-bold">{{ p.date_expiration }}</span>
+        </div>
+    {% empty %}
+        <p class="label text-sm">RAS</p>
+    {% endfor %}
+</div>
+
+<div class="mt-4">
+    <h3 class="flex items-center gap-2 font-semibold text-orange-600 mb-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z" />
+    </svg>
+    Stock faible
+</h3>
+
+    {% for p in produits_stock_faible %}
+        <div class="flex justify-between text-sm p-2 rounded mb-1">
+            <span class="label">{{ p.nom }}</span>
+            <span class="text-red-600 font-bold">{{ p.quantite_stock }}</span>
+        </div>
+    {% empty %}
+        <p class="label text-sm">OK</p>
+    {% endfor %}
+</div>
 </div>
 
 </div>
