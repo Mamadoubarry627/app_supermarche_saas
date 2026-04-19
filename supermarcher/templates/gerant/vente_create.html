@@ -589,7 +589,7 @@
     let reconnectInterval = 2000; // 2 secondes
     let maxReconnectInterval = 10000;
 
-    
+
 function connectWebSocket() {
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 
@@ -611,11 +611,6 @@ function connectWebSocket() {
 
     panierSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
-
-    if (data.status !== "found") {
-        showToast("❌ Produit introuvable", "error");
-        return;
-    }
 
     // ❌ INACTIF
     if (data.actif === false) {

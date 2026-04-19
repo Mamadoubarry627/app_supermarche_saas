@@ -1,7 +1,6 @@
 # supermarcher/api/consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from channels.db import database_sync_to_async
 
 class PanierConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -40,63 +39,18 @@ class PanierConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         print(f"[RECEIVE] user_id={getattr(self, 'user_id', 'unknown')} text_data={text_data}")
-        
         data = json.loads(text_data)
-        code = (data.get("code_barre") or "").strip()
 
-        # ❌ Code-barres vide
-        if not code:
-            await self.send(text_data=json.dumps({
-                "status": "error",
-                "detail": "Code-barres manquant"
-            }))
-            return
-
-        user = self.scope.get("user")
-
-        # 🔍 Recherche produit (async safe)
-        produit = await self.get_produit(user, code)
-
-        if produit:
-            response = {
-                "status": "found",
-                "id": produit.id,
-                "nom": produit.nom,
-                "prix": str(produit.prix_vente),
-                "quantite": produit.quantite_stock,
-                "taux_tva": str(produit.taux_tva),
-                "actif": produit.actif,
-                "date_expiration": produit.date_expiration.isoformat() if produit.date_expiration else None,
-                "code_barre": produit.code_barre,
-            }
-        else:
-            response = {
-                "status": "not_found"
-            }
-
-        # 🔁 Envoyer au groupe
+        # Redistribuer aux clients connectés
         if hasattr(self, "group_name"):
             await self.channel_layer.group_send(
                 self.group_name,
                 {
                     'type': 'panier_update',
-                    'message': response
+                    'message': data
                 }
             )
-            print(f"[RECEIVE] Message envoyé au groupe {self.group_name}: {response}")
-
-    # 🔧 Fonction DB (obligatoire pour éviter erreur async)
-    @database_sync_to_async
-    def get_produit(self, user, code):
-        try:
-            magasin = user.magasin
-        except:
-            return None
-        from supermarcher.models import Produit
-        return Produit.objects.filter(
-            magasin=magasin,
-            code_barre=code
-        ).first()
+            print(f"[RECEIVE] Message envoyé au groupe {self.group_name}: {data}")
         
     async def panier_update(self, event):
         # Envoie le message à ce client
