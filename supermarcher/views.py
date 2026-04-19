@@ -994,7 +994,6 @@ def produits_liste(request):
     categorie_id = request.GET.get("categorie")
     prix_min = request.GET.get("prix_min")
     prix_max = request.GET.get("prix_max")
-    stock_min = request.GET.get("stock_min")
     actif = request.GET.get("actif")
     alerte = request.GET.get("alerte")
     tri = request.GET.get("tri")
@@ -1012,9 +1011,6 @@ def produits_liste(request):
 
     if prix_max:
         produits = produits.filter(prix_vente__lte=prix_max)
-
-    if stock_min:
-        produits = produits.filter(quantite_stock__gte=stock_min)
 
     if actif == "1":
         produits = produits.filter(actif=True)
