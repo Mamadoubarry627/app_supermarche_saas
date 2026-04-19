@@ -35,7 +35,10 @@ class ScanAPIView(APIView):
                 "prix": str(produit.prix_vente),
                 "quantite": produit.quantite_stock,
                 "taux_tva": str(produit.taux_tva),  # (optionnel mais utile)
-                "code_barre": produit.code_barre,   # (optionnel mais clean)
+                 # ✅ AJOUTS MINIMUMS POUR FRONT
+                "actif": produit.actif,
+                "date_expiration": produit.date_expiration.isoformat() if produit.date_expiration else None,
+                "code_barre": produit.code_barre,
             })
         else:
             return Response({
