@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.utils import timezone
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
@@ -44,18 +45,32 @@ def creer_vente(*, magasin, cree_par, lignes, mode_paiement, client_nom=None, re
         quantite = int(item["quantite"])
         prix_unitaire = Decimal(item["prix_unitaire"])
 
+        # 1. magasin
+        if produit.magasin_id != magasin.id:
+            raise ValidationError(f"{produit.nom} n'appartient pas à ce magasin.")
+
+        # 2. actif
+        if not produit.actif:
+            raise ValidationError(f"{produit.nom} est inactif.")
+
+        # 3. quantité valide
         if quantite <= 0:
             raise ValidationError("La quantité doit être supérieure à 0.")
 
-        if produit.magasin_id != magasin.id:
-            raise ValidationError(
-                f"Le produit {produit.nom} n'appartient pas à ce magasin."
-            )
+        # 4. stock
+        if quantite > produit.quantite_stock:
+            raise ValidationError(f"Stock insuffisant pour {produit.nom}.")
 
-        if not produit.actif:
-            raise ValidationError(
-                f"Le produit {produit.nom} est inactif."
-            )
+        # 5. expiration
+        if produit.date_expiration:
+            jours_restants = (produit.date_expiration - timezone.now().date()).days
+
+            if jours_restants < 0:
+                raise ValidationError(f"{produit.nom} est expiré.")
+
+            # ⚠️ WARNING seulement (pas bloquer)
+            if jours_restants <= 30:
+                print(f"⚠️ {produit.nom} expire dans {jours_restants} jours")
 
         total_ligne = prix_unitaire * quantite
         tva_ligne = (total_ligne * produit.taux_tva) / Decimal("100")

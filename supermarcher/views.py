@@ -1831,10 +1831,22 @@ from .services.vente_service import creer_vente
 @transaction.atomic
 def vente_create(request):
     magasin = request.user.magasin
+    today = timezone.now().date()
+
     produits_disponibles = magasin.produits.filter(
         actif=True,
         quantite_stock__gt=0
+    ).filter(
+        Q(date_expiration__isnull=True) |
+        Q(date_expiration__gte=today)
     )
+
+    for p in produits_disponibles:
+        if p.date_expiration:
+            jours = (p.date_expiration - today).days
+            p.est_bientot_expire = 0 < jours <= 30
+        else:
+            p.est_bientot_expire = False
 
     token_data = {}
     if request.user.is_authenticated:

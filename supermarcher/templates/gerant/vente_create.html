@@ -50,12 +50,22 @@
                         "
                         class="cursor-pointer bg-blue-50 label:bg-gray-800 p-4 rounded-2xl shadow hover:bg-blue-100 label:hover:bg-gray-700 transition duration-200"
                     >
-                        <p class="font-semibold text-gray-700 label:text-white">
-                            {{ produit.nom }}
-                        </p>
+                        <div class="flex items-center justify-between">
+                            <p class="font-semibold text-gray-700 label:text-white truncate">
+                                {{ produit.nom }}
+                            </p>
+
+                            {% if produit.est_bientot_expire %}
+                                <span class="text-[10px] bg-yellow-300 text-black px-2 py-0.5 rounded opacity-70">
+                                    ⚠️
+                                </span>
+                            {% endif %}
+                        </div>
+
                         <p class="text-sm text-gray-500 label:text-gray-300">
                             {{ produit.prix_vente|intcomma }} {{ magasin.devise }}
                         </p>
+
                         <p class="text-xs text-gray-400">
                             Stock: {{ produit.quantite_stock }}
                         </p>
