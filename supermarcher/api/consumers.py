@@ -1,8 +1,11 @@
 # supermarcher/api/consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from supermarcher.models import Produit
 from channels.db import database_sync_to_async
+
+from supermarcher.models import Produit
+
+from supermarcher.models import Produit
 
 class PanierConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -86,7 +89,6 @@ class PanierConsumer(AsyncWebsocketConsumer):
             )
             print(f"[RECEIVE] Message envoyé au groupe {self.group_name}: {response}")
 
-
     # 🔧 Fonction DB (obligatoire pour éviter erreur async)
     @database_sync_to_async
     def get_produit(self, user, code):
@@ -94,7 +96,7 @@ class PanierConsumer(AsyncWebsocketConsumer):
             magasin = user.magasin
         except:
             return None
-
+        from supermarcher.models import Produit
         return Produit.objects.filter(
             magasin=magasin,
             code_barre=code
