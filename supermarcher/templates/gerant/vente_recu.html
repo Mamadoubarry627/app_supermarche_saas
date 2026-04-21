@@ -78,7 +78,7 @@
     <div>
         Date: {{ vente.date_creation|date:"d/m/Y H:i" }}<br>
         Reçu: {{ vente.numero_facture }}<br>
-        Client: Mr/Mme {{ vente.client_nom|default:"-" }}
+        Client: {{ civilite }} {{ vente.client_nom|default:"-" }}
     </div>
 
     <div class="line"></div>

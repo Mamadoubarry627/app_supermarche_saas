@@ -2205,6 +2205,7 @@ def vente_recu_html(request, vente_id):
     return render(request, "gerant/vente_recu.html", {
         "vente": vente,
         "qr_code_base64": qr_code_base64,
+        "civilite": civilite,
         "magasin": magasin
     })
     
