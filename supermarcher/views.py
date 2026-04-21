@@ -2164,11 +2164,13 @@ from .models import Vente
 def vente_recu_html(request, vente_id):
     magasin = request.user.magasin
     vente = get_object_or_404(Vente, id=vente_id, magasin=magasin)
-
+    
+    civilite = "Mr/Mme"
+    
     qr_text = f"""
         Reçu n°: {vente.numero_facture}
         Date: {vente.date_creation.strftime('%d/%m/%Y %H:%M')}
-        Client: Mr/Mme {vente.client_nom or '-'}
+        Client: {civilite} {vente.client_nom or '-'}
         Magasin: {magasin.nom}
         Adresse: {magasin.adresse or '-'}
         Tél: {magasin.telephone or '-'}
