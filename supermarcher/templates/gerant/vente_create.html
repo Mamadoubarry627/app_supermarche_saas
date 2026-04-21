@@ -551,6 +551,7 @@
         });
 
         barcodeInput.addEventListener("keydown", async function(e) {
+
             if (e.key === "Enter") {
                 e.preventDefault();
 
@@ -562,8 +563,28 @@
 
                 buffer = "";
 
-                await traiterCodeBarre(code);
-                focusBarcodeInput();
+                // ✅ CAS 1 : SCAN (code existe)
+                if (code.length > 0) {
+                    await traiterCodeBarre(code);
+                    focusBarcodeInput();
+                    return;
+                }
+
+                // ✅ CAS 2 : PAS DE SCAN → VALIDER VENTE
+                if (Object.keys(panier).length === 0) {
+                    showToast("⚠️ Panier vide", "warning");
+                    return;
+                }
+
+                const total = parseFloat(document.getElementById("hiddenTotal").value) || 0;
+
+                if (total <= 0) {
+                    showToast("⚠️ Total invalide", "warning");
+                    return;
+                }
+
+                // 🚀 SUBMIT DIRECT
+                document.getElementById("venteForm").submit();
             }
         });
 
@@ -749,43 +770,6 @@ function adjustProduitsHeight() {
         container.classList.add("scrollable");
     }
 }
-
-document.addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-
-        const active = document.activeElement;
-
-        // ❌ Si on est dans un input (remise, client, etc) → on laisse faire
-        if (active && (
-            active.tagName === "INPUT" ||
-            active.tagName === "TEXTAREA" ||
-            active.tagName === "SELECT"
-        )) {
-            return;
-        }
-
-        // ❌ Si le scanner est en train d'écrire → on ignore
-        if (buffer && buffer.length > 0) {
-            return;
-        }
-
-        // ✅ Si panier vide → rien
-        if (Object.keys(panier).length === 0) {
-            showToast("⚠️ Panier vide", "warning");
-            return;
-        }
-
-        const total = parseFloat(document.getElementById("hiddenTotal").value) || 0;
-
-        if (total <= 0) {
-            showToast("⚠️ Total invalide", "warning");
-            return;
-        }
-
-        // ✅ SUBMIT automatique
-        document.getElementById("venteForm").submit();
-    }
-});
 </script>
 <style>
 #produits-container {
