@@ -2168,7 +2168,7 @@ def vente_recu_html(request, vente_id):
     qr_text = f"""
         Reçu n°: {vente.numero_facture}
         Date: {vente.date_creation.strftime('%d/%m/%Y %H:%M')}
-        Client: {vente.client_nom or '-'}
+        Client: Mr/Mme {vente.client_nom or '-'}
         Magasin: {magasin.nom}
         Adresse: {magasin.adresse or '-'}
         Tél: {magasin.telephone or '-'}
