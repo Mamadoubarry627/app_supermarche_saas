@@ -104,38 +104,51 @@
 <!-- ===================== -->
 <!-- KPI -->
 <!-- ===================== -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
+    <!-- CHIFFRE -->
     <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-green-500 card">
         <div class="flex justify-between items-center">
             <div>
-                <p class="text-sm text-gray-400">Chiffre du jour</p>
+                <p class="text-sm text-gray-400">
+                     {% if role == "CAISSIER" %}
+                        Mon chiffre du jour
+                    {% else %}
+                        Chiffre du jour
+                    {% endif %}
+                </p>
                 <h2 class="text-2xl font-bold text-green-600 mt-2">
                     {{ chiffre_jour|intcomma }} {{ magasin.devise }}
                 </h2>
             </div>
-
             <svg class="w-8 h-8 text-green-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2l3 7h7l-5 4 2 7-7-4-7 4 2-7-5-4h7z"/>
             </svg>
         </div>
     </div>
 
+    <!-- BENEFICE -->
     <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-blue-500 card">
         <div class="flex justify-between items-center">
             <div>
-                <p class="text-sm text-gray-400">Bénéfice du jour</p>
+                <p class="text-sm text-gray-400">
+                    {% if role == "CAISSIER" %}
+                        Mon bénéfice du jour
+                    {% else %}
+                        Bénéfice du jour
+                    {% endif %}
+                </p>
                 <h2 class="text-2xl font-bold text-blue-600 mt-2">
                     {{ benefice_jour|intcomma }} {{ magasin.devise }}
                 </h2>
             </div>
-
             <svg class="w-8 h-8 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 3h18v2H3V3zm2 4h14v14H5V7z"/>
             </svg>
         </div>
     </div>
 
+    <!-- PRODUITS -->
     <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-purple-500 card">
         <div class="flex justify-between items-center">
             <div>
@@ -144,13 +157,13 @@
                     {{ produits_count }}
                 </h2>
             </div>
-
             <svg class="w-8 h-8 text-purple-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M4 4h16v4H4V4zm0 6h16v10H4V10z"/>
             </svg>
         </div>
     </div>
 
+    <!-- ALERTES STOCK -->
     <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-red-500 card">
         <div class="flex justify-between items-center">
             <div>
@@ -159,9 +172,77 @@
                     {{ alertes_stock }}
                 </h2>
             </div>
-
             <svg class="w-8 h-8 text-red-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2l10 18H2L12 2z"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- PRODUITS EXPIRES -->
+    <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-red-700 card">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-sm text-gray-400">Produits expirés</p>
+                <h2 class="text-2xl font-bold text-red-700 mt-2">
+                    {{ produits_expires_count }}
+                </h2>
+            </div>
+            <svg class="w-8 h-8 text-red-700" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 9v2m0 4h.01M5.07 19h13.86L12 5 5.07 19z"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- EXPIRATION 30 JOURS -->
+    <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-yellow-500 card">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-sm text-gray-400">Expire bientôt (30j)</p>
+                <h2 class="text-2xl font-bold text-yellow-500 mt-2">
+                    {{ produits_bientot_expires_count }}
+                </h2>
+            </div>
+            <svg class="w-8 h-8 text-yellow-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-indigo-500 card">
+        <div class="flex justify-between items-center mb-2">
+            <p class="text-sm text-gray-400">Utilisateurs</p>
+            <svg class="w-6 h-6 text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5z"/>
+            </svg>
+        </div>
+
+        <h2 class="text-2xl font-bold text-indigo-600 mb-2">
+            {{ utilisateurs_count }}
+        </h2>
+
+        <div class="text-xs label flex justify-between">
+            <span>Caissiers: {{ caissiers_count }}</span>
+            <span>Gérants: {{ gerants_count }}</span>
+        </div>
+    </div>
+
+    <div class="label:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition border-l-4 border-cyan-500 card">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-sm text-gray-400">
+                    {% if role == "CAISSIER" %}
+                        Mes ventes du jour
+                    {% else %}
+                        Ventes du jour
+                    {% endif %}
+                </p>
+                <h2 class="text-2xl font-bold text-cyan-600 mt-2">
+                    {{ nombre_ventes_jour }}
+                </h2>
+            </div>
+
+            <svg class="w-8 h-8 text-cyan-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 6h18v2H3V6zm2 4h14l-1 12H6L5 10z"/>
             </svg>
         </div>
     </div>
@@ -264,13 +345,29 @@
     </svg>
     Produits expirés
 </h3>
-</div>
 {% for produit in produits_expires %}
-<div class="card p-6 shadow border border-red-200">
+<div class="flex justify-between border-b py-2">
 <span class="label">{{ produit.nom }}</span>
 <span class="text-red-600 font-bold">Expiré</span>
+</div>
 {% endfor %}
 </div>
+
+<div class="card p-6 shadow">
+    <h3 class="font-semibold mb-4 label">Produits les plus rentables</h3>
+
+    {% for p in top_rentables %}
+    <div class="flex justify-between border-b py-2">
+        <span class="label">{{ p.produit__nom }}</span>
+        <span class="font-bold text-green-600">
+            {{ p.total_benefice|default:0|floatformat:0 }}
+        </span>
+    </div>
+    {% empty %}
+    <p class="text-sm text-gray-400">Aucune donnée</p>
+    {% endfor %}
+</div>
+
 <div class="card p-6 shadow border border-yellow-200">
     <h3 class="flex items-center gap-2 font-semibold text-yellow-600 mb-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

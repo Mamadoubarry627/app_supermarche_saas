@@ -610,7 +610,7 @@ function connectWebSocket() {
     };
 
     panierSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
+    
 
     // ❌ INACTIF
     if (data.actif === false) {

@@ -63,6 +63,33 @@ Détails du produit
                     {% endif %}
                 </p>
                 <p class="label"><span class="font-bold">Seuil d'alerte :</span> {{ produit.seuil_alerte }}</p>
+                <!-- ===================== -->
+                <!-- ETAT EXPIRATION -->
+                <!-- ===================== -->
+                <p class="label flex items-center gap-2 mt-2">
+                    <span class="font-bold">État expiration :</span>
+
+                    {% if produit.etat_expiration == "expire" %}
+                        <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                        <span class="text-red-600 font-semibold">Expiré</span>
+
+                    {% elif produit.etat_expiration == "1_mois" %}
+                        <span class="w-3 h-3 bg-yellow-400 rounded-full"></span>
+                        <span class="text-yellow-600 font-semibold">Moins de 1 mois</span>
+
+                    {% elif produit.etat_expiration == "2_mois" %}
+                        <span class="w-3 h-3 bg-orange-400 rounded-full"></span>
+                        <span class="text-orange-600 font-semibold">Moins de 2 mois</span>
+
+                    {% elif produit.etat_expiration == "3_mois" %}
+                        <span class="w-3 h-3 bg-blue-400 rounded-full"></span>
+                        <span class="text-blue-600 font-semibold">Moins de 3 mois</span>
+
+                    {% else %}
+                        <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                        <span class="text-green-600 font-semibold">OK</span>
+                    {% endif %}
+                </p>
                 <p class="label"><span class="font-bold">Actif :</span>
                     {% if produit.actif %}
                         <span class="px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100 font-semibold">Oui</span>

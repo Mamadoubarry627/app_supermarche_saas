@@ -1142,12 +1142,39 @@ def produit_modifier_ajax(request, produit_id):
 
     return JsonResponse({"success": False, "error": "Méthode non autorisée"})
 
+from datetime import date
 
 @login_required
 def produit_detail(request, pk):
     produit = get_object_or_404(Produit, pk=pk, magasin=request.user.magasin)
-    return render(request, "gerant/produit_detail.html", {"produit": produit, "magasin": request.user.magasin})
 
+    today = date.today()
+    etat_expiration = "ok"
+
+    if produit.date_expiration:
+        jours = (produit.date_expiration - today).days
+
+        if jours < 0:
+            etat_expiration = "expire"
+
+        elif jours <= 30:
+            etat_expiration = "1_mois"
+
+        elif jours <= 60:
+            etat_expiration = "2_mois"
+
+        elif jours <= 90:
+            etat_expiration = "3_mois"
+
+        else:
+            etat_expiration = "ok"
+
+    return render(request, "gerant/produit_detail.html", {
+        "produit": produit,
+        "magasin": request.user.magasin,
+        "etat_expiration": etat_expiration,
+    })
+    
 from .forms import ProduitForm
 
 from django.shortcuts import render, get_object_or_404, redirect
@@ -1528,6 +1555,20 @@ def dashboard_gerant(request):
         date_expiration__gte=date.today()
     ).order_by("date_expiration")[:5]
 
+    today = date.today()
+    dans_1_mois = today + timedelta(days=30)
+
+    # Produits expirés
+    produits_expires_count = produits_queryset.filter(
+        date_expiration__lt=today
+    ).count()
+
+    # Produits qui expirent dans 1 mois
+    produits_bientot_expires_count = produits_queryset.filter(
+        date_expiration__gte=today,
+        date_expiration__lte=dans_1_mois
+    ).count()
+
     # =========================
     # BENEFICE DU JOUR
     # =========================
@@ -1629,6 +1670,47 @@ def dashboard_gerant(request):
         quantite_stock__lte=F("seuil_alerte")
     )[:5]
 
+    # Utilisateurs du magasin
+    utilisateurs_count = Utilisateur.objects.filter(
+            magasin=magasin
+        ).count()
+        
+    caissiers_count = Utilisateur.objects.filter(
+        magasin=magasin,
+        role="CAISSIER"
+    ).count()
+
+    gerants_count = Utilisateur.objects.filter(
+        magasin=magasin,
+        role="GERANT"
+    ).count()
+    
+    if user.role == "CAISSIER":
+        ventes_jour = ventes_queryset.filter(
+            date_creation__date=today,
+            statut=Vente.Statut.COMPLETEE,
+            cree_par=user  # 🔥 seulement ses ventes
+        )
+    else:
+        ventes_jour = ventes_queryset.filter(
+            date_creation__date=today,
+            statut=Vente.Statut.COMPLETEE
+        )
+    
+    nombre_ventes_jour = ventes_jour.count()
+    
+    top_rentables = (
+        lignes_queryset
+        .filter(vente__statut=Vente.Statut.COMPLETEE)
+        .values("produit__nom")
+        .annotate(
+            total_benefice=Sum(
+                (F("prix_unitaire") - F("produit__prix_achat")) * F("quantite")
+            )
+        )
+        .order_by("-total_benefice")[:4]
+    )
+
     # =========================
     # CHART 6 MOIS
     # =========================
@@ -1666,7 +1748,14 @@ def dashboard_gerant(request):
         "produits_expiration": produits_expiration,
         "produits_expires": produits_expires,
         "produits_stock_faible": produits_stock_faible,
+        "produits_expires_count": produits_expires_count,
+        "produits_bientot_expires_count": produits_bientot_expires_count,
+        "utilisateurs_count": utilisateurs_count,
+        "caissiers_count": caissiers_count,
+        "gerants_count": gerants_count,
+        "nombre_ventes_jour": nombre_ventes_jour,
         "produits_a_ecouler": produits_a_ecouler,
+        "top_rentables": top_rentables,
         "chart_labels": json.dumps(chart_labels),
         "chart_data": json.dumps(chart_data),
         "role": user.role,
